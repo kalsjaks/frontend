@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   BloomWell PCOS — Frontend Application Logic
+   BloomWell PCOS — Frontend Application Logic (Deploy Trigger)
    Handles: State, Authentication (New/Existing Wizard),
             Multi-tab Router, Logging Modals, and RAG Backend
    ═══════════════════════════════════════════════════════════ */
