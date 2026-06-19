@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BloomWell PCOS — Premium PCOS Wellness Platform</title>
+  <meta name="description" content="Manage your PCOS symptoms, log periods, track medications, and ask AI health questions using BloomWell PCOS." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=3" />
+</head>
+<body>
+
+  <!-- Global Premium announcement scrolling ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <div class="ticker-item">An app for women to deal PCOS with grace 🌸</div>
+      <div class="ticker-item">An app for women to deal PCOS with grace 🌸</div>
+      <div class="ticker-item">An app for women to deal PCOS with grace 🌸</div>
+      <div class="ticker-item">An app for women to deal PCOS with grace 🌸</div>
+      <div class="ticker-item">An app for women to deal PCOS with grace 🌸</div>
+      <div class="ticker-item">An app for women to deal PCOS with grace 🌸</div>
+      <div class="ticker-item">An app for women to deal PCOS with grace 🌸</div>
+      <div class="ticker-item">An app for women to deal PCOS with grace 🌸</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════
+       1. AUTHENTICATION VIEW (Logged Out)
+       Premium Desktop Split-Screen Layout
+  ════════════════════════════════ -->
+  <div id="authContainer" class="auth-container">
+    <!-- Left Column: Botanical Brand Showcase -->
+    <div class="auth-left">
+      <div class="auth-left-content">
+        <div class="auth-logo-large">🌸</div>
+        <h2 class="auth-left-title">Empathetic support for your PCOS journey.</h2>
+        <p class="auth-left-subtitle">Track your bio-markers, log symptoms, and get evidence-based insights synced with your personal wellness needs.</p>
+        
+        <div class="auth-features">
+          <div class="feature-item">
+            <span class="feature-icon">📅</span>
+            <div>
+              <h4>Cycle-Synced Tracking</h4>
+              <p>Log period cycles, water intake, sleep, and physical symptoms daily.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">💬</span>
+            <div>
+              <h4>Dost AI Assistant</h4>
+              <p>Instant conversational answers backed by curated clinical research documents.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <span class="feature-icon">🔬</span>
+            <div>
+              <h4>Evidence-Based Insights</h4>
+              <p>Transparent citation system showing exactly which files were sourced for your answer.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Animated botanical gradients -->
+      <div class="auth-orb orb-pink"></div>
+      <div class="auth-orb orb-green"></div>
+    </div>
+
+    <!-- Right Column: Clean Form Panel (Swaps sub-screens) -->
+    <div class="auth-right">
+      <div class="auth-right-content">
+        
+        <!-- A. CHOICE SCREEN (New vs. Existing) -->
+        <div id="authChoiceScreen" class="auth-sub-screen">
+          <div class="auth-form-header">
+            <span class="auth-small-logo">🌸</span>
+            <h1 class="auth-form-title">BloomWell PCOS</h1>
+            <p class="auth-form-subtitle">Your cycle-syncing wellness companion</p>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:16px; margin-top:36px;">
+            <button onclick="showAuthSubScreen('new')" class="auth-btn-choice-new">New User</button>
+            <button onclick="showAuthSubScreen('existing')" class="auth-btn-choice-existing">Existing User</button>
+          </div>
+        </div>
+
+        <!-- B. LOGIN SCREEN (Existing User) -->
+        <div id="authLoginScreen" class="auth-sub-screen hidden">
+          <div class="auth-form-header">
+            <button class="auth-back-btn" onclick="showAuthSubScreen('choice')">← Back</button>
+            <h1 class="auth-form-title" style="margin-top:16px;">Log In</h1>
+            <p class="auth-form-subtitle">Enter your credentials to access your dashboard</p>
+          </div>
+          <form id="loginForm" onsubmit="handleExistingLogin(event)">
+            <div class="form-group">
+              <label for="loginUsernameInput" class="form-label">Username</label>
+              <input type="text" id="loginUsernameInput" class="form-input" placeholder="Enter your username" required />
+            </div>
+            <div class="form-group">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <label for="loginPasswordInput" class="form-label" style="margin-bottom:0;">Password</label>
+                <a href="#" onclick="showAuthSubScreen('forgot'); event.preventDefault();" class="auth-link-text">Forgot Password?</a>
+              </div>
+              <input type="password" id="loginPasswordInput" class="form-input" placeholder="Enter your password" required style="margin-top:8px;" />
+            </div>
+            <button type="submit" class="auth-btn">Log In</button>
+          </form>
+        </div>
+
+        <!-- C. SETUP SCREEN (New User Setup Wizard) -->
+        <div id="authSetupScreen" class="auth-sub-screen hidden">
+          <div class="auth-form-header">
+            <button class="auth-back-btn" onclick="showAuthSubScreen('choice')">← Back</button>
+            <h1 class="auth-form-title" style="margin-top:16px;">Welcome to PCOS Care</h1>
+            <p class="auth-form-subtitle">Let's set up your profile in 2 minutes.</p>
+          </div>
+          <form id="setupForm" onsubmit="handleNewUserSetup(event)">
+            <div class="form-group">
+              <label for="newUsernameInput" class="form-label">What's your name?</label>
+              <input type="text" id="newUsernameInput" class="form-input" placeholder="Enter your name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="newUserEmailInput" class="form-label">Email Address</label>
+              <input type="email" id="newUserEmailInput" class="form-input" placeholder="Enter your email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="newUserPasswordInput" class="form-label">Password</label>
+              <input type="password" id="newUserPasswordInput" class="form-input" placeholder="Choose a password (min 6 chars)" minlength="6" required />
+            </div>
+
+            <div class="form-group">
+              <label for="newUserAgeInput" class="form-label">Your age</label>
+              <input type="number" id="newUserAgeInput" class="form-input" placeholder="e.g. 28" min="12" max="100" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Do you have PCOS?</label>
+              <div class="chip-group single-select" id="pcosStatusGroup">
+                <button type="button" class="chip selected" onclick="selectChip(this, 'pcosStatusGroup')">Yes</button>
+                <button type="button" class="chip" onclick="selectChip(this, 'pcosStatusGroup')">Suspected</button>
+                <button type="button" class="chip" onclick="selectChip(this, 'pcosStatusGroup')">Not sure</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">What is your main goal?</label>
+              <div class="chip-group single-select" id="mainGoalGroup">
+                <button type="button" class="chip selected" onclick="selectChip(this, 'mainGoalGroup')">Track periods</button>
+                <button type="button" class="chip" onclick="selectChip(this, 'mainGoalGroup')">Manage symptoms</button>
+                <button type="button" class="chip" onclick="selectChip(this, 'mainGoalGroup')">Get pregnant</button>
+                <button type="button" class="chip" onclick="selectChip(this, 'mainGoalGroup')">Lose weight</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="newUserLangInput" class="form-label">Preferred Language</label>
+              <select id="newUserLangInput" class="form-input">
+                <option value="en">English</option>
+                <option value="es">Español</option>
+                <option value="hi">Hindi</option>
+                <option value="ar">Arabic</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-row" style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="form-label" style="margin-bottom:0; font-weight:600;">Enable Voice AI</label>
+              <label class="toggle-switch" style="display:inline-flex; align-items:center; cursor:pointer;">
+                <input type="checkbox" id="newUserVoiceInput" checked style="width:18px; height:18px; accent-color:var(--brand-pink);" />
+              </label>
+            </div>
+
+            <button type="submit" class="auth-btn">Complete Setup</button>
+          </form>
+        </div>
+
+        <!-- D. FORGOT PASSWORD SCREEN -->
+        <div id="authForgotScreen" class="auth-sub-screen hidden">
+          <div class="auth-form-header">
+            <button class="auth-back-btn" onclick="showAuthSubScreen('existing')">← Back</button>
+            <h1 class="auth-form-title" style="margin-top:16px;">Reset Password</h1>
+            <p class="auth-form-subtitle">We will send a password reset link to your email</p>
+          </div>
+          <form id="forgotForm" onsubmit="handleForgotPassword(event)">
+            <div class="form-group">
+              <label for="forgotEmailInput" class="form-label">Email Address</label>
+              <input type="email" id="forgotEmailInput" class="form-input" placeholder="Enter your registered email" required />
+            </div>
+            <button type="submit" class="auth-btn">Send Reset Link</button>
+          </form>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════
+       2. MAIN APP VIEW CONTAINER (Logged In)
+  ════════════════════════════════ -->
+  <div id="appContainer" class="hidden">
+    
+    <!-- Top sticky brand bar -->
+    <header class="app-header">
+      <div class="header-brand" onclick="switchView('home')" style="cursor: pointer;" title="Go to Home Dashboard">
+        <span class="brand-logo">🌸</span>
+        <span class="brand-name">BloomWell PCOS</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="notifBtn" onclick="triggerNotification()" aria-label="Notifications">
+          <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          <span class="notif-badge"></span>
+        </button>
+        
+        <!-- User avatar dropdown menu -->
+        <div class="profile-dropdown-wrapper" style="position: relative; display: inline-block;">
+          <div class="user-avatar-btn" id="avatarBtn" onclick="toggleProfileDropdown(event)" title="Profile Options">
+            <img id="userAvatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=100" alt="Profile" />
+          </div>
+          <div id="profileDropdown" class="profile-dropdown hidden">
+            <div class="dropdown-item" onclick="switchView('home'); closeProfileDropdown();">🏠 Home Dashboard</div>
+            <div class="dropdown-item" onclick="switchView('settings'); closeProfileDropdown();">⚙️ Profile Settings</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item logout-item" onclick="handleLogout(); closeProfileDropdown();">🚪 Logout</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main dynamic page views -->
+    <main class="views-container">
+      
+      <!-- ── A. HOME VIEW (Dashboard) ── -->
+      <div id="homeView" class="app-view active">
+        <div class="welcome-header">
+          <h2 class="welcome-title">Hello, <span class="user-display-name">Lakshmi</span></h2>
+          <p class="welcome-subtitle">Your empathetic PCOS companion is here.</p>
+        </div>
+
+        <!-- 3-column desktop layout grid -->
+        <div class="dashboard-grid">
+          
+          <!-- Column 1: Log Period -->
+          <div class="dash-card" onclick="switchView('period')">
+            <div class="card-icon-container bg-pink">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Log Period</h3>
+              <p class="card-desc" id="periodLogDesc">Last log: 28 days ago</p>
+            </div>
+            <span class="card-arrow">›</span>
+          </div>
+
+          <!-- Column 2: Detailed Check-in -->
+          <div class="dash-card" onclick="openVitalsModal()">
+            <div class="card-icon-container bg-pink">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Detailed Check-in</h3>
+              <p class="card-desc" id="vitalsLogDesc">Update your daily vitals</p>
+            </div>
+            <span class="card-arrow">›</span>
+          </div>
+
+          <!-- Column 3: Symptoms Log -->
+          <div class="dash-card" onclick="switchView('symptoms')">
+            <div class="card-icon-container bg-pink">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Symptoms Log</h3>
+              <p class="card-desc" id="symptomsLogDesc">Log your daily symptoms</p>
+            </div>
+            <span class="card-arrow">›</span>
+          </div>
+
+          <!-- Column 1: Dost AI Chat -->
+          <div class="dash-card" onclick="switchView('chat')">
+            <div class="card-icon-container bg-pink">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Dost AI Chat</h3>
+              <p class="card-desc">Ask health questions</p>
+            </div>
+            <span class="card-arrow">›</span>
+          </div>
+
+          <!-- Column 2: Lab Results -->
+          <div class="dash-card" onclick="openLabResultsModal()">
+            <div class="card-icon-container bg-pink">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10 2v7.586a1 1 0 0 1-.293.707l-4.414 4.414a2 2 0 0 0-.586 1.414V20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3.879a2 2 0 0 0-.586-1.414l-4.414-4.414A1 1 0 0 1 14 9.586V2z" />
+              </svg>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Lab Results</h3>
+              <p class="card-desc" id="labLogDesc">Log your blood work</p>
+            </div>
+            <span class="card-arrow">›</span>
+          </div>
+
+          <!-- Column 3: Medications & Supplements -->
+          <div class="dash-card" onclick="openMedicationsModal()">
+            <div class="card-icon-container bg-pink">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+            </div>
+            <div class="card-content">
+              <h3 class="card-title">Medications & Supplements</h3>
+              <p class="card-desc" id="medsLogDesc">Manage your daily dose</p>
+            </div>
+            <span class="card-arrow">›</span>
+          </div>
+
+        </div>
+
+        <!-- My Health Summary pill card centered below -->
+        <div class="summary-wrapper">
+          <div class="summary-bar" onclick="switchView('summary')">
+            <div class="summary-left">
+              <div class="summary-icon-container">
+                <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <line x1="12" y1="8" x2="12" y2="16" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
+              </div>
+              <div class="summary-text-container">
+                <h3 class="summary-title">My Health Summary</h3>
+                <p class="summary-desc">View all your aggregated data</p>
+              </div>
+            </div>
+            <span class="summary-arrow">›</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── B. CHAT VIEW (Dost AI Chat Interface) ── -->
+      <div id="chatView" class="app-view">
+        <div class="chat-container">
+          
+          <!-- Chat header -->
+          <div class="chat-header">
+            <div class="chat-header-left">
+              <div class="avatar-ring">
+                <div class="avatar">🌸</div>
+                <span class="status-dot" id="statusDot"></span>
+              </div>
+              <div class="chat-header-info">
+                <h2 class="chat-title">Dost AI Chat</h2>
+                <p class="chat-subtitle" id="chatSubtitle">Checking server connectivity…</p>
+              </div>
+            </div>
+            <div class="chat-header-right">
+              <div class="api-status">
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText">Connecting…</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Messages scroll area -->
+          <div class="messages-area" id="messagesArea">
+            <!-- Welcome message -->
+            <div class="message-row bot-row" id="welcomeMessage">
+              <div class="message-avatar">🌸</div>
+              <div class="message-bubble bot-bubble">
+                <div class="message-text">
+                  Hello! 👋 I'm **Dost**, your personalized **BloomWell PCOS** assistant.<br /><br />
+                  Ask me anything about **PCOS symptoms, hormonal balancing, nutrition, or cycle-syncing exercises**. 
+                  I'll use our internal medical database to give you evidence-based answers with source citations, 
+                  falling back to general health insights when needed. How can I help you today?
+                </div>
+                <div class="message-time">Just now</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Question suggestions bar -->
+          <div class="suggestions-bar" id="suggestionsBar">
+            <span class="suggestions-label">Try asking:</span>
+            <div class="suggestions-scroll">
+              <button class="suggestion-chip" onclick="useSuggestion(this)">What causes PCOS?</button>
+              <button class="suggestion-chip" onclick="useSuggestion(this)">How does insulin resistance relate to PCOS?</button>
+              <button class="suggestion-chip" onclick="useSuggestion(this)">What foods should I avoid with PCOS?</button>
+              <button class="suggestion-chip" onclick="useSuggestion(this)">Can PCOS be reversed naturally?</button>
+              <button class="suggestion-chip" onclick="useSuggestion(this)">Best exercises for PCOS?</button>
+            </div>
+          </div>
+
+          <!-- Input prompt area -->
+          <div class="input-area">
+            <div class="input-wrapper">
+              <textarea
+                id="questionInput"
+                class="question-input"
+                placeholder="Type your health question for Dost…"
+                rows="1"
+                maxlength="1000"
+                aria-label="Your PCOS question"
+              ></textarea>
+              <button class="send-button" id="sendBtn" onclick="sendQuestion()" aria-label="Send question">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </div>
+            <p class="input-disclaimer">
+              ⚕️ For custom medical decisions, always consult a qualified healthcare professional.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── C. SETTINGS VIEW (Profile Configuration) ── -->
+      <div id="settingsView" class="app-view">
+        <div class="profile-settings-container">
+          <div class="settings-header">
+            <h2 class="settings-title">Profile Settings</h2>
+            <p class="settings-subtitle">Manage your personal information and botanical wellness goals</p>
+          </div>
+
+          <form id="profileForm" onsubmit="handleSaveProfile(event)" class="settings-form">
+            <div class="form-group">
+              <label for="profileNameInput" class="form-label">Display Name</label>
+              <input type="text" id="profileNameInput" class="form-input" placeholder="e.g. Lakshmi" required />
+            </div>
+
+            <div class="form-group">
+              <label for="profilePcosInput" class="form-label">PCOS Classification</label>
+              <select id="profilePcosInput" class="form-input">
+                <option value="Insulin Resistant">Insulin Resistant PCOS</option>
+                <option value="Inflammatory">Inflammatory PCOS</option>
+                <option value="Adrenal">Adrenal PCOS (Post-pill)</option>
+                <option value="Thyroid-induced">Thyroid-induced / Metabolic</option>
+                <option value="Not Sure">Not Sure / General Support</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="profileAgeInput" class="form-label">Age</label>
+                <input type="number" id="profileAgeInput" class="form-input" min="12" max="100" />
+              </div>
+              <div class="form-group col">
+                <label for="profileCycleInput" class="form-label">Cycle Length (days)</label>
+                <input type="number" id="profileCycleInput" class="form-input" min="15" max="90" />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="profileHeightInput" class="form-label">Height (cm)</label>
+                <input type="number" id="profileHeightInput" class="form-input" placeholder="e.g. 165" />
+              </div>
+              <div class="form-group col">
+                <label for="profileWeightInput" class="form-label">Weight (kg)</label>
+                <input type="number" id="profileWeightInput" class="form-input" placeholder="e.g. 62" />
+              </div>
+            </div>
+
+            <!-- AI Assistant Configuration -->
+            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-strong); margin-bottom: 24px;">
+              <h3 style="font-size: 14px; font-weight: 750; margin-bottom: 12px; color: var(--text-main);">🤖 AI Assistant Settings</h3>
+              <div class="form-group">
+                <label for="aiProviderSelect" class="form-label">AI Provider</label>
+                <select id="aiProviderSelect" class="form-input" onchange="toggleApiKeyPlaceholder()">
+                  <option value="openai">OpenAI (GPT-4o)</option>
+                  <option value="gemini">Google Gemini (Gemini 1.5 Flash)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="aiApiKeyInput" class="form-label">API Key</label>
+                <input type="password" id="aiApiKeyInput" class="form-input" placeholder="Paste your OpenAI API key here" />
+                <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                  Leave blank to use the default project key. Stored safely in your browser.
+                </p>
+              </div>
+            </div>
+
+            <button type="submit" class="settings-btn-primary">Save Profile Settings</button>
+          </form>
+
+          <div class="settings-danger-zone">
+            <h3 class="danger-title">Account Actions</h3>
+            <p class="danger-text">Logging out will clear your local sessions and personalized information.</p>
+            <button onclick="handleLogout()" class="settings-btn-logout">Logout from BloomWell PCOS</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── D. PERIOD TRACKER VIEW ── -->
+      <div id="periodView" class="app-view">
+        <div class="period-header-row">
+          <div class="period-header-left">
+            <h2 class="period-title">Period Tracker</h2>
+            <p class="period-subtitle">Your "Dost" is here to help you understand your cycle better. Logging your symptoms helps us provide personalized insights for your hormonal health.</p>
+          </div>
+          <button class="history-btn" onclick="openPeriodHistoryModal()">
+            <svg class="history-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;">
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            View Past History
+          </button>
+        </div>
+
+        <div class="period-grid">
+          <!-- Left Column: Dates & Tip -->
+          <div class="period-card">
+            <h3 class="period-card-title">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; display:inline-block; vertical-align:middle; margin-right:4px;">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              Select Cycle Dates
+            </h3>
+            
+            <div class="period-date-inputs">
+              <div class="form-group">
+                <label class="form-label" for="periodStartInput">Period start date</label>
+                <input type="date" id="periodStartInput" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="periodEndInput">Period end date</label>
+                <input type="date" id="periodEndInput" class="form-input" />
+              </div>
+            </div>
+
+            <div class="dost-tip-box">
+              <p class="dost-tip-text">
+                "Dost Tip: Tracking the exact start and end helps identify ovulation windows for PCOS management."
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Column: Settings & Details -->
+          <div>
+            <!-- Flow Heaviness -->
+            <div class="period-section">
+              <h3 class="period-section-title">Flow Heaviness</h3>
+              <div class="flow-container" id="flowGroup">
+                <div class="flow-option-card selected" onclick="selectFlowCard(this, 'Light')">
+                  <span class="flow-option-icon">💧</span>
+                  <span>Light</span>
+                </div>
+                <div class="flow-option-card" onclick="selectFlowCard(this, 'Medium')">
+                  <span class="flow-option-icon">💧💧</span>
+                  <span>Medium</span>
+                </div>
+                <div class="flow-option-card" onclick="selectFlowCard(this, 'Heavy')">
+                  <span class="flow-option-icon">🩸</span>
+                  <span>Heavy</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pain Level -->
+            <div class="period-section">
+              <h3 class="period-section-title">Pain Level</h3>
+              <div class="pain-slider-container">
+                <div class="pain-labels">
+                  <span>None</span>
+                  <span>Mild</span>
+                  <span>Bad</span>
+                </div>
+                <input type="range" min="1" max="3" value="1" class="pain-slider" id="painLevelSlider" />
+              </div>
+            </div>
+
+            <!-- Any clots? -->
+            <div class="period-section">
+              <h3 class="period-section-title">Any clots?</h3>
+              <div class="pill-group" id="clotsGroup">
+                <button type="button" class="pill-btn" onclick="selectPill(this, 'clotsGroup', 'Yes')">Yes</button>
+                <button type="button" class="pill-btn selected" onclick="selectPill(this, 'clotsGroup', 'No')">No</button>
+              </div>
+            </div>
+
+            <!-- Cycle Status -->
+            <div class="period-section">
+              <h3 class="period-section-title">Cycle Status</h3>
+              <div class="pill-group" id="cycleStatusGroup">
+                <button type="button" class="pill-btn selected" onclick="selectPill(this, 'cycleStatusGroup', 'Regular')">Regular</button>
+                <button type="button" class="pill-btn" onclick="selectPill(this, 'cycleStatusGroup', 'Late')">Late</button>
+                <button type="button" class="pill-btn" onclick="selectPill(this, 'cycleStatusGroup', 'Missed')">Missed</button>
+              </div>
+            </div>
+
+            <!-- Additional Notes -->
+            <div class="period-section">
+              <h3 class="period-section-title">Additional Notes</h3>
+              <textarea id="periodNotesInput" class="notes-textarea" placeholder="Any other symptoms or thoughts..."></textarea>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="period-actions">
+              <button type="button" class="period-back-btn" onclick="switchView('home')">← Back to Dashboard</button>
+              <button type="button" class="period-save-btn" onclick="submitFullPeriodLog()">Save Cycle Log</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── E. SYMPTOMS LOG VIEW ── -->
+      <div id="symptomsView" class="app-view">
+        <div class="symptoms-header">
+          <h2 class="symptoms-title">How are you feeling today?</h2>
+          <p class="symptoms-subtitle">Your symptoms help us understand your hormonal cycle better.</p>
+        </div>
+
+        <div class="symptoms-container-card">
+          <!-- Voice Log Section -->
+          <div class="voice-log-card" id="voiceLogCard" onclick="toggleVoiceLogging()">
+            <div class="voice-mic-circle">
+              <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:22px; height:22px;">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v1a7 7 0 0 1-14 0v-1M12 19v4M8 23h8" />
+              </svg>
+            </div>
+            <h4 class="voice-log-title" id="voiceLogTitle">VOICE LOG</h4>
+            <p class="voice-log-subtitle" id="voiceLogSubtitle">Tap to speak your symptoms</p>
+            <p class="voice-log-subtext" id="voiceLogSubtext">e.g., "I have a headache and feel tired"</p>
+          </div>
+
+          <!-- Quick Log Checklist -->
+          <div class="symptoms-section-card">
+            <div class="section-card-header">
+              <span class="section-card-title">Quick Log</span>
+              <span class="section-card-help">Select all that apply</span>
+            </div>
+            
+            <div class="symptoms-chips-container" id="symptomsChipsGroup">
+              <div class="symptom-chip-toggle" data-symptom="bloating" onclick="toggleSymptomChip(this)">Bloating</div>
+              <div class="symptom-chip-toggle" data-symptom="acne" onclick="toggleSymptomChip(this)">Acne</div>
+              <div class="symptom-chip-toggle" data-symptom="fatigue" onclick="toggleSymptomChip(this)">Fatigue</div>
+              <div class="symptom-chip-toggle" data-symptom="mood_swings" onclick="toggleSymptomChip(this)">Mood Swings</div>
+              <div class="symptom-chip-toggle" data-symptom="headache" onclick="toggleSymptomChip(this)">Headache</div>
+              <div class="symptom-chip-toggle" data-symptom="cramps" onclick="toggleSymptomChip(this)">Cramps</div>
+              <div class="symptom-chip-toggle" data-symptom="hair_loss" onclick="toggleSymptomChip(this)">Hair Loss</div>
+              <div class="symptom-chip-toggle" data-symptom="cravings" onclick="toggleSymptomChip(this)">Cravings</div>
+              <div class="symptom-chip-toggle" data-symptom="anxiety" onclick="toggleSymptomChip(this)">Anxiety</div>
+              <div class="symptom-chip-toggle" data-symptom="brain_fog" onclick="toggleSymptomChip(this)">Brain Fog</div>
+            </div>
+          </div>
+
+          <!-- Severity Selection -->
+          <div class="symptoms-section-card">
+            <h4 class="symptoms-section-label">How bad?</h4>
+            <div class="severity-container" id="severityGroup">
+              <div class="severity-card" onclick="selectSeverityCard(this, 'Mild')">Mild</div>
+              <div class="severity-card selected" onclick="selectSeverityCard(this, 'Moderate')">Moderate</div>
+              <div class="severity-card" onclick="selectSeverityCard(this, 'Severe')">Severe</div>
+            </div>
+          </div>
+
+          <!-- Notes Section -->
+          <div class="symptoms-section-card">
+            <h4 class="symptoms-section-label">Notes</h4>
+            <textarea id="symptomNotesInput" class="notes-textarea" placeholder="Anything else you want to share? How was your day?"></textarea>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="symptoms-actions">
+            <button type="button" class="symptoms-back-btn" onclick="switchView('home')">← Back</button>
+            <button type="button" class="symptoms-save-btn" onclick="submitFullSymptomsLog()">
+              <svg class="save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                <polyline points="17 21 17 13 7 13 7 21" />
+                <polyline points="7 3 7 8 15 8" />
+              </svg>
+              Save Log
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── F. HEALTH SUMMARY VIEW ── -->
+      <div id="summaryView" class="app-view">
+        <div class="period-header-row">
+          <div class="period-header-left">
+            <h2 class="period-title">My Health Summary</h2>
+            <p class="period-subtitle">Aggregated view of your wellness journey.</p>
+          </div>
+          <button class="history-btn" onclick="exportSummaryPDF()">
+            <svg class="history-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;">
+              <path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export PDF
+          </button>
+        </div>
+
+        <!-- Main Dashboard Cards Grid -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+          
+          <!-- 1. Profile Snapshot Card -->
+          <div class="period-card" style="padding: 24px 32px;">
+            <h3 class="period-card-title" style="margin-bottom: 20px; font-size:16px; color:#8C2D3B;">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; display:inline-block; vertical-align:middle; margin-right:4px;">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              Profile Snapshot
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; text-align: left;">
+              <div>
+                <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Name</span>
+                <div id="snapName" style="font-size:15px; font-weight:750; color:var(--text-main); margin-top:2px;">Lakshmi</div>
+              </div>
+              <div>
+                <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">PCOS Type</span>
+                <div id="snapPcos" style="font-size:15px; font-weight:750; color:var(--text-main); margin-top:2px;">Yes</div>
+              </div>
+              <div>
+                <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Height</span>
+                <div id="snapHeight" style="font-size:15px; font-weight:750; color:var(--text-main); margin-top:2px;">N/A</div>
+              </div>
+              <div>
+                <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Weight</span>
+                <div id="snapWeight" style="font-size:15px; font-weight:750; color:var(--text-main); margin-top:2px;">N/A</div>
+              </div>
+            </div>
+            
+            <div style="margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--border-strong);">
+              <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">Primary Goal</span>
+              <div id="snapGoal" style="font-size:14.5px; font-weight:750; color:var(--text-main); margin-top:2px;">Track periods</div>
+            </div>
+          </div>
+
+          <!-- 2. Dual Column: Symptoms and Medications -->
+          <div class="period-grid">
+            
+            <!-- Recent Symptoms Card -->
+            <div class="period-card" style="padding: 24px 32px; min-height: 140px;">
+              <h3 class="period-card-title" style="margin-bottom: 12px; font-size:15.5px; color:#8C2D3B;">
+                <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; display:inline-block; vertical-align:middle; margin-right:4px;">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                Recent Symptoms
+              </h3>
+              <div id="snapSymptoms" style="font-size:13.5px; color:var(--text-sub); font-style:italic;">No recent symptoms logged.</div>
+            </div>
+
+            <!-- Active Medications Card -->
+            <div class="period-card" style="padding: 24px 32px; min-height: 140px;">
+              <h3 class="period-card-title" style="margin-bottom: 12px; font-size:15.5px; color:#8C2D3B;">
+                <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; display:inline-block; vertical-align:middle; margin-right:4px;">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                </svg>
+                Active Medications
+              </h3>
+              <div id="snapMeds" style="font-size:13.5px; color:var(--text-sub); font-style:italic;">No medications currently active.</div>
+            </div>
+
+          </div>
+
+          <!-- 3. Latest Lab Results Card -->
+          <div class="period-card" style="padding: 24px 32px; text-align: left;">
+            <h3 class="period-card-title" style="margin-bottom: 12px; font-size:15.5px; color:#8C2D3B;">
+              <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; display:inline-block; vertical-align:middle; margin-right:4px;">
+                <path d="M10 2v7.586a1 1 0 0 1-.293.707l-4.414 4.414a2 2 0 0 0-.586 1.414V20a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3.879a2 2 0 0 0-.586-1.414l-4.414-4.414A1 1 0 0 1 14 9.586V2z" />
+              </svg>
+              Latest Lab Results
+            </h3>
+            <div id="snapLabs" style="font-size:13.5px; color:var(--text-sub); font-style:italic;">No lab results found.</div>
+          </div>
+
+          <!-- 4. Monthly Averages Section -->
+          <div class="period-card" style="padding: 24px 32px; text-align: left;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; flex-wrap:wrap; gap:12px;">
+              <h3 class="period-card-title" style="margin-bottom: 0; font-size:16px; color:#8C2D3B;">
+                <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px; height:18px; display:inline-block; vertical-align:middle; margin-right:4px;">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                </svg>
+                Monthly Stats (Last 6 Months)
+              </h3>
+              <select id="summaryMonthSelect" class="form-input" style="width:180px; padding:6px 12px; margin-bottom:0;" onchange="loadSelectedMonthStats()">
+                <option value="all">Last 6 Months (Avg)</option>
+              </select>
+            </div>
+
+            <!-- Stats Grid -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;" id="monthlyStatsGrid">
+              <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px;">
+                <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Avg Sleep</span>
+                <div id="statSleep" style="font-size:16px; font-weight:750; color:var(--text-main); margin-top:4px;">--</div>
+              </div>
+              <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px;">
+                <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Avg Hydration</span>
+                <div id="statWater" style="font-size:16px; font-weight:750; color:var(--text-main); margin-top:4px;">--</div>
+              </div>
+              <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px;">
+                <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Avg Cycle Pain</span>
+                <div id="statPain" style="font-size:16px; font-weight:750; color:var(--text-main); margin-top:4px;">--</div>
+              </div>
+              <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px;">
+                <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Cycle Regularity</span>
+                <div id="statRegularity" style="font-size:13.5px; font-weight:750; color:var(--text-main); margin-top:4px;">--</div>
+              </div>
+              <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px; grid-column: span 2;">
+                <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Frequent Symptoms</span>
+                <div id="statSymptoms" style="font-size:13.5px; font-weight:750; color:var(--text-main); margin-top:4px;">--</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Clinical AI Health Assessment (Requested) -->
+          <div class="period-card" style="padding: 28px 32px; border: 1.5px solid rgba(232, 124, 138, 0.25); background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%); text-align: left;">
+            <h3 class="period-card-title" style="color:#8C2D3B; font-size: 16px; font-weight:800; margin-bottom: 6px;">
+              🔍 Clinical AI Health Assessment
+            </h3>
+            <p style="font-size:13.5px; color:var(--text-sub); margin-bottom:18px;">
+              Evaluate your logged symptoms, periods history, and vitals to identify if your PCOS symptoms warrant a medical consultation or if lifestyle adjustments are sufficient.
+            </p>
+            <button class="period-save-btn" id="analyzeHealthBtn" style="background:#8C2D3B; width: auto; min-width: 200px;" onclick="generateAIHealthCondition()">
+              Analyze My Health Condition
+            </button>
+            
+            <div id="aiHealthConditionResult" class="hidden" style="margin-top:20px; padding:20px; border-radius:var(--radius-md); border:1px solid var(--border-strong); background:#FFFFFF; line-height:1.7; font-size:14px; color:var(--text-main); box-shadow: var(--shadow-card);">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Back button footer -->
+          <div class="period-actions">
+            <button type="button" class="period-back-btn" onclick="switchView('home')" style="width:100%;">← Back to Dashboard</button>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Bottom navigation centered tab panel -->
+    <nav class="bottom-nav">
+      <button class="nav-tab active" id="tab-home" onclick="switchView('home')">
+        <div class="tab-icon-wrapper">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+        </div>
+        <span class="tab-label">Home</span>
+      </button>
+
+      <button class="nav-tab" id="tab-chat" onclick="switchView('chat')">
+        <div class="tab-icon-wrapper">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </div>
+        <span class="tab-label">Dost Chat</span>
+      </button>
+
+      <button class="nav-tab" id="tab-settings" onclick="switchView('settings')">
+        <div class="tab-icon-wrapper">
+          <svg class="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        </div>
+        <span class="tab-label">Settings</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ════════════════════════════════
+       3. INTERACTIVE LOGGING MODALS
+  ════════════════════════════════ -->
+  <div id="modalOverlay" class="modal-overlay hidden" onclick="closeModalOnOverlay(event)">
+    
+    <!-- Modal 1: Log Period -->
+    <div id="modal-period" class="modal-content hidden">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">🌸 Log Menstrual Period</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px;">Keeping track of your flow helps Sahaya identify PCOS patterns and hormone spikes.</p>
+        <div class="form-group">
+          <label class="form-label">When did your last period start?</label>
+          <input type="date" id="periodStartDate" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Flow Intensity</label>
+          <select id="periodFlow" class="form-input">
+            <option value="Light">Light / spotting</option>
+            <option value="Medium" selected>Medium</option>
+            <option value="Heavy">Heavy</option>
+            <option value="Very Heavy">Very Heavy flow</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitPeriodLog()">Log Today</button>
+      </div>
+    </div>
+
+    <!-- Modal 2: Detailed Vitals Check-in -->
+    <div id="modal-vitals" class="modal-content hidden">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">🩺 Daily Vitals Log</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px;">Log vital bio-markers to track insulin resistance and metabolic rates.</p>
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-label">Water (liters)</label>
+            <input type="number" id="vitalWater" class="form-input" min="0" max="10" step="0.5" value="2" />
+          </div>
+          <div class="form-group col">
+            <label class="form-label">Sleep (hours)</label>
+            <input type="number" id="vitalSleep" class="form-input" min="0" max="24" step="0.5" value="7.5" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Basal Body Temperature (°C)</label>
+          <input type="number" id="vitalTemp" class="form-input" min="35" max="42" step="0.1" value="36.6" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitVitalsLog()">Save Vitals</button>
+      </div>
+    </div>
+
+    <!-- Modal 3: Symptoms Log -->
+    <div id="modal-symptoms" class="modal-content hidden">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">📝 Symptoms Checklist</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px;">Logging daily symptoms identifies hormonal imbalances and syncs your lifestyle.</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="sympAcne" style="accent-color:var(--brand-pink);" /> Acne / oily skin
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="sympFatigue" style="accent-color:var(--brand-pink);" checked /> Fatigue / low energy
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="sympHair" style="accent-color:var(--brand-pink);" /> Hair thinning
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="sympCravings" style="accent-color:var(--brand-pink);" checked /> Sugar cravings
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="sympBloating" style="accent-color:var(--brand-pink);" /> Bloating
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="sympMood" style="accent-color:var(--brand-pink);" /> Mood swings
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitSymptomsLog()">Log Selected</button>
+      </div>
+    </div>
+
+    <!-- Modal 5: Lab Results -->
+    <div id="modal-lab" class="modal-content hidden">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">🔬 Blood Work & Lab Log</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px;">Store critical hormone markers to track your progress and share with doctors.</p>
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-label">HbA1c (%)</label>
+            <input type="number" id="labHba1c" class="form-input" min="3" max="15" step="0.1" placeholder="e.g. 5.4" />
+          </div>
+          <div class="form-group col">
+            <label class="form-label">Thyroid TSH (mIU/L)</label>
+            <input type="number" id="labTsh" class="form-input" min="0" max="20" step="0.01" placeholder="e.g. 1.85" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">LH / FSH Ratio</label>
+          <input type="number" id="labLhFsh" class="form-input" min="0" max="10" step="0.1" placeholder="e.g. 2.1" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitLabLog()">Save Results</button>
+      </div>
+    </div>
+
+    <!-- Modal 6: Medications & Supplements -->
+    <div id="modal-meds" class="modal-content hidden">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">💊 Medications & Supplements</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px;">Manage your daily prescription drugs and organic wellness supplements.</p>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom: 16px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="medMetformin" style="accent-color:var(--brand-pink);" /> Metformin (Insulin)
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="medInositol" style="accent-color:var(--brand-pink);" checked /> Myo-Inositol (Supplement)
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="medOmega3" style="accent-color:var(--brand-pink);" checked /> Omega-3 Fish Oil
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
+            <input type="checkbox" id="medVitD" style="accent-color:var(--brand-pink);" /> Vitamin D3
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitMedsLog()">Log Taken</button>
+      </div>
+    </div>
+
+    <!-- Modal: Health Summary View -->
+    <div id="modal-summary" class="modal-content hidden" style="max-width: 540px;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">📊 Aggregated Health Summary</h3>
+      <div class="modal-body" style="max-height: 380px; overflow-y: auto;">
+        <p style="margin-bottom: 16px;">Here is your overall health statistics compiled by BloomWell:</p>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="background:var(--bg-app); padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; font-size:13px;">User:</span>
+            <span class="user-display-name" style="font-weight:700; color:var(--brand-green);">Lakshmi</span>
+          </div>
+          <div style="background:var(--bg-app); padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; font-size:13px;">PCOS Classification:</span>
+            <span id="summaryPcosType" style="font-weight:700;">Not Sure</span>
+          </div>
+          <div style="background:var(--bg-app); padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; font-size:13px;">Last Period Logged:</span>
+            <span id="summaryLastPeriod" style="font-weight:700; color:var(--brand-pink);">28 days ago</span>
+          </div>
+          <div style="background:var(--bg-app); padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; font-size:13px;">Hydration Level:</span>
+            <span id="summaryWater" style="font-weight:700;">2.0 liters</span>
+          </div>
+          <div style="background:var(--bg-app); padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; font-size:13px;">Sleep Pattern:</span>
+            <span id="summarySleep" style="font-weight:700;">7.5 hours</span>
+          </div>
+          <div style="background:var(--bg-app); padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:600; font-size:13px;">Logged Symptoms:</span>
+            <span id="summarySymptoms" style="font-weight:700; font-size:12px; color:var(--text-sub);">Fatigue, Cravings</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeActiveModal()" style="width: 100%;">Close Summary</button>
+      </div>
+    </div>
+
+    <!-- Modal 7: Period History -->
+    <div id="modal-period-history" class="modal-content hidden" style="max-width: 560px;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">📅 Period Log History</h3>
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px;">Review your cycle history and flow data saved in the cloud.</p>
+        <div id="periodHistoryList" style="display:flex; flex-direction:column; gap:12px; margin-top:16px;">
+          <!-- Loaded dynamically from Supabase -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeActiveModal()" style="width: 100%;">Close History</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast notification banner container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Main client side scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>
