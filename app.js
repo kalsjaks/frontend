@@ -11,6 +11,8 @@ const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const OPENAI_API_KEY = '';
+const BACKEND_API_URL = 'http://localhost:8000';
+
 
 
 let isLoading = false;
@@ -1151,6 +1153,37 @@ async function sendQuestion() {
   let sources = [];
   let sourceType = 'external';
 
+  // A. Try calling the FastAPI Backend first (secures API key in backend .env, supports OpenAI, Gemini, and local Ollama)
+  try {
+    const response = await fetch(`${BACKEND_API_URL}/api/chat/enhanced`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        question: question,
+        user_context: pcosContext
+      })
+    });
+
+    if (response.ok) {
+      const resJson = await response.json();
+      removeTypingIndicator(typingId);
+      appendBotMessage({
+        answer: resJson.answer,
+        sources: resJson.sources,
+        source_type: resJson.source_type || 'external',
+        confidence: resJson.confidence || 0.0
+      });
+      return; // Success! Return early.
+    } else {
+      console.warn("Backend API responded with error, falling back to client-side RAG...");
+    }
+  } catch (netErr) {
+    console.warn("Backend API not reachable, falling back to client-side RAG...", netErr);
+  }
+
+  // B. Client-side RAG Fallback
   try {
     let queryEmbedding = null;
     const threshold = 0.40;
@@ -2247,9 +2280,33 @@ Keep the tone clinical yet warm and encouraging. Never make definitive diagnoses
 Use clean formatting with bullet points and bold headers. If they need to visit a doctor, highlight it clearly in a warning block.
 `;
 
-    const answer = await generateAnswer(prompt, '', '');
+    let answer;
+    try {
+      const response = await fetch(`${BACKEND_API_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          question: prompt,
+          user_context: ''
+        })
+      });
+
+      if (response.ok) {
+        const resJson = await response.json();
+        answer = resJson.answer;
+      } else {
+        throw new Error("Backend API returned non-OK status");
+      }
+    } catch (netErr) {
+      console.warn("Backend API not reachable for clinical health assessment, falling back to client-side generateAnswer...", netErr);
+      answer = await generateAnswer(prompt, '', '');
+    }
+
     resultDiv.innerHTML = formatAnswer(answer);
     resultDiv.scrollIntoView({ behavior: 'smooth' });
+
 
   } catch (err) {
     console.warn("Clinical health assessment API failed, falling back to local diagnostics:", err);
