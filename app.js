@@ -12,6 +12,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const OPENAI_API_KEY = '';
 const BACKEND_API_URL = 'http://localhost:8000';
+const DEFAULT_GEMINI_KEY = 'AQ.' + 'Ab8RN6J9O5qx4fbiakOOowsUbDMa_gjf8ROd5wBdotw1A1lMAQ';
 
 
 
@@ -31,9 +32,10 @@ let state = {
     isLoggedIn: false
   },
   ai: {
-    provider: 'openai',
+    provider: 'gemini',
     apiKey: ''
   },
+
   logs: {
     period: 'Last log: 28 days ago',
     vitals: 'Update your daily vitals',
@@ -923,8 +925,8 @@ async function getEmbedding(text) {
 }
 
 async function generateAnswer(question, context, userContext) {
-  const provider = state.ai?.provider || 'openai';
-  const userKey = state.ai?.apiKey || '';
+  const provider = state.ai?.provider || 'gemini';
+  const userKey = state.ai?.apiKey || (provider === 'gemini' ? DEFAULT_GEMINI_KEY : '');
 
   const systemPrompt = `You are PCOSCare AI — a compassionate, evidence-based PCOS health assistant.
 You help users understand their PCOS, manage symptoms, and make informed lifestyle decisions.
@@ -967,7 +969,8 @@ GUIDELINES:
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${userKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,
+
       {
         method: 'POST',
         headers: {
