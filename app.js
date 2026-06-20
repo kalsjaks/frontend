@@ -1039,6 +1039,86 @@ GUIDELINES:
   }
 }
 
+// Local rule-based and vector database fallback for the Dost Chatbot
+function runLocalChatbotFallback(question, documents = []) {
+  const q = question.toLowerCase().trim();
+  let answer = '';
+  let sources = [];
+  let sourceType = 'external';
+  let confidence = 0.0;
+
+  // If we have matching documents from the Supabase vector search, extract and present them!
+  if (documents && documents.length > 0) {
+    sourceType = 'internal';
+    confidence = documents[0].similarity;
+    sources = documents.map(doc => ({
+      source: doc.source,
+      content: doc.content.substring(0, 300) + '...'
+    }));
+
+    answer = `🌸 <strong>Local Database Search:</strong> I found the following relevant information in our internal medical database for you:<br/><br/>`;
+    
+    documents.forEach((doc) => {
+      const cleanContent = doc.content.replace(/\n/g, '<br/>');
+      answer += `<div style="margin-bottom: 12px; padding: 10px; background: rgba(46, 125, 50, 0.05); border-left: 3px solid var(--accent-olive, #7CB342); border-radius: 4px;">`;
+      answer += `<strong style="color: var(--primary, #2E7D32);">Section: ${doc.source}</strong><br/><div style="margin-top: 5px; line-height: 1.5; font-size: 13.5px;">${cleanContent}</div>`;
+      answer += `</div>`;
+    });
+
+    answer += `<br/>💡 <em>Tip: You can configure your own OpenAI or Gemini API key in <strong>Profile Settings</strong> (via the top-right avatar dropdown) to enable full conversational AI responses.</em>`;
+    return { answer, sources, sourceType, confidence };
+  }
+
+  // Common keywords matched locally
+  if (q === 'hi' || q === 'hello' || q === 'hey' || q === 'hola' || q === 'yo' || q.includes('who are you')) {
+    answer = `Hello! 👋 I'm <strong>Dost</strong>, your personalized <strong>BloomWell PCOS</strong> assistant.<br/><br/>
+    I'm currently running in <strong>Local Offline Mode</strong> (as no API keys are currently active). <br/><br/>
+    However, I can still help you! Ask me about:<br/>
+    🌿 <strong>PCOS Symptoms</strong> (e.g., sugar cravings, acne, fatigue, period pain)<br/>
+    🥗 <strong>PCOS Diet & Supplements</strong> (e.g., low GI diet, Inositol, spearmint tea)<br/>
+    🏋️ <strong>Cycle-Synced Exercises</strong> (e.g., resistance training, slow-paced cardio)<br/>
+    📊 <strong>Your Health Report</strong> (e.g., how to analyze logs)<br/><br/>
+    <em>Tip: Open <strong>Profile Settings</strong> from the top-right avatar dropdown to add your own OpenAI or Gemini API key!</em>`;
+  }
+  else if (q.includes('diet') || q.includes('food') || q.includes('eat') || q.includes('nutrition') || q.includes('sugar') || q.includes('cravings') || q.includes('supplement') || q.includes('inositol')) {
+    answer = `🥗 <strong>PCOS Nutrition & Diet Guidelines (Local Offline):</strong><br/><br/>
+    Managing PCOS involves supporting insulin sensitivity and reducing inflammation:<br/><br/>
+    1. <strong>Low Glycemic Index (GI) Foods:</strong> Focus on complex carbs like quinoa, oats, brown rice, and non-starchy vegetables. Avoid refined sugars and white flour to prevent insulin spikes.<br/>
+    2. <strong>High Protein & Healthy Fats:</strong> Pair carbs with lean proteins (tofu, chicken, fish) and healthy fats (avocado, nuts, olive oil) to stabilize blood sugar.<br/>
+    3. <strong>Anti-inflammatory Diet:</strong> Incorporate berries, leafy greens, fatty fish, and turmeric to lower systemic inflammation.<br/>
+    4. <strong>Supplements:</strong> <br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;• <em>Myo-Inositol:</em> Helps improve insulin sensitivity and restore ovulation.<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;• <em>Spearmint Tea:</em> Two cups daily can help lower free testosterone levels and improve hirsutism/acne.<br/>
+    &nbsp;&nbsp;&nbsp;&nbsp;• <em>Vitamin D3 & Omega-3:</em> Support hormonal balance and cycle regularity.`;
+  }
+  else if (q.includes('exercise') || q.includes('workout') || q.includes('training') || q.includes('gym') || q.includes('run') || q.includes('cardio') || q.includes('yoga')) {
+    answer = `🏋️ <strong>Cycle-Synced Exercise Guidelines (Local Offline):</strong><br/><br/>
+    Workouts should align with your menstrual cycle to manage cortisol levels (stress hormone) and boost metabolism:<br/><br/>
+    1. <strong>Menstrual Phase (Days 1-5):</strong> Focus on gentle movements like walking, stretching, or yin yoga. Avoid high-intensity exercises when energy is low.<br/>
+    2. <strong>Follicular Phase (Days 6-12):</strong> Energy rises as estrogen increases. Great time for strength training, moderate-intensity cardio, and Pilates.<br/>
+    3. <strong>Ovulatory Phase (Days 13-15):</strong> Peak energy. Ideal for high-intensity interval training (HIIT), heavy weight lifting, or challenging runs.<br/>
+    4. <strong>Luteal Phase (Days 16-28):</strong> Progesterone dominant. Shift from high-intensity to strength training, slow weighted workouts, or hiking. In the late luteal phase, dial down to low-intensity steady-state (LISS) cardio to prevent cortisol spikes.`;
+  }
+  else if (q.includes('symptom') || q.includes('acne') || q.includes('hair') || q.includes('fatigue') || q.includes('weight') || q.includes('period') || q.includes('cramp') || q.includes('pain') || q.includes('mood') || q.includes('clot')) {
+    answer = `🌿 <strong>PCOS Symptom Management (Local Offline):</strong><br/><br/>
+    Here is a breakdown of common symptoms and how to address them:<br/><br/>
+    1. <strong>Sugar Cravings & Weight:</strong> Cravings are often caused by insulin resistance. Avoid skipping meals, eat protein-rich breakfasts, and consider Inositol.<br/>
+    2. <strong>Hormonal Acne & Hair Loss:</strong> Driven by high androgen (male hormone) levels. Spearmint tea and zinc supplements can help block androgens naturally.<br/>
+    3. <strong>Irregular/Heavy Periods:</strong> Focus on reducing chronic stress, optimizing sleep (7.5h+), and monitoring progesterone markers. Track your flow in the <strong>Log Period</strong> page.<br/>
+    4. <strong>Fatigue & Mood Swings:</strong> Often tied to blood sugar crashes and vitamin deficiencies. Ensure adequate hydration (2L+) and check your Vitamin D/B12 levels.`;
+  }
+  else {
+    answer = `🌸 <strong>Local Offline Mode:</strong><br/><br/>
+    I couldn't find a direct answer to your question in our offline database because no AI API keys are configured (or the quota was exceeded).<br/><br/>
+    Here are general PCOS support steps you can take:<br/>
+    • Track your symptoms daily under the <strong>Logs</strong> tab.<br/>
+    • Review your personalized health score and indicators in the <strong>My Health Summary</strong> page.<br/>
+    • To reactivate full AI conversational features, go to <strong>Profile Settings</strong> (avatar dropdown in top right) and enter your OpenAI or Google Gemini API key.`;
+  }
+
+  return { answer, sources, sourceType, confidence };
+}
+
 // Send question directly using client-side RAG over Supabase
 async function sendQuestion() {
   const question = questionInput.value.trim();
@@ -1065,10 +1145,14 @@ async function sendQuestion() {
                       `Logged Sleep: ${state.vitalsData.sleep}h. Logged Water: ${state.vitalsData.water}L. ` +
                       `Active logs indicate current period status is ${state.logs.period}.`;
 
+  let documents = [];
+  let bestScore = 0.0;
+  let contextStr = '';
+  let sources = [];
+  let sourceType = 'external';
+
   try {
     let queryEmbedding = null;
-    let documents = [];
-    let bestScore = 0.0;
     const threshold = 0.40;
 
     // 1. Generate local browser embedding for query
@@ -1106,10 +1190,6 @@ async function sendQuestion() {
     }
 
     // 3. Ground answer in context or use external LLM fallback
-    let contextStr = '';
-    let sources = [];
-    let sourceType = 'external';
-
     if (documents.length > 0) {
       sourceType = 'internal';
       contextStr = documents.map(doc => `[Source: ${doc.source}]\n${doc.content}`).join('\n\n---\n\n');
@@ -1135,13 +1215,20 @@ async function sendQuestion() {
   } catch (err) {
     removeTypingIndicator(typingId);
 
-    let errMsg;
-    if (err.name === 'TimeoutError') {
-      errMsg = '⏱️ Request timed out. OpenAI is taking too long — please try again.';
+    console.warn("Chatbot generative API failed, running offline fallback helper:", err);
+    // Check if it's an API key configuration or quota limit error
+    const isApiError = err.message.includes('API key') || err.message.includes('quota') || err.message.includes('429') || err.message.includes('401');
+
+    if (isApiError) {
+      const fallbackResult = runLocalChatbotFallback(question, documents);
+      appendBotMessage(fallbackResult);
     } else {
-      errMsg = `❌ Error: ${err.message}`;
+      let errMsg = `❌ Error: ${err.message}`;
+      if (err.name === 'TimeoutError') {
+        errMsg = '⏱️ Request timed out. OpenAI is taking too long — please try again.';
+      }
+      appendErrorMessage(errMsg);
     }
-    appendErrorMessage(errMsg);
   } finally {
     isLoading = false;
     sendBtn.disabled = false;
