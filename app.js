@@ -211,6 +211,11 @@ function loadState() {
   if (local) {
     try {
       state = JSON.parse(local);
+      // Auto-migrate users from openai to gemini if they don't have a custom OpenAI key configured
+      if (state.ai && state.ai.provider === 'openai' && !state.ai.apiKey) {
+        state.ai.provider = 'gemini';
+        saveState();
+      }
     } catch (e) {
       console.error('Failed to parse local storage state', e);
     }
