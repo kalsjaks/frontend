@@ -211,10 +211,20 @@ function loadState() {
   if (local) {
     try {
       state = JSON.parse(local);
-      // Auto-migrate users from openai to gemini if they don't have a custom OpenAI key configured
-      if (state.ai && state.ai.provider === 'openai' && !state.ai.apiKey) {
-        state.ai.provider = 'gemini';
-        saveState();
+      
+      // Initialize state.ai if missing
+      if (!state.ai) {
+        state.ai = { provider: 'gemini', apiKey: '' };
+      }
+      
+      // Auto-migrate users from openai to gemini if they don't have a valid custom OpenAI key configured
+      if (state.ai.provider === 'openai') {
+        const key = state.ai.apiKey || '';
+        if (!key || key.includes('U45NKq0smD')) {
+          state.ai.provider = 'gemini';
+          state.ai.apiKey = ''; // Reset key
+          saveState();
+        }
       }
     } catch (e) {
       console.error('Failed to parse local storage state', e);
