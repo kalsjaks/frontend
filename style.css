@@ -1422,6 +1422,28 @@ body {
   box-shadow: 0 6px 18px rgba(232, 124, 138, 0.14);
 }
 
+.auth-btn-choice-guest {
+  width: 100%;
+  padding: 16px 28px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  text-align: center;
+  background: #FFFFFF;
+  color: var(--brand-green);
+  border: 2px solid var(--brand-green);
+  box-shadow: 0 4px 15px rgba(46, 125, 50, 0.08);
+}
+
+.auth-btn-choice-guest:hover {
+  transform: translateY(-2px);
+  background: var(--brand-green-light);
+  box-shadow: 0 6px 18px rgba(46, 125, 50, 0.14);
+}
+
 /* ── 10. Chips & Back Button Enhancements ── */
 .chip-group {
   display: flex;

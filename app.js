@@ -552,6 +552,36 @@ async function handleNewUserSetup(e) {
   showToast('🌸 Welcome to BloomWell PCOS, ' + name + '! Profile created successfully.', 'success');
 }
 
+function continueAsGuest() {
+  state.user = {
+    id: null,
+    name: 'Guest User',
+    pcosType: 'Not Sure',
+    age: 24,
+    cycleLength: 28,
+    isLoggedIn: true
+  };
+
+  // Reset default log values
+  state.logs = {
+    period: 'Last log: 28 days ago',
+    vitals: 'Update your daily vitals',
+    symptoms: 'Log your daily symptoms',
+    lab: 'Log your blood work',
+    meds: 'Manage your daily dose'
+  };
+
+  saveState();
+  updateUIFromState();
+
+  // Transitions
+  authContainer.classList.add('hidden');
+  appContainer.classList.remove('hidden');
+  switchView('home');
+
+  showToast('🌸 Welcome to BloomWell PCOS! You are logged in as a Guest (offline local mode).', 'success');
+}
+
 async function handleForgotPassword(e) {
   e.preventDefault();
   const email = document.getElementById('forgotEmailInput').value.trim();
