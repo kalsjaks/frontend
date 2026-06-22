@@ -2507,7 +2507,7 @@ function runLocalRuleBasedFertilityAssessment(symptomCounts, sortedSymps, cached
 
   let html = `
     <div style="margin-bottom:16px; border-bottom:1.5px solid var(--border-strong); padding-bottom:12px;">
-      <span style="background:#E6F4EA; color:#137333; font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; display:inline-block; margin-bottom:8px;">
+      <span style="background:var(--brand-pink-light); color:var(--brand-pink); font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; display:inline-block; margin-bottom:8px;">
         🌱 Fertility Guidance (Local Diagnostics Engine)
       </span>
       <h4 style="font-size:16px; font-weight:800; color:var(--text-main); margin:4px 0;">Hello ${state.user.name}, here is your fertility and pregnancy assessment:</h4>
@@ -2516,7 +2516,7 @@ function runLocalRuleBasedFertilityAssessment(symptomCounts, sortedSymps, cached
     <div style="display:grid; grid-template-columns: 1fr; gap:12px; margin-bottom:20px;">
       <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:12px;">
         <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Fertility Sync Recommendation</span>
-        <div style="font-size:15px; font-weight:750; color:#137333; margin-top:4px;">${fertilityPotential}</div>
+        <div style="font-size:15px; font-weight:750; color:#8C2D3B; margin-top:4px;">${fertilityPotential}</div>
       </div>
     </div>
 
@@ -2531,7 +2531,7 @@ function runLocalRuleBasedFertilityAssessment(symptomCounts, sortedSymps, cached
     </p>
 
     <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">3. Key Steps if you want to conceive</h5>
-    <div style="border-left:4px solid #137333; background:#E6F4EA; padding:14px; border-radius:var(--radius-md); margin-bottom:16px; color:#137333; font-size:13.5px; line-height:1.6;">
+    <div style="border-left:4px solid var(--brand-pink); background:var(--brand-pink-light); padding:14px; border-radius:var(--radius-md); margin-bottom:16px; color:#8C2D3B; font-size:13.5px; line-height:1.6;">
       <strong>📝 Action Plan for Conception:</strong>
       <ul style="margin:8px 0; padding-left:18px; color:var(--text-main);">
         <li style="margin:6px 0;"><strong>Track Ovulation accurately:</strong> Standard LH test strips can give false positives in PCOS due to chronically high LH. Combine strips with <strong>Basal Body Temperature (BBT) tracking</strong> (a sustained temperature rise confirms ovulation has occurred) and checking cervical mucus.</li>
