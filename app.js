@@ -65,7 +65,9 @@ let state = {
     metformin: false,
     inositol: true,
     omega3: true,
-    vitD: false
+    vitD: false,
+    custom: {},
+    customList: []
   }
 };
 
@@ -152,6 +154,11 @@ async function syncUserLogs(userId) {
 
     // 5. Fetch latest medication log
     const { data: meds } = await sb.from('medication_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1);
+    
+    // Ensure custom and customList structures exist
+    if (!state.medsData.custom) state.medsData.custom = {};
+    if (!state.medsData.customList) state.medsData.customList = [];
+
     if (meds && meds.length > 0) {
       const m = meds[0];
       state.medsData.metformin = m.metformin;
@@ -164,9 +171,39 @@ async function syncUserLogs(userId) {
       if (m.inositol) medsTaken.push('Inositol');
       if (m.omega3) medsTaken.push('Omega-3');
       if (m.vit_d3) medsTaken.push('Vit D3');
+
+      // Parse custom meds from database
+      state.medsData.custom = {};
+      const customMedsStr = m.custom_meds || '';
+      if (customMedsStr) {
+        const customTakenList = customMedsStr.split(',').map(s => s.trim()).filter(Boolean);
+        customTakenList.forEach(med => {
+          state.medsData.custom[med] = true;
+          medsTaken.push(med);
+        });
+      }
+
       state.logs.meds = medsTaken.length > 0 ? 'Taken: ' + medsTaken.join(', ') : 'No dose taken today';
     } else {
       state.logs.meds = 'Manage your daily dose';
+    }
+
+    // Fetch all historical logs to collect all unique custom medications added by the user
+    try {
+      const { data: allPastMeds } = await sb.from('medication_logs').select('custom_meds').eq('user_id', userId);
+      if (allPastMeds && allPastMeds.length > 0) {
+        const uniqueCustomMedsSet = new Set(state.medsData.customList);
+        allPastMeds.forEach(log => {
+          if (log.custom_meds) {
+            log.custom_meds.split(',').map(s => s.trim()).filter(Boolean).forEach(medName => {
+              uniqueCustomMedsSet.add(medName);
+            });
+          }
+        });
+        state.medsData.customList = Array.from(uniqueCustomMedsSet);
+      }
+    } catch (dbErr) {
+      console.warn('Could not query historical custom medications from Supabase:', dbErr);
     }
 
     saveState();
@@ -215,6 +252,17 @@ function loadState() {
       // Initialize state.ai if missing
       if (!state.ai) {
         state.ai = { provider: 'gemini', apiKey: '' };
+      }
+      
+      // Initialize medsData if missing
+      if (!state.medsData) {
+        state.medsData = { metformin: false, inositol: true, omega3: true, vitD: false, custom: {}, customList: [] };
+      }
+      if (!state.medsData.custom) {
+        state.medsData.custom = {};
+      }
+      if (!state.medsData.customList) {
+        state.medsData.customList = [];
       }
       
       // Auto-migrate users from openai to gemini if they don't have a valid custom OpenAI key configured
@@ -286,10 +334,107 @@ function updateUIFromState() {
   document.getElementById('labTsh').value = state.labData.tsh;
   document.getElementById('labLhFsh').value = state.labData.lhFsh;
 
-  document.getElementById('medMetformin').checked = state.medsData.metformin;
-  document.getElementById('medInositol').checked = state.medsData.inositol;
-  document.getElementById('medOmega3').checked = state.medsData.omega3;
-  document.getElementById('medVitD').checked = state.medsData.vitD;
+  // Dynamically populate medications dropdown (LOV) options
+  const medSelect = document.getElementById('medSelect');
+  if (medSelect) {
+    medSelect.innerHTML = `
+      <option value="" disabled selected>-- Choose medication --</option>
+      <option value="Metformin">Metformin (Insulin)</option>
+      <option value="Myo-Inositol">Myo-Inositol (Supplement)</option>
+      <option value="Omega-3">Omega-3 Fish Oil</option>
+      <option value="Vitamin D3">Vitamin D3</option>
+    `;
+    const customList = state.medsData.customList || [];
+    customList.forEach(med => {
+      const opt = document.createElement('option');
+      opt.value = med;
+      opt.textContent = med;
+      medSelect.appendChild(opt);
+    });
+    const optOthers = document.createElement('option');
+    optOthers.value = 'Others';
+    optOthers.textContent = 'Others (Enter name...)';
+    medSelect.appendChild(optOthers);
+  }
+
+  // Dynamically build active medications checklist for today (only show checked/active ones)
+  const checklistContainer = document.getElementById('medsChecklistContainer');
+  if (checklistContainer) {
+    checklistContainer.innerHTML = '';
+    let itemsAdded = 0;
+
+    const appendCheckbox = (id, labelText, isChecked, onChangeFn) => {
+      const label = document.createElement('label');
+      label.style.cssText = 'display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:500; cursor: pointer; padding: 4px 8px; border-radius: var(--radius-sm); transition: background-color var(--duration);';
+      label.className = 'med-checkbox-item';
+      
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = id;
+      checkbox.checked = isChecked;
+      checkbox.style.cssText = 'accent-color:var(--brand-pink); width: 16px; height: 16px;';
+      checkbox.addEventListener('change', onChangeFn);
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(' ' + labelText));
+      
+      label.addEventListener('mouseenter', () => label.style.backgroundColor = 'var(--brand-pink-light)');
+      label.addEventListener('mouseleave', () => label.style.backgroundColor = 'transparent');
+
+      checklistContainer.appendChild(label);
+      itemsAdded++;
+    };
+
+    // Standard medications checklist
+    if (state.medsData.metformin) {
+      appendCheckbox('medMetformin', 'Metformin (Insulin)', true, () => {
+        state.medsData.metformin = false;
+        saveState();
+        updateUIFromState();
+      });
+    }
+    if (state.medsData.inositol) {
+      appendCheckbox('medInositol', 'Myo-Inositol (Supplement)', true, () => {
+        state.medsData.inositol = false;
+        saveState();
+        updateUIFromState();
+      });
+    }
+    if (state.medsData.omega3) {
+      appendCheckbox('medOmega3', 'Omega-3 Fish Oil', true, () => {
+        state.medsData.omega3 = false;
+        saveState();
+        updateUIFromState();
+      });
+    }
+    if (state.medsData.vitD) {
+      appendCheckbox('medVitD', 'Vitamin D3', true, () => {
+        state.medsData.vitD = false;
+        saveState();
+        updateUIFromState();
+      });
+    }
+
+    // Custom medications checklist
+    const customObj = state.medsData.custom || {};
+    const customList = state.medsData.customList || [];
+    customList.forEach(med => {
+      if (customObj[med]) {
+        appendCheckbox(`med_${med.replace(/\s+/g, '_')}`, med, true, () => {
+          state.medsData.custom[med] = false;
+          saveState();
+          updateUIFromState();
+        });
+      }
+    });
+
+    if (itemsAdded === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.style.cssText = 'font-size: 13px; color: var(--text-muted); font-style: italic; text-align: center; padding: 12px;';
+      emptyMsg.textContent = 'No medications selected. Choose from the list above and click "Add".';
+      checklistContainer.appendChild(emptyMsg);
+    }
+  }
 
   // Pre-fill health summary modal
   document.getElementById('summaryPcosType').textContent = state.user.pcosType;
@@ -819,22 +964,113 @@ function submitLabLog() {
   showToast('🔬 Blood lab results recorded.', 'success');
 }
 
+// Dropdown selection change handler for medications
+function handleMedSelectChange() {
+  const select = document.getElementById('medSelect');
+  const container = document.getElementById('customMedContainer');
+  if (select && container) {
+    if (select.value === 'Others') {
+      container.classList.remove('hidden');
+      const input = document.getElementById('customMedInput');
+      if (input) input.focus();
+    } else {
+      container.classList.add('hidden');
+    }
+  }
+}
+
+// Add medication from the LOV dropdown select or custom input field
+function addMedicationFromSelect() {
+  const select = document.getElementById('medSelect');
+  if (!select) return;
+
+  let medName = select.value;
+  if (!medName) {
+    showToast('⚠️ Please select a medication or choose "Others".', 'error');
+    return;
+  }
+
+  if (medName === 'Others') {
+    const input = document.getElementById('customMedInput');
+    medName = input ? input.value.trim() : '';
+    if (!medName) {
+      showToast('⚠️ Please enter a medicine name.', 'error');
+      return;
+    }
+
+    // Normalize standard medications if entered in custom input
+    const stdMap = {
+      'metformin': 'Metformin',
+      'inositol': 'Myo-Inositol',
+      'myo-inositol': 'Myo-Inositol',
+      'omega-3': 'Omega-3',
+      'omega3': 'Omega-3',
+      'omega-3 fish oil': 'Omega-3',
+      'vitamin d3': 'Vitamin D3',
+      'vit d3': 'Vitamin D3',
+      'vit d': 'Vitamin D3'
+    };
+    const norm = medName.toLowerCase();
+    if (stdMap[norm]) {
+      medName = stdMap[norm];
+    }
+  }
+
+  // Handle standard medications by updating their state values to true
+  if (medName === 'Metformin') {
+    state.medsData.metformin = true;
+  } else if (medName === 'Myo-Inositol' || medName === 'Inositol') {
+    state.medsData.inositol = true;
+  } else if (medName === 'Omega-3' || medName === 'Omega-3 Fish Oil') {
+    state.medsData.omega3 = true;
+  } else if (medName === 'Vitamin D3') {
+    state.medsData.vitD = true;
+  } else {
+    // Handle custom medications
+    if (!state.medsData.customList) state.medsData.customList = [];
+    if (!state.medsData.custom) state.medsData.custom = {};
+
+    if (!state.medsData.customList.includes(medName)) {
+      state.medsData.customList.push(medName);
+    }
+    state.medsData.custom[medName] = true;
+  }
+
+  saveState();
+  updateUIFromState();
+
+  // Reset LOV selectors & inputs
+  select.value = '';
+  const container = document.getElementById('customMedContainer');
+  if (container) container.classList.add('hidden');
+  const input = document.getElementById('customMedInput');
+  if (input) input.value = '';
+
+  showToast(`✓ Added ${medName} to checklist.`, 'success');
+}
+
 async function submitMedsLog() {
-  const met = document.getElementById('medMetformin').checked;
-  const ino = document.getElementById('medInositol').checked;
-  const ome = document.getElementById('medOmega3').checked;
-  const vit = document.getElementById('medVitD').checked;
+  const met = !!state.medsData.metformin;
+  const ino = !!state.medsData.inositol;
+  const ome = !!state.medsData.omega3;
+  const vit = !!state.medsData.vitD;
 
-  state.medsData.metformin = met;
-  state.medsData.inositol = ino;
-  state.medsData.omega3 = ome;
-  state.medsData.vitD = vit;
-
+  // Process standard medications taken
   let medsTaken = [];
   if (met) medsTaken.push('Metformin');
   if (ino) medsTaken.push('Inositol');
   if (ome) medsTaken.push('Omega-3');
   if (vit) medsTaken.push('Vit D3');
+
+  // Process custom medications taken
+  let customMedsTaken = [];
+  const customObj = state.medsData.custom || {};
+  for (const [medName, isChecked] of Object.entries(customObj)) {
+    if (isChecked) {
+      customMedsTaken.push(medName);
+      medsTaken.push(medName);
+    }
+  }
 
   state.logs.meds = medsTaken.length > 0 ? 'Taken: ' + medsTaken.join(', ') : 'No dose taken today';
 
@@ -843,14 +1079,45 @@ async function submitMedsLog() {
   closeActiveModal();
 
   if (state.user.id) {
+    const customMedsString = customMedsTaken.join(', ');
+    
+    // Attempt insert with the custom_meds column
     const { error } = await sb.from('medication_logs').insert({
       user_id: state.user.id,
       metformin: met,
       inositol: ino,
       omega3: ome,
-      vit_d3: vit
+      vit_d3: vit,
+      custom_meds: customMedsString
     });
-    if (error) console.error('Failed to log medications to Supabase:', error);
+
+    if (error) {
+      // Check if it's due to the custom_meds column not existing on remote DB yet
+      if (error.message && error.message.includes('custom_meds')) {
+        console.warn("custom_meds column does not exist on remote Supabase instance. Falling back to standard columns...");
+        
+        const { error: fallbackError } = await sb.from('medication_logs').insert({
+          user_id: state.user.id,
+          metformin: met,
+          inositol: ino,
+          omega3: ome,
+          vit_d3: vit
+        });
+
+        if (fallbackError) {
+          console.error('Failed to log standard medications to Supabase:', fallbackError);
+          showToast('❌ Failed to log medications to cloud.', 'error');
+          return;
+        } else {
+          showToast('💊 Saved locally! Run SQL update in your Supabase dashboard to sync custom meds in the cloud.', 'info');
+          return;
+        }
+      } else {
+        console.error('Failed to log medications to Supabase:', error);
+        showToast('❌ Failed to log medications to cloud.', 'error');
+        return;
+      }
+    }
   }
 
   showToast('💊 Daily medications logged.', 'success');
@@ -1946,6 +2213,14 @@ async function initSummaryPage() {
       if (m.inositol) active.push('Myo-Inositol (Supplement)');
       if (m.omega3) active.push('Omega-3 Fish Oil');
       if (m.vit_d3) active.push('Vitamin D3');
+      
+      // Parse custom medications
+      if (m.custom_meds) {
+        m.custom_meds.split(',').map(s => s.trim()).filter(Boolean).forEach(med => {
+          active.push(med);
+        });
+      }
+
       container.innerHTML = active.length > 0
         ? `<ul style="margin:4px 0;padding-left:16px;">${active.map(a => `<li style="margin:3px 0;font-weight:600;color:var(--text-main);">${a}</li>`).join('')}</ul>`
         : 'No active medications logged.';

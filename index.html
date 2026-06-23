@@ -1100,27 +1100,43 @@
     </div>
 
     <!-- Modal 6: Medications & Supplements -->
-    <div id="modal-meds" class="modal-content hidden">
+    <div id="modal-meds" class="modal-content hidden" style="max-width: 480px;">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
       <h3 class="modal-title">💊 Medications & Supplements</h3>
       <div class="modal-body">
-        <p style="margin-bottom: 12px;">Manage your daily prescription drugs and organic wellness supplements.</p>
-        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom: 16px;">
-          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="medMetformin" style="accent-color:var(--brand-pink);" /> Metformin (Insulin)
-          </label>
-          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="medInositol" style="accent-color:var(--brand-pink);" checked /> Myo-Inositol (Supplement)
-          </label>
-          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="medOmega3" style="accent-color:var(--brand-pink);" checked /> Omega-3 Fish Oil
-          </label>
-          <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="medVitD" style="accent-color:var(--brand-pink);" /> Vitamin D3
-          </label>
+        <p style="margin-bottom: 16px;">Manage your daily prescription drugs and organic wellness supplements.</p>
+        
+        <!-- Dropdown LOV Selector -->
+        <div class="form-group">
+          <label class="form-label" for="medSelect">Select Medication / Supplement</label>
+          <div style="display: flex; gap: 8px;">
+            <select id="medSelect" class="form-input" onchange="handleMedSelectChange()" style="flex: 1;">
+              <option value="" disabled selected>-- Choose medication --</option>
+              <option value="Metformin">Metformin (Insulin)</option>
+              <option value="Myo-Inositol">Myo-Inositol (Supplement)</option>
+              <option value="Omega-3">Omega-3 Fish Oil</option>
+              <option value="Vitamin D3">Vitamin D3</option>
+              <option value="Others">Others (Enter name...)</option>
+            </select>
+            <button type="button" class="btn-primary" onclick="addMedicationFromSelect()" style="padding: 8px 16px; min-width: auto; white-space: nowrap; height: 45px; border-radius: var(--radius-md);">Add</button>
+          </div>
+        </div>
+
+        <!-- Custom Input Field (Initially Hidden) -->
+        <div id="customMedContainer" class="form-group hidden" style="margin-top: 12px; margin-bottom: 16px; animation: fadeIn 0.2s ease;">
+          <label class="form-label" for="customMedInput">Enter custom medicine name</label>
+          <input type="text" id="customMedInput" class="form-input" placeholder="e.g. Thyroxine" style="width: 100%;" />
+        </div>
+
+        <!-- Medications Checklist -->
+        <div class="form-group" style="margin-top: 20px;">
+          <label class="form-label" style="font-weight: 600; font-size: 13.5px; color: var(--text-main); margin-bottom: 10px;">Medications Checklist for Today:</label>
+          <div id="medsChecklistContainer" style="display:flex; flex-direction:column; gap:12px; max-height: 200px; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(28,46,36,0.01);">
+            <!-- Checked/active checkboxes populated dynamically -->
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" style="margin-top: 24px;">
         <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
         <button class="btn-primary" onclick="submitMedsLog()">Log Taken</button>
       </div>

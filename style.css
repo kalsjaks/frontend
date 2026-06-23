@@ -2180,5 +2180,21 @@ button.chip.selected {
   }
 }
 
+/* ── Custom Medications LOV Styling additions ── */
+#modal-meds select.form-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%2352665b' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
 
+#customMedsCheckboxContainer label {
+  transition: background-color var(--duration);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
 
+#customMedsCheckboxContainer label:hover {
+  background-color: var(--brand-pink-light);
+}
