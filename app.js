@@ -1496,6 +1496,11 @@ async function sendQuestion() {
         source_type: resJson.source_type || 'external',
         confidence: resJson.confidence || 0.0
       });
+      // Reset loading state and button
+      isLoading = false;
+      sendBtn.disabled = false;
+      statusDot.className = 'status-dot';
+      questionInput.focus();
       return; // Success! Return early.
     } else {
       console.warn("Backend API responded with error, falling back to client-side RAG...");
