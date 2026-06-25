@@ -623,6 +623,33 @@ body {
   gap: 12px;
 }
 
+.chat-back-btn {
+  background: var(--brand-pink);
+  border: 1.5px solid var(--brand-pink);
+  color: #FFFFFF;
+  cursor: pointer;
+  padding: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration) var(--ease);
+}
+
+.chat-back-btn:hover {
+  background: #d86a78; /* Slightly darker pink */
+  border-color: #d86a78;
+  color: #FFFFFF;
+  transform: translateX(-3px);
+  box-shadow: 0 4px 12px rgba(232, 124, 138, 0.25);
+}
+
+.chat-back-btn:focus-visible {
+  outline: 2px solid var(--brand-pink);
+}
+
 .avatar-ring {
   position: relative;
 }
@@ -1838,9 +1865,9 @@ button.chip.selected {
 .period-back-btn {
   flex: 1;
   padding: 14px 24px;
-  background: #FFFFFF;
-  color: var(--text-sub);
-  border: 1.5px solid var(--border-strong);
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  border: 1.5px solid var(--brand-pink);
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
   font-size: 14px;
@@ -1851,8 +1878,11 @@ button.chip.selected {
 }
 
 .period-back-btn:hover {
-  background: var(--bg-app);
-  color: var(--text-main);
+  background: #d86a78;
+  border-color: #d86a78;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232, 124, 138, 0.25);
 }
 
 /* ── 13. Symptoms Log View ── */
@@ -2091,9 +2121,9 @@ button.chip.selected {
 .symptoms-back-btn {
   flex: 1;
   padding: 14px 24px;
-  background: #FFFFFF;
-  color: var(--text-sub);
-  border: 1px solid var(--border-strong);
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  border: 1.5px solid var(--brand-pink);
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
   font-size: 14px;
@@ -2104,7 +2134,11 @@ button.chip.selected {
 }
 
 .symptoms-back-btn:hover {
-  background: var(--bg-app);
+  background: #d86a78;
+  border-color: #d86a78;
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232, 124, 138, 0.25);
 }
 
 @media (max-width: 900px) {

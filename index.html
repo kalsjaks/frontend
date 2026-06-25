@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=6" />
 </head>
 <body>
 
@@ -433,6 +433,11 @@
           <!-- Chat header -->
           <div class="chat-header">
             <div class="chat-header-left">
+              <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
               <div class="avatar-ring">
                 <div class="avatar">🌸</div>
                 <span class="status-dot" id="statusDot"></span>
@@ -689,7 +694,7 @@
 
             <!-- Action buttons -->
             <div class="period-actions">
-              <button type="button" class="period-back-btn" onclick="switchView('home')">← Back to Dashboard</button>
+              <button type="button" class="period-back-btn" onclick="goBack()">← Back</button>
               <button type="button" class="period-save-btn" onclick="submitFullPeriodLog()">Save Cycle Log</button>
             </div>
           </div>
@@ -756,7 +761,7 @@
 
           <!-- Action buttons -->
           <div class="symptoms-actions">
-            <button type="button" class="symptoms-back-btn" onclick="switchView('home')">← Back</button>
+            <button type="button" class="symptoms-back-btn" onclick="goBack()">← Back</button>
             <button type="button" class="symptoms-save-btn" onclick="submitFullSymptomsLog()">
               <svg class="save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px; height:16px; display:inline-block; vertical-align:middle; margin-right:4px;">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
@@ -940,7 +945,7 @@
 
           <!-- Back button footer -->
           <div class="period-actions">
-            <button type="button" class="period-back-btn" onclick="switchView('home')" style="width:100%;">← Back to Dashboard</button>
+            <button type="button" class="period-back-btn" onclick="goBack()" style="width:100%;">← Back</button>
           </div>
 
         </div>
@@ -1202,7 +1207,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=6"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->

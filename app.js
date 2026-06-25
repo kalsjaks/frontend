@@ -19,6 +19,7 @@ const DEFAULT_GEMINI_KEY = 'AQ.' + 'Ab8RN6J9O5qx4fbiakOOowsUbDMa_gjf8ROd5wBdotw1
 let isLoading = false;
 let suggestionsHidden = false;
 let activeModalId = null;
+let viewHistory = [];
 
 // ── Application State ─────────────────────────────────────────
 let state = {
@@ -467,7 +468,14 @@ function toggleApiKeyPlaceholder() {
 }
 
 // ── View Switching (Router) ───────────────────────────────────
-function switchView(viewName) {
+function switchView(viewName, isBack = false) {
+  // Navigation history tracking
+  if (!isBack) {
+    if (viewHistory.length === 0 || viewHistory[viewHistory.length - 1] !== viewName) {
+      viewHistory.push(viewName);
+    }
+  }
+
   // Hide ElevenLabs widget when leaving the home view
   const widget = document.querySelector('elevenlabs-convai');
   if (widget && viewName !== 'home') {
@@ -509,6 +517,17 @@ function switchView(viewName) {
   
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function goBack() {
+  if (viewHistory.length > 1) {
+    viewHistory.pop(); // Pop current view
+    const previousView = viewHistory[viewHistory.length - 1];
+    switchView(previousView, true);
+  } else {
+    switchView('home'); // Fallback
+  }
+}
+
 
 // ── Auth Wizard Switching ─────────────────────────────────────
 function showAuthSubScreen(screenName) {
@@ -1152,7 +1171,7 @@ async function checkBackendHealth() {
 
     setStatus('online', '● Cloud Connected');
     statusDot.className = 'status-dot';
-    chatSubtitle.textContent = '✓ Knowledge base active (Supabase pgvector) — ready to answer';
+    chatSubtitle.textContent = 'Ready to answer';
   } catch (e) {
     console.error("Database connection error:", e);
     setStatus('offline', '● Connection Error');
