@@ -594,75 +594,195 @@ body {
   opacity: 1;
 }
 
-/* Featured Dashboard Card (Fertility & Pregnancy Care) */
-.featured-dash-card {
+/* Ask Bloom Banner Card */
+.ask-bloom-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%);
-  border: 1.5px solid rgba(232, 124, 138, 0.25);
+  border: 1.5px solid rgba(232, 124, 138, 0.2);
   border-radius: var(--radius-lg);
-  padding: 20px 24px;
-  cursor: pointer;
-  transition: all var(--duration) var(--ease);
-  box-shadow: 0 4px 18px rgba(232, 124, 138, 0.1);
-  overflow: hidden;
+  padding: 22px 24px;
+  box-shadow: 0 4px 18px rgba(232, 124, 138, 0.08);
   position: relative;
+  overflow: hidden;
   width: 100%;
+  margin-bottom: 8px;
 }
 
-.featured-dash-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(232, 124, 138, 0.16);
-  border-color: rgba(232, 124, 138, 0.4);
-}
-
-.featured-card-content {
+.ask-bloom-banner-left {
   flex: 1;
-  padding-right: 16px;
+  text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  text-align: left;
+  gap: 8px;
+  z-index: 2;
 }
 
-.featured-card-tag {
-  font-size: 9px;
+.ask-bloom-banner-title {
+  font-size: 19px;
   font-weight: 800;
-  color: var(--brand-pink);
-  background: rgba(232, 124, 138, 0.12);
-  padding: 3px 8px;
-  border-radius: 12px;
-  width: fit-content;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.featured-card-title {
-  font-size: 16px;
-  font-weight: 750;
-  color: #8C2D3B;
+  color: var(--text-main);
   margin: 0;
 }
 
-.featured-card-desc {
-  font-size: 12px;
+.ask-bloom-banner-desc {
+  font-size: 13px;
   color: var(--text-sub);
   line-height: 1.5;
   margin: 0;
+  max-width: 80%;
 }
 
-.featured-card-image-container {
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  border: 1.5px solid rgba(232, 124, 138, 0.15);
+.ask-bloom-banner-btn {
+  background: #000000;
+  color: #FFFFFF;
+  border: none;
+  padding: 10px 22px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 20px;
+  cursor: pointer;
+  width: fit-content;
+  transition: all var(--duration) var(--ease);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ask-bloom-banner-btn:hover {
+  background: #222222;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.ask-bloom-banner-right {
+  position: absolute;
+  right: 16px;
+  bottom: -10px;
+  width: 85px;
+  height: 85px;
+  z-index: 1;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ask-bloom-banner-avatar {
+  font-size: 56px;
+  animation: float-bot 3s ease-in-out infinite;
+}
+
+@keyframes float-bot {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Explore our features Heading */
+.explore-features-header {
+  margin-top: 16px;
+  margin-bottom: 12px;
+  text-align: left;
+}
+
+.explore-features-title {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 4px 0;
+}
+
+.explore-features-subtitle {
+  font-size: 12.5px;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+/* Features Grid (2x2 Layout) */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.feature-grid-card {
   background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  min-height: 130px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+  box-shadow: var(--shadow-card);
 }
 
-.featured-card-img {
+.feature-grid-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(28, 46, 36, 0.06);
+  border-color: var(--brand-pink);
+}
+
+.feature-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feature-card-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.feature-card-subtitle {
+  font-size: 11px;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+.feature-card-footer {
+  display: flex;
+  align-items: center;
+  z-index: 2;
+}
+
+.feature-card-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--brand-pink-light);
+  color: var(--brand-pink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 1px solid rgba(232, 124, 138, 0.15);
+}
+
+.feature-card-corner-img-container {
+  position: absolute;
+  bottom: -6px;
+  right: -6px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+  z-index: 1;
+  background: var(--brand-pink-light);
+}
+
+.feature-card-corner-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
