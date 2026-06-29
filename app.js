@@ -1473,17 +1473,17 @@ function runLocalChatbotFallback(question, documents = []) {
 
   // Common keywords matched locally
   if (q === 'hi' || q === 'hello' || q === 'hey' || q === 'hola' || q === 'yo' || q.includes('who are you')) {
-    answer = `Hello! 👋 I'm **Bloom**, your personalized **BloomWell PCOS** assistant.\n\n` +
+    answer = `Hello! 👋 I'm **Bloom**, your personalized **BloomWell PCOS/PMOS** assistant.\n\n` +
              `I'm currently running in **Local Offline Mode** (due to a temporary server connection issue).\n\n` +
              `However, I can still help you! Ask me about:\n` +
-             `- 🌿 **PCOS Symptoms** (e.g., sugar cravings, acne, fatigue, period pain)\n` +
-             `- 🥗 **PCOS Diet & Supplements** (e.g., low GI diet, Inositol, spearmint tea)\n` +
+             `- 🌿 **PCOS/PMOS Symptoms** (e.g., sugar cravings, acne, fatigue, period pain)\n` +
+             `- 🥗 **PCOS/PMOS Diet & Supplements** (e.g., low GI diet, Inositol, spearmint tea)\n` +
              `- 🏋️ **Cycle-Synced Exercises** (e.g., resistance training, slow-paced cardio)\n` +
              `- 📊 **Your Health Report** (e.g., how to analyze logs)`;
   }
   else if (q.includes('diet') || q.includes('food') || q.includes('eat') || q.includes('nutrition') || q.includes('sugar') || q.includes('cravings') || q.includes('supplement') || q.includes('inositol')) {
-    answer = `🥗 **PCOS Nutrition & Diet Guidelines (Local Offline):**\n\n` +
-             `Managing PCOS involves supporting insulin sensitivity and reducing inflammation:\n\n` +
+    answer = `🥗 **PCOS/PMOS Nutrition & Diet Guidelines (Local Offline):**\n\n` +
+             `Managing PCOS/PMOS involves supporting insulin sensitivity and reducing inflammation:\n\n` +
              `1. **Low Glycemic Index (GI) Foods:** Focus on complex carbs like quinoa, oats, brown rice, and non-starchy vegetables. Avoid refined sugars and white flour to prevent insulin spikes.\n` +
              `2. **High Protein & Healthy Fats:** Pair carbs with lean proteins (tofu, chicken, fish) and healthy fats (avocado, nuts, olive oil) to stabilize blood sugar.\n` +
              `3. **Anti-inflammatory Diet:** Incorporate berries, leafy greens, fatty fish, and turmeric to lower systemic inflammation.\n` +
@@ -1501,7 +1501,7 @@ function runLocalChatbotFallback(question, documents = []) {
              `4. **Luteal Phase (Days 16-28):** Progesterone dominant. Shift from high-intensity to strength training, slow weighted workouts, or hiking. In the late luteal phase, dial down to low-intensity steady-state (LISS) cardio to prevent cortisol spikes.`;
   }
   else if (q.includes('symptom') || q.includes('acne') || q.includes('hair') || q.includes('fatigue') || q.includes('weight') || q.includes('period') || q.includes('cramp') || q.includes('pain') || q.includes('mood') || q.includes('clot')) {
-    answer = `🌿 **PCOS Symptom Management (Local Offline):**\n\n` +
+    answer = `🌿 **PCOS/PMOS Symptom Management (Local Offline):**\n\n` +
              `Here is a breakdown of common symptoms and how to address them:\n\n` +
              `1. **Sugar Cravings & Weight:** Cravings are often caused by insulin resistance. Avoid skipping meals, eat protein-rich breakfasts, and consider Inositol.\n` +
              `2. **Hormonal Acne & Hair Loss:** Driven by high androgen (male hormone) levels. Spearmint tea and zinc supplements can help block androgens naturally.\n` +
@@ -2680,7 +2680,7 @@ function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, so
     reasons.push(`Menstrual regularity is low (${regularityPercent}% regular), indicating potential anovulatory cycles`);
   }
   if (missedOrLate) {
-    reasons.push("Missed or late periods logged, which is a classic clinical indicator of PCOS");
+    reasons.push("Missed or late periods logged, which is a classic clinical indicator of PCOS/PMOS");
     pcosImpact = "Moderate";
   }
   if (hasBadPain) {
@@ -2724,11 +2724,11 @@ function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, so
     pcosImpact = "High";
   }
   if (state.user.id && state.labData.lhFsh && parseFloat(state.labData.lhFsh) >= 2.0) {
-    reasons.push(`LH/FSH ratio is ${state.labData.lhFsh}, which is a classic biomarker indicator of PCOS`);
+    reasons.push(`LH/FSH ratio is ${state.labData.lhFsh}, which is a classic biomarker indicator of PCOS/PMOS`);
     pcosImpact = "High";
   }
   if (state.user.id && state.labData.tsh && parseFloat(state.labData.tsh) >= 4.0) {
-    reasons.push(`TSH level of ${state.labData.tsh} mIU/L indicates a sluggish thyroid, which mimics/worsens PCOS fatigue`);
+    reasons.push(`TSH level of ${state.labData.tsh} mIU/L indicates a sluggish thyroid, which mimics/worsens PCOS/PMOS fatigue`);
     needsDoctor = true;
   }
 
@@ -2751,7 +2751,7 @@ function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, so
         <div style="font-size:15px; font-weight:750; color:${overallStatus === 'Good' ? 'var(--brand-green)' : '#C62828'}; margin-top:4px;">${overallStatus}</div>
       </div>
       <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:12px;">
-        <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">PCOS Impact Level</span>
+        <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">PCOS/PMOS Impact Level</span>
         <div style="font-size:15px; font-weight:750; color:${pcosImpact === 'Low' ? 'var(--brand-green)' : pcosImpact === 'Moderate' ? '#F57C00' : '#C62828'}; margin-top:4px;">${pcosImpact}</div>
       </div>
     </div>
@@ -2767,9 +2767,9 @@ function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, so
         : `Your sleep (${avgSleep.toFixed(1)}h) and water intake (${avgWater.toFixed(1)}L) are in healthy ranges, and your menstrual cycle logs indicate minimal distress.`}
     </p>
 
-    <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">2. Is PCOS heavily affecting you right now?</h5>
+    <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">2. Is PCOS/PMOS heavily affecting you right now?</h5>
     <p style="margin-bottom:16px; font-size:13.5px; color:var(--text-sub);">
-      PCOS impact is currently classified as <strong>${pcosImpact}</strong>.
+      PCOS/PMOS impact is currently classified as <strong>${pcosImpact}</strong>.
       ${symptomLoad > 0 
         ? `You have logged a total of <strong>${symptomLoad} symptom instances</strong> recently.
            ${highImpactSymptoms.length > 0 
