@@ -1158,7 +1158,7 @@ function showToast(message, type = 'info') {
 }
 
 function triggerNotification() {
-  showToast('🔔 Tip: Sync your daily exercise with your cycle phase! Ask Dost AI for tips.', 'info');
+  showToast('🔔 Tip: Sync your daily exercise with your cycle phase! Ask Bloom for tips.', 'info');
 }
 
 // ── RAG Backend AI Assistant Flow ─────────────────────────────
@@ -1426,7 +1426,7 @@ SECURITY & COMPLIANCE GUARDRAILS:
   }
 }
 
-// Local rule-based and vector database fallback for the Dost Chatbot
+// Local rule-based and vector database fallback for the Ask Bloom Chatbot
 function runLocalChatbotFallback(question, documents = []) {
   const rejection = checkGuardrails(question);
   if (rejection) {
@@ -1464,7 +1464,7 @@ function runLocalChatbotFallback(question, documents = []) {
 
   // Common keywords matched locally
   if (q === 'hi' || q === 'hello' || q === 'hey' || q === 'hola' || q === 'yo' || q.includes('who are you')) {
-    answer = `Hello! 👋 I'm **Dost**, your personalized **BloomWell PCOS** assistant.\n\n` +
+    answer = `Hello! 👋 I'm **Bloom**, your personalized **BloomWell PCOS** assistant.\n\n` +
              `I'm currently running in **Local Offline Mode** (due to a temporary server connection issue).\n\n` +
              `However, I can still help you! Ask me about:\n` +
              `- 🌿 **PCOS Symptoms** (e.g., sugar cravings, acne, fatigue, period pain)\n` +
@@ -1624,7 +1624,7 @@ function checkGuardrails(text) {
     "at", "about", "with", "can", "could", "would", "should", "please", "tell", "show", 
     "give", "get", "explain", "info", "information", "query", "question", "ask", "suggest",
     "recommend", "of", "some", "any", "this", "that", "there", "here", "it", "its", "be", "have", "has",
-    "hello", "hi", "hey", "thanks", "thank", "thankyou", "help", "support", "dost", "assistant",
+    "hello", "hi", "hey", "thanks", "thank", "thankyou", "help", "support", "bloom", "assistant",
     "app", "apps", "application", "applications", "using", "use", "make", "build", "create", "write"
   ]);
 

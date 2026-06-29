@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=6" />
+  <link rel="stylesheet" href="style.css?v=7" />
 </head>
 <body>
 
@@ -50,7 +50,7 @@
           <div class="feature-item">
             <span class="feature-icon">💬</span>
             <div>
-              <h4>Dost AI Assistant</h4>
+              <h4>Ask Bloom AI Assistant</h4>
               <p>Instant conversational answers backed by curated clinical research documents.</p>
             </div>
           </div>
@@ -260,7 +260,7 @@
               
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <div style="border-left: 3px solid var(--brand-pink); padding-left: 12px;">
-                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Dost AI Chat Companion</h4>
+                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Ask Bloom AI Companion</h4>
                   <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">Ask any hormonal health questions and get answers backed by our internal medical base.</p>
                 </div>
                 <div style="border-left: 3px solid var(--brand-green); padding-left: 12px;">
@@ -274,8 +274,8 @@
           <!-- Right Panel: Stack of action buttons -->
           <div class="dashboard-right-panel">
             <div class="welcome-header" style="margin-bottom: 12px;">
-              <h2 class="welcome-title" style="font-size: 26px;">Quick Actions</h2>
-              <p class="welcome-subtitle" style="font-size: 13.5px; color: var(--text-sub);">Hello, <span class="user-display-name">Lakshmi</span> — select a task below:</p>
+              <h2 class="welcome-title" style="font-size: 26px;">Discover our Features</h2>
+              <p class="welcome-subtitle" style="font-size: 13.5px; color: var(--text-sub);">Hello, <span class="user-display-name">Lakshmi</span> — explore your personalized features:</p>
             </div>
 
             <div class="dashboard-stack" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
@@ -298,20 +298,16 @@
                 <span class="summary-arrow" style="font-size: 18px;">›</span>
               </div>
 
-              <!-- 2. Fertility & Pregnancy Care Pill Card -->
-              <div class="summary-bar" onclick="navigateToFertilityAssessment()" style="background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%); border: 1.5px solid rgba(232, 124, 138, 0.25); box-shadow: 0 4px 15px rgba(232, 124, 138, 0.12); margin: 0; padding: 14px 24px; border-radius: var(--radius-md); max-width: 100%;">
-                <div class="summary-left" style="gap: 12px;">
-                  <div class="summary-icon-container" style="background: rgba(232, 124, 138, 0.15); width: 34px; height: 34px; color: var(--brand-pink);">
-                    <svg class="summary-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 16px; height: 16px; stroke: currentColor;">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                  </div>
-                  <div class="summary-text-container">
-                    <h3 class="summary-title" style="font-size: 14px; color: #8C2D3B;">Fertility & Pregnancy Care</h3>
-                    <p class="summary-desc" style="font-size: 11px; color: var(--text-sub);">Get fertility & conceiving guidance</p>
-                  </div>
+              <!-- 2. Fertility & Pregnancy Care Featured Card -->
+              <div class="featured-dash-card" onclick="navigateToFertilityAssessment()">
+                <div class="featured-card-content">
+                  <span class="featured-card-tag">NEW FEATURE</span>
+                  <h3 class="featured-card-title">Fertility & Pregnancy Care</h3>
+                  <p class="featured-card-desc">Get personalized guidance on cycle patterns, conceiving windows, and holistic pregnancy support.</p>
                 </div>
-                <span class="summary-arrow" style="font-size: 18px; color: var(--brand-pink);">›</span>
+                <div class="featured-card-image-container">
+                  <img src="fertility_care.png" alt="Fertility Care" class="featured-card-img" />
+                </div>
               </div>
 
               <!-- 3. Log Period -->
@@ -391,7 +387,7 @@
                 <span class="card-arrow" style="font-size: 18px;">›</span>
               </div>
 
-              <!-- 8. Dost AI Chat -->
+              <!-- 8. Ask Bloom -->
               <div class="dash-card compact-stack-card" onclick="switchView('chat')" style="padding: 14px 20px; border-radius: var(--radius-md); margin: 0;">
                 <div class="card-icon-container bg-pink" style="width: 38px; height: 38px;">
                   <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 18px; height: 18px;">
@@ -399,7 +395,7 @@
                   </svg>
                 </div>
                 <div class="card-content">
-                  <h3 class="card-title" style="font-size: 14px;">Dost AI Chat</h3>
+                  <h3 class="card-title" style="font-size: 14px;">Ask Bloom</h3>
                   <p class="card-desc" style="font-size: 11.5px; margin-top: 1px;">Ask health questions</p>
                 </div>
                 <span class="card-arrow" style="font-size: 18px;">›</span>
@@ -415,7 +411,7 @@
                 </div>
                 <div class="card-content">
                   <h3 class="card-title" style="font-size: 14px; color: #8C2D3B;">Voice AI Assistant</h3>
-                  <p class="card-desc" style="font-size: 11.5px; margin-top: 1px;">Talk to Dost via Voice</p>
+                  <p class="card-desc" style="font-size: 11.5px; margin-top: 1px;">Talk to Bloom via Voice</p>
                 </div>
                 <span class="card-arrow" style="font-size: 18px;">🎙️</span>
               </div>
@@ -426,7 +422,7 @@
         </div>
       </div>
 
-      <!-- ── B. CHAT VIEW (Dost AI Chat Interface) ── -->
+      <!-- ── B. CHAT VIEW (Ask Bloom AI Chat Interface) ── -->
       <div id="chatView" class="app-view">
         <div class="chat-container">
           
@@ -443,7 +439,7 @@
                 <span class="status-dot" id="statusDot"></span>
               </div>
               <div class="chat-header-info">
-                <h2 class="chat-title">Dost AI Chat</h2>
+                <h2 class="chat-title">Ask Bloom</h2>
                 <p class="chat-subtitle" id="chatSubtitle">Checking server connectivity…</p>
               </div>
             </div>
@@ -462,7 +458,7 @@
               <div class="message-avatar">🌸</div>
               <div class="message-bubble bot-bubble">
                 <div class="message-text">
-                  Hello! 👋 I'm **Dost**, your personalized **BloomWell PCOS** assistant.<br /><br />
+                  Hello! 👋 I'm **Bloom**, your personalized **BloomWell PCOS** assistant.<br /><br />
                   Ask me anything about **PCOS symptoms, hormonal balancing, nutrition, or cycle-syncing exercises**. 
                   I'll use our internal medical database to give you evidence-based answers with source citations, 
                   falling back to general health insights when needed. How can I help you today?
@@ -490,7 +486,7 @@
               <textarea
                 id="questionInput"
                 class="question-input"
-                placeholder="Type your health question for Dost…"
+                placeholder="Type your health question for Bloom…"
                 rows="1"
                 maxlength="1000"
                 aria-label="Your PCOS question"
@@ -592,7 +588,7 @@
         <div class="period-header-row">
           <div class="period-header-left">
             <h2 class="period-title">Period Tracker</h2>
-            <p class="period-subtitle">Your "Dost" is here to help you understand your cycle better. Logging your symptoms helps us provide personalized insights for your hormonal health.</p>
+            <p class="period-subtitle">Your "Bloom Guide" is here to help you understand your cycle better. Logging your symptoms helps us provide personalized insights for your hormonal health.</p>
           </div>
           <button class="history-btn" onclick="openPeriodHistoryModal()">
             <svg class="history-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;">
@@ -628,7 +624,7 @@
 
             <div class="dost-tip-box">
               <p class="dost-tip-text">
-                "Dost Tip: Tracking the exact start and end helps identify ovulation windows for PCOS management."
+                "Bloom Tip: Tracking the exact start and end helps identify ovulation windows for PCOS management."
               </p>
             </div>
           </div>
@@ -971,7 +967,7 @@
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
         </div>
-        <span class="tab-label">Dost Chat</span>
+        <span class="tab-label">Ask Bloom</span>
       </button>
 
       <button class="nav-tab" id="tab-settings" onclick="switchView('settings')">
@@ -1207,7 +1203,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
