@@ -292,11 +292,20 @@ function updateUIFromState() {
   });
 
   // Update card log descriptions
-  document.getElementById('periodLogDesc').textContent = state.logs.period;
-  document.getElementById('vitalsLogDesc').textContent = state.logs.vitals;
-  document.getElementById('symptomsLogDesc').textContent = state.logs.symptoms;
-  document.getElementById('labLogDesc').textContent = state.logs.lab;
-  document.getElementById('medsLogDesc').textContent = state.logs.meds;
+  const elPeriod = document.getElementById('periodLogDesc');
+  if (elPeriod) elPeriod.textContent = state.logs.period;
+
+  const elVitals = document.getElementById('vitalsLogDesc');
+  if (elVitals) elVitals.textContent = state.logs.vitals;
+
+  const elSymptoms = document.getElementById('symptomsLogDesc');
+  if (elSymptoms) elSymptoms.textContent = state.logs.symptoms;
+
+  const elLab = document.getElementById('labLogDesc');
+  if (elLab) elLab.textContent = state.logs.lab;
+
+  const elMeds = document.getElementById('medsLogDesc');
+  if (elMeds) elMeds.textContent = state.logs.meds;
 
   // Pre-fill profile settings form
   document.getElementById('profileNameInput').value = state.user.name;
