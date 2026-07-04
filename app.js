@@ -579,23 +579,28 @@ function showAuthSubScreen(screenName) {
   });
 
   if (screenName === 'choice') {
-    document.getElementById('authChoiceScreen').classList.remove('hidden');
+    const el = document.getElementById('authChoiceScreen');
+    if (el) el.classList.remove('hidden');
   } else if (screenName === 'existing') {
     const form = document.getElementById('loginForm');
     if (form) form.reset();
-    document.getElementById('authLoginScreen').classList.remove('hidden');
+    const el = document.getElementById('authLoginScreen');
+    if (el) el.classList.remove('hidden');
   } else if (screenName === 'new') {
     const form = document.getElementById('setupForm');
     if (form) form.reset();
-    document.getElementById('authSetupScreen').classList.remove('hidden');
+    const el = document.getElementById('authSetupScreen');
+    if (el) el.classList.remove('hidden');
   } else if (screenName === 'forgot') {
     const form = document.getElementById('forgotForm');
     if (form) form.reset();
-    document.getElementById('authForgotScreen').classList.remove('hidden');
+    const el = document.getElementById('authForgotScreen');
+    if (el) el.classList.remove('hidden');
   } else if (screenName === 'reset') {
     const form = document.getElementById('resetForm');
     if (form) form.reset();
-    document.getElementById('authResetScreen').classList.remove('hidden');
+    const el = document.getElementById('authResetScreen');
+    if (el) el.classList.remove('hidden');
   }
 }
 
