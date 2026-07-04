@@ -216,6 +216,22 @@ async function syncUserLogs(userId) {
 
 async function initApp() {
   loadState();
+
+  // Detect password recovery callback
+  const hash = window.location.hash || '';
+  const urlParams = new URLSearchParams(window.location.search);
+  const isRecovery = hash.includes('type=recovery') || urlParams.get('type') === 'recovery' || hash.includes('access_token=');
+
+  if (isRecovery) {
+    console.log('Recovery flow detected from URL parameters/hash.');
+    authContainer.classList.remove('hidden');
+    appContainer.classList.add('hidden');
+    showAuthSubScreen('reset');
+
+    // Clear hash/query params from URL to prevent loop on reload
+    window.history.replaceState(null, null, window.location.pathname);
+    return;
+  }
   
   // Check active Supabase session
   try {
@@ -556,6 +572,7 @@ function showAuthSubScreen(screenName) {
   showFormMessage('login', '');
   showFormMessage('setup', '');
   showFormMessage('forgot', '');
+  showFormMessage('reset', '');
 
   document.querySelectorAll('.auth-sub-screen').forEach(screen => {
     screen.classList.add('hidden');
@@ -575,6 +592,10 @@ function showAuthSubScreen(screenName) {
     const form = document.getElementById('forgotForm');
     if (form) form.reset();
     document.getElementById('authForgotScreen').classList.remove('hidden');
+  } else if (screenName === 'reset') {
+    const form = document.getElementById('resetForm');
+    if (form) form.reset();
+    document.getElementById('authResetScreen').classList.remove('hidden');
   }
 }
 
@@ -789,6 +810,38 @@ async function handleForgotPassword(e) {
   } else {
     showFormMessage('forgot', '📨 Reset link sent successfully! Check your email inbox.', 'success');
     setTimeout(() => showAuthSubScreen('existing'), 3000);
+  }
+}
+
+
+async function handleUpdatePassword(e) {
+  e.preventDefault();
+  const newPassword = document.getElementById('resetPasswordInput').value;
+
+  if (!newPassword || newPassword.length < 6) {
+    showFormMessage('reset', '❌ Password must be at least 6 characters.', 'error');
+    return;
+  }
+
+  showFormMessage('reset', 'Updating password...', 'info');
+
+  const { error } = await sb.auth.updateUser({ password: newPassword });
+
+  if (error) {
+    showFormMessage('reset', '❌ Failed to update password: ' + error.message, 'error');
+  } else {
+    showFormMessage('reset', '🔒 Password updated successfully! Redirecting to login...', 'success');
+    
+    // Sign out of the recovery session so they must log in manually with the new credentials
+    await sb.auth.signOut();
+    state.user.isLoggedIn = false;
+    state.user.id = null;
+    saveState();
+
+    document.getElementById('resetForm').reset();
+    setTimeout(() => {
+      showAuthSubScreen('existing');
+    }, 2000);
   }
 }
 

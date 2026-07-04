@@ -204,6 +204,22 @@
           </form>
         </div>
 
+        <!-- E. UPDATE PASSWORD SCREEN (Triggered by recovery flow) -->
+        <div id="authResetScreen" class="auth-sub-screen hidden">
+          <div class="auth-form-header">
+            <h1 class="auth-form-title" style="margin-top:16px;">Create New Password</h1>
+            <p class="auth-form-subtitle">Enter a new secure password for your account</p>
+          </div>
+          <form id="resetForm" onsubmit="handleUpdatePassword(event)">
+            <div class="form-group">
+              <label for="resetPasswordInput" class="form-label">New Password</label>
+              <input type="password" id="resetPasswordInput" class="form-input" placeholder="Min 6 characters" minlength="6" required />
+            </div>
+            <div id="resetFormMessage" class="auth-form-message hidden"></div>
+            <button type="submit" class="auth-btn">Update Password</button>
+          </form>
+        </div>
+
 
       </div>
     </div>
