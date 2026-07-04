@@ -539,7 +539,7 @@ function goBack() {
 
 
 function showFormMessage(formId, message, type = 'error') {
-  const el = document.getElementById(formId + 'Message');
+  const el = document.getElementById(formId + 'FormMessage');
   if (!el) return;
   if (!message) {
     el.textContent = '';
