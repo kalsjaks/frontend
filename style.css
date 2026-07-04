@@ -279,6 +279,38 @@ body {
   background: #256428;
 }
 
+.auth-form-message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-align: left;
+}
+
+.auth-form-message.error {
+  background-color: rgba(220, 53, 69, 0.08);
+  border: 1px solid rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+}
+
+.auth-form-message.info {
+  background-color: rgba(13, 110, 253, 0.08);
+  border: 1px solid rgba(13, 110, 253, 0.2);
+  color: #0d6efd;
+}
+
+.auth-form-message.success {
+  background-color: rgba(46, 125, 50, 0.08);
+  border: 1px solid rgba(46, 125, 50, 0.2);
+  color: #2e7d32;
+}
+
+.auth-form-message.hidden {
+  display: none !important;
+}
+
 /* ── 2. MAIN APP LAYOUT (SaaS proportions) ── */
 #appContainer {
   display: flex;

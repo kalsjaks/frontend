@@ -538,8 +538,25 @@ function goBack() {
 }
 
 
+function showFormMessage(formId, message, type = 'error') {
+  const el = document.getElementById(formId + 'Message');
+  if (!el) return;
+  if (!message) {
+    el.textContent = '';
+    el.className = 'auth-form-message hidden';
+    return;
+  }
+  el.innerHTML = message;
+  el.className = `auth-form-message ${type}`;
+}
+
 // ── Auth Wizard Switching ─────────────────────────────────────
 function showAuthSubScreen(screenName) {
+  // Clear any existing inline messages
+  showFormMessage('login', '');
+  showFormMessage('setup', '');
+  showFormMessage('forgot', '');
+
   document.querySelectorAll('.auth-sub-screen').forEach(screen => {
     screen.classList.add('hidden');
   });
@@ -596,7 +613,7 @@ async function handleExistingLogin(e) {
 
   if (!username || !password) return;
 
-  showToast('Looking up username...', 'info');
+  showFormMessage('login', 'Looking up username...', 'info');
 
   // Search the profiles table to get the registered email for this username
   const { data: profile, error: searchError } = await sb
@@ -606,21 +623,21 @@ async function handleExistingLogin(e) {
     .maybeSingle();
 
   if (searchError || !profile) {
-    showToast('❌ Username not found. Please try again or create a New User profile.', 'error');
+    showFormMessage('login', '❌ Username not found. Please try again or create a New User profile.', 'error');
     return;
   }
 
   if (!profile.email) {
-    showToast('⚠️ No email linked to this username. Please contact support.', 'error');
+    showFormMessage('login', '⚠️ No email linked to this username. Please contact support.', 'error');
     return;
   }
 
-  showToast('Connecting to secure database...', 'info');
+  showFormMessage('login', 'Connecting to secure database...', 'info');
 
   const { data, error } = await sb.auth.signInWithPassword({ email: profile.email, password: password });
 
   if (error) {
-    showToast('❌ Invalid password. Please try again.', 'error');
+    showFormMessage('login', '❌ Invalid password. Please try again.', 'error');
     return;
   }
 
@@ -635,7 +652,7 @@ async function handleExistingLogin(e) {
   appContainer.classList.remove('hidden');
   switchView('home');
 
-  showToast('🌸 Welcome back, ' + state.user.name + '!', 'success');
+  console.log('🌸 Welcome back, ' + state.user.name + '!');
 }
 
 async function handleNewUserSetup(e) {
@@ -661,13 +678,13 @@ async function handleNewUserSetup(e) {
     if (c.classList.contains('selected')) mainGoal = c.textContent.trim();
   });
 
-  showToast('Creating profile in cloud database...', 'info');
+  showFormMessage('setup', 'Creating profile in cloud database...', 'info');
 
   const { data, error } = await sb.auth.signUp({ email, password });
 
   let userId = null;
   if (error) {
-    showToast('❌ Profile creation failed: ' + error.message, 'error');
+    showFormMessage('setup', '❌ Profile creation failed: ' + error.message, 'error');
     return;
   } else {
     userId = data.user?.id || (data.user && data.user.id);
@@ -677,7 +694,7 @@ async function handleNewUserSetup(e) {
   }
 
   if (!userId) {
-    showToast('❌ Error: User ID not generated.', 'error');
+    showFormMessage('setup', '❌ Error: User ID not generated.', 'error');
     return;
   }
 
@@ -722,7 +739,7 @@ async function handleNewUserSetup(e) {
   appContainer.classList.remove('hidden');
   switchView('home');
 
-  showToast('🌸 Welcome to BloomWell PCOS, ' + name + '! Profile created successfully.', 'success');
+  console.log('🌸 Welcome to BloomWell PCOS, ' + name + '! Profile created successfully.');
 }
 
 function continueAsGuest() {
@@ -752,7 +769,7 @@ function continueAsGuest() {
   appContainer.classList.remove('hidden');
   switchView('home');
 
-  showToast('🌸 Welcome to BloomWell PCOS! You are logged in as a Guest (offline local mode).', 'success');
+  console.log('🌸 Welcome to BloomWell PCOS! You are logged in as a Guest (offline local mode).');
 }
 
 async function handleForgotPassword(e) {
@@ -761,17 +778,17 @@ async function handleForgotPassword(e) {
 
   if (!email) return;
 
-  showToast('Sending password reset email...', 'info');
+  showFormMessage('forgot', 'Sending password reset email...', 'info');
 
   const { error } = await sb.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.origin
   });
 
   if (error) {
-    showToast('❌ Failed to send reset link: ' + error.message, 'error');
+    showFormMessage('forgot', '❌ Failed to send reset link: ' + error.message, 'error');
   } else {
-    showToast('📨 Reset link sent successfully! Check your email inbox.', 'success');
-    showAuthSubScreen('existing');
+    showFormMessage('forgot', '📨 Reset link sent successfully! Check your email inbox.', 'success');
+    setTimeout(() => showAuthSubScreen('existing'), 3000);
   }
 }
 
@@ -1153,6 +1170,10 @@ async function submitMedsLog() {
 
 // Toast alerts helper
 function showToast(message, type = 'info') {
+  if (type === 'info') {
+    console.log('[INFO TOAST]:', message);
+    return;
+  }
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast-message ${type === 'success' ? 'toast-success' : ''}`;
@@ -1255,13 +1276,13 @@ async function getEmbedding(text) {
     }
     isModelLoading = true;
     try {
-      showToast('📥 Loading local browser semantic analyzer (23MB)...', 'info');
+      console.log('📥 Loading local browser semantic analyzer (23MB)...');
       const { pipeline } = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.14.0');
       extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
-      showToast('✓ Semantic analyzer loaded successfully.', 'success');
+      console.log('✓ Semantic analyzer loaded successfully.');
     } catch (err) {
       isModelLoading = false;
-      showToast('❌ Failed to load semantic analyzer. Using general AI fallback.', 'error');
+      console.error('❌ Failed to load semantic analyzer. Using general AI fallback.', err);
       throw err;
     }
     isModelLoading = false;
