@@ -217,19 +217,36 @@ async function syncUserLogs(userId) {
 async function initApp() {
   loadState();
 
+  let isRecovering = false;
+
+  // Listen for Supabase password recovery event
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      console.log('PASSWORD_RECOVERY event received from Supabase.');
+      isRecovering = true;
+      authContainer.classList.remove('hidden');
+      appContainer.classList.add('hidden');
+      showAuthSubScreen('reset');
+    }
+  });
+
   // Detect password recovery callback
   const hash = window.location.hash || '';
   const urlParams = new URLSearchParams(window.location.search);
-  const isRecovery = hash.includes('type=recovery') || urlParams.get('type') === 'recovery' || hash.includes('access_token=');
+  if (hash.includes('type=recovery') || urlParams.get('type') === 'recovery' || hash.includes('access_token=')) {
+    isRecovering = true;
+  }
 
-  if (isRecovery) {
-    console.log('Recovery flow detected from URL parameters/hash.');
+  if (isRecovering) {
+    console.log('Recovery flow active.');
     authContainer.classList.remove('hidden');
     appContainer.classList.add('hidden');
     showAuthSubScreen('reset');
 
     // Clear hash/query params from URL to prevent loop on reload
-    window.history.replaceState(null, null, window.location.pathname);
+    if (window.location.hash || window.location.search) {
+      window.history.replaceState(null, null, window.location.pathname);
+    }
     return;
   }
   
@@ -237,6 +254,7 @@ async function initApp() {
   try {
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
+      if (isRecovering) return; // Guard to prevent redirecting to home during recovery update
       state.user.isLoggedIn = true;
       state.user.id = session.user.id;
       await syncUserLogs(session.user.id);
@@ -639,7 +657,7 @@ async function handleExistingLogin(e) {
 
   if (!username || !password) return;
 
-  showFormMessage('login', 'Looking up username...', 'info');
+  console.log('Looking up username...');
 
   // Search the profiles table to get the registered email for this username
   const { data: profile, error: searchError } = await sb
@@ -658,7 +676,7 @@ async function handleExistingLogin(e) {
     return;
   }
 
-  showFormMessage('login', 'Connecting to secure database...', 'info');
+  console.log('Connecting to secure database...');
 
   const { data, error } = await sb.auth.signInWithPassword({ email: profile.email, password: password });
 
@@ -704,7 +722,7 @@ async function handleNewUserSetup(e) {
     if (c.classList.contains('selected')) mainGoal = c.textContent.trim();
   });
 
-  showFormMessage('setup', 'Creating profile in cloud database...', 'info');
+  console.log('Creating profile in cloud database...');
 
   const { data, error } = await sb.auth.signUp({ email, password });
 
@@ -804,7 +822,7 @@ async function handleForgotPassword(e) {
 
   if (!email) return;
 
-  showFormMessage('forgot', 'Sending password reset email...', 'info');
+  console.log('Sending password reset email...');
 
   const { error } = await sb.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.origin
@@ -828,7 +846,7 @@ async function handleUpdatePassword(e) {
     return;
   }
 
-  showFormMessage('reset', 'Updating password...', 'info');
+  console.log('Updating password...');
 
   const { error } = await sb.auth.updateUser({ password: newPassword });
 
@@ -924,16 +942,29 @@ function openModal(modalId) {
   // Hide all other modal contents
   overlay.querySelectorAll('.modal-content').forEach(modal => {
     modal.classList.add('hidden');
+    // Clear any inline messages inside modals
+    const msgEl = modal.querySelector('.modal-inline-message');
+    if (msgEl) msgEl.remove();
   });
 
   const targetModal = document.getElementById(modalId);
-  targetModal.classList.remove('hidden');
+  if (targetModal) {
+    targetModal.classList.remove('hidden');
+    const msgEl = targetModal.querySelector('.modal-inline-message');
+    if (msgEl) msgEl.remove();
+  }
   activeModalId = modalId;
 }
 
 function closeActiveModal() {
   if (!activeModalId) return;
-  document.getElementById(activeModalId).classList.add('hidden');
+  const modal = document.getElementById(activeModalId);
+  if (modal) {
+    modal.classList.add('hidden');
+    // Clear any inline messages inside the closing modal
+    const msgEl = modal.querySelector('.modal-inline-message');
+    if (msgEl) msgEl.remove();
+  }
   document.getElementById('modalOverlay').classList.add('hidden');
   activeModalId = null;
 }
@@ -1228,21 +1259,37 @@ async function submitMedsLog() {
 
 // Toast alerts helper
 function showToast(message, type = 'info') {
-  if (type === 'info') {
-    console.log('[INFO TOAST]:', message);
+  console.log(`[TOAST - ${type.toUpperCase()}]:`, message);
+
+  // If it is an info log or success message, we do not show any popup at all (silent console feedback)
+  if (type === 'info' || type === 'success') {
     return;
   }
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = `toast-message ${type === 'success' ? 'toast-success' : ''}`;
-  toast.innerHTML = message;
-  container.appendChild(toast);
-  
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translate(-50%, -20px)';
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
+
+  // If it is an error or warning, we try to display it inline inside the active screen/modal
+  const activeModal = document.querySelector('.modal-content:not(.hidden)');
+  if (activeModal) {
+    const modalBody = activeModal.querySelector('.modal-body');
+    if (modalBody) {
+      let msgEl = activeModal.querySelector('.modal-inline-message');
+      if (!msgEl) {
+        msgEl = document.createElement('div');
+        msgEl.className = 'modal-inline-message auth-form-message error';
+        msgEl.style.marginTop = '12px';
+        msgEl.style.marginBottom = '0';
+        modalBody.appendChild(msgEl);
+      }
+      msgEl.innerHTML = message;
+      msgEl.classList.remove('hidden');
+      return;
+    }
+  }
+
+  const activeAuthScreen = document.querySelector('.auth-sub-screen:not(.hidden)');
+  if (activeAuthScreen) {
+    const formId = activeAuthScreen.id.replace('auth', '').replace('Screen', '').toLowerCase(); // e.g. login, setup, forgot, reset
+    showFormMessage(formId, message, type);
+  }
 }
 
 function triggerNotification() {
