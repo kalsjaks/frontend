@@ -555,6 +555,13 @@ function switchView(viewName, isBack = false) {
   } else if (viewName === 'summary') {
     document.getElementById('summaryView').classList.add('active');
     document.getElementById('tab-home').classList.add('active');
+    
+    // Default to showing Clinical card and hiding Fertility card
+    const clinicalCard = document.getElementById('clinicalAssessmentCard');
+    const fertilityCard = document.getElementById('fertilityAssessmentCard');
+    if (clinicalCard) clinicalCard.classList.remove('hidden');
+    if (fertilityCard) fertilityCard.classList.add('hidden');
+    
     initSummaryPage();
   }
   
@@ -3251,13 +3258,20 @@ function runLocalRuleBasedFertilityAssessment(symptomCounts, sortedSymps, cached
 async function navigateToFertilityAssessment() {
   // 1. Switch to summary view
   switchView('summary');
-  // 2. Wait a brief moment for the page to render and fetch data if necessary
+  
+  // 2. Adjust visibility so only the fertility assessment card shows up
+  const clinicalCard = document.getElementById('clinicalAssessmentCard');
+  const fertilityCard = document.getElementById('fertilityAssessmentCard');
+  if (clinicalCard) clinicalCard.classList.add('hidden');
+  if (fertilityCard) fertilityCard.classList.remove('hidden');
+  
+  // 3. Wait a brief moment for the page to render and fetch data if necessary
   setTimeout(async () => {
-    // 3. Scroll to the fertility assessment card
+    // 4. Scroll to the fertility assessment card
     const targetCard = document.getElementById('analyzeFertilityBtn');
     if (targetCard) {
       targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // 4. Automatically trigger the assessment
+      // 5. Automatically trigger the assessment
       await generateAIFertilityAssessment();
     }
   }, 400);
