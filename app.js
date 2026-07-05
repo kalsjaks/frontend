@@ -2014,43 +2014,15 @@ function appendUserMessage(text) {
 }
 
 function appendBotMessage(data) {
-  const { answer, sources = [], source_type = 'external', confidence = 0 } = data;
-
-  const isInternal = source_type === 'internal';
-  const badgeClass = isInternal ? 'source-internal' : 'source-external';
-  const badgeIcon  = isInternal ? '🏥' : '🌐';
-  const badgeLabel = isInternal
-    ? 'From Internal Knowledge Base'
-    : 'From External Sources (General AI Knowledge)';
-
-  let sourcesHtml = '';
-  if (isInternal && sources.length > 0) {
-    const items = sources.map(s => `
-      <div class="source-item">
-        <span class="source-icon">📄</span>
-        <div>
-          <div class="source-name">${escapeHtml(s.source)}</div>
-          ${s.content ? `<div class="source-preview">${escapeHtml(s.content)}</div>` : ''}
-        </div>
-      </div>
-    `).join('');
-    sourcesHtml = `
-      <div class="message-sources">
-        <div class="sources-title">📚 Sourced From:</div>
-        ${items}
-      </div>
-    `;
-  }
+  const { answer } = data;
 
   const row = document.createElement('div');
   row.className = 'message-row bot-row';
   row.innerHTML = `
     <div class="message-avatar">🌸</div>
     <div class="message-bubble bot-bubble">
-      <span class="message-source-badge ${badgeClass}">${badgeIcon} ${badgeLabel}</span>
       <div class="message-text">${formatAnswer(answer)}</div>
-      ${sourcesHtml}
-      <div class="message-time">${formatTime()}${isInternal ? ` · Confidence: ${Math.round(confidence * 100)}%` : ''}</div>
+      <div class="message-time">${formatTime()}</div>
     </div>
   `;
   messagesArea.appendChild(row);
