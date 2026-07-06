@@ -299,15 +299,29 @@
           <!-- Right Panel: Stack of action buttons -->
           <div class="dashboard-right-panel">
             
-            <!-- Ask Bloom Chatbot Banner (Ask Eva equivalent) -->
-            <div class="ask-bloom-banner">
-              <div class="ask-bloom-banner-left">
-                <h3 class="ask-bloom-banner-title">Ask Bloom</h3>
-                <p class="ask-bloom-banner-desc">Hi! I'm Bloom, your personal AI guide for PCOS/PMOS hormonal wellness. How can I help you today?</p>
-                <button class="ask-bloom-banner-btn" onclick="switchView('chat')">Chat with Bloom</button>
+            <div class="banners-container" style="display: flex; gap: 16px; width: 100%; flex-wrap: wrap;">
+              <!-- Ask Bloom Chatbot Banner (Ask Eva equivalent) -->
+              <div class="ask-bloom-banner" style="flex: 1; min-width: 280px; margin-bottom: 0;">
+                <div class="ask-bloom-banner-left">
+                  <h3 class="ask-bloom-banner-title">Ask Bloom</h3>
+                  <p class="ask-bloom-banner-desc">Hi! I'm Bloom, your personal AI guide for PCOS/PMOS hormonal wellness. How can I help you today?</p>
+                  <button class="ask-bloom-banner-btn" onclick="switchView('chat')">Chat with Bloom</button>
+                </div>
+                <div class="ask-bloom-banner-right">
+                  <span class="ask-bloom-banner-avatar">🌸</span>
+                </div>
               </div>
-              <div class="ask-bloom-banner-right">
-                <span class="ask-bloom-banner-avatar">🌸</span>
+
+              <!-- Book Consultation with Doctor Banner -->
+              <div class="ask-bloom-banner book-doctor-banner" onclick="toggleVoiceAssistantWidget()" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(46, 125, 50, 0.2); background: linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(46, 125, 50, 0.06);">
+                <div class="ask-bloom-banner-left">
+                  <h3 class="ask-bloom-banner-title" style="color: #2E7D32;">Book Consultation with Doctor</h3>
+                  <p class="ask-bloom-banner-desc" style="max-width: 95%;">Need specialized help? Start a voice call with our AI Medical Practitioner for clinical guidance.</p>
+                  <button class="ask-bloom-banner-btn" style="background: #2E7D32;" onclick="event.stopPropagation(); toggleVoiceAssistantWidget();">Start call</button>
+                </div>
+                <div class="ask-bloom-banner-right" style="right: 12px; bottom: -10px;">
+                  <span class="ask-bloom-banner-avatar" style="font-size: 56px;">🩺</span>
+                </div>
               </div>
             </div>
 
@@ -402,21 +416,12 @@
                 </div>
 
                 <!-- Lab Results -->
-                <div class="dash-card compact-stack-card" onclick="openLabResultsModal()" style="padding: 10px 14px; border-radius: var(--radius-md); margin: 0; min-height: auto;">
+                <div class="dash-card compact-stack-card" onclick="openLabResultsModal()" style="padding: 10px 14px; border-radius: var(--radius-md); margin: 0; min-height: auto; grid-column: span 2;">
                   <div class="card-icon-container bg-pink" style="width: 28px; height: 28px; font-size: 14px;">🔬</div>
                   <div class="card-content">
                     <h3 class="card-title" style="font-size: 12.5px;">Lab Results</h3>
                   </div>
                   <span class="card-arrow" style="font-size: 14px;">›</span>
-                </div>
-
-                <!-- Voice AI Assistant -->
-                <div class="dash-card compact-stack-card" onclick="toggleVoiceAssistantWidget()" style="padding: 10px 14px; border-radius: var(--radius-md); margin: 0; min-height: auto; border: 1.5px solid rgba(232, 124, 138, 0.25); background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%);">
-                  <div class="card-icon-container bg-pink" style="width: 28px; height: 28px; font-size: 14px;">🎙️</div>
-                  <div class="card-content">
-                    <h3 class="card-title" style="font-size: 12.5px; color: #8C2D3B;">Voice AI</h3>
-                  </div>
-                  <span class="card-arrow" style="font-size: 14px;">🎙️</span>
                 </div>
               </div>
             </div>

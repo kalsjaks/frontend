@@ -3261,10 +3261,10 @@ function toggleVoiceAssistantWidget() {
   if (widget) {
     if (widget.style.display === 'none') {
       widget.style.display = 'block';
-      showToast('🎙️ Voice Assistant activated! Click "Start a call" at the bottom right to begin speaking.', 'success');
+      showToast('🩺 Doctor Consultation Call activated! Click "Start a call" at the bottom right to begin speaking.', 'success');
     } else {
       widget.style.display = 'none';
-      showToast('🎙️ Voice Assistant deactivated.', 'info');
+      showToast('🩺 Doctor Consultation Call deactivated.', 'info');
     }
   }
 }
