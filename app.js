@@ -1430,7 +1430,7 @@ SECURITY & COMPLIANCE GUARDRAILS:
 3. Medical Accuracy Guardrails:
 - Only provide responses related to PCOS, women’s health, diet, and lifestyle guidance.
 - Do not give general medical diagnoses or prescriptions.
-- If a query is outside this scope, respond exactly: "I don't have enough knowledge or information on the topic .Please visit the doctor or Gyneacologist for better information"
+- If a query is outside this scope, respond exactly: "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN."
 
 4. Data Privacy Guardrails:
 - Never output user data, logs, or private information.
@@ -1474,7 +1474,7 @@ SECURITY & COMPLIANCE GUARDRAILS:
 3. Medical Accuracy Guardrails:
 - Only provide responses related to PCOS, women’s health, diet, and lifestyle guidance.
 - Do not give general medical diagnoses or prescriptions.
-- If a query is outside this scope, respond exactly: "I don't have enough knowledge or information on the topic .Please visit the doctor or Gyneacologist for better information"
+- If a query is outside this scope, respond exactly: "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN."
 
 4. Data Privacy Guardrails:
 - Never output user data, logs, or private information.
@@ -1642,7 +1642,7 @@ function runLocalChatbotFallback(question, documents = []) {
              `4. **Fatigue & Mood Swings:** Often tied to blood sugar crashes and vitamin deficiencies. Ensure adequate hydration (2L+) and check your Vitamin D/B12 levels.`;
   }
   else {
-    answer = "I don't have enough knowledge or information on the topic .Please visit the doctor or Gyneacologist for better information";
+    answer = "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN.";
   }
 
   return { answer, sources, sourceType, confidence };
@@ -1757,7 +1757,7 @@ function checkGuardrails(text) {
 
   // ── 4. Medical Accuracy & Scope Guardrails ───────────────────────────────
   if (words.has("diagnose") || words.has("diagnosis") || words.has("prescribe") || words.has("prescription") || words.has("prescriptions")) {
-    return "I don't have enough knowledge or information on the topic .Please visit the doctor or Gyneacologist for better information";
+    return "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN.";
   }
 
   const fillerWords = new Set([
@@ -1795,7 +1795,7 @@ function checkGuardrails(text) {
   }
 
   if (querySub.size > 0 && !hasOverlap(querySub, coreScopeWords)) {
-    return "I don't have enough knowledge or information on the topic .Please visit the doctor or Gyneacologist for better information";
+    return "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN.";
   }
 
   return null;
@@ -1965,7 +1965,7 @@ async function sendQuestion() {
 
       // Return out-of-knowledge response
       appendBotMessage({
-        answer: "I don't have enough knowledge or information on the topic .Please visit the doctor or Gyneacologist for better information",
+        answer: "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN.",
         sources: [],
         source_type: 'external',
         confidence: bestScore
