@@ -622,14 +622,17 @@
                 Select Cycle Dates
               </h3>
               
-              <div class="period-date-inputs">
-                <div class="form-group">
-                  <label class="form-label" for="periodStartInput">Period start date</label>
-                  <input type="date" id="periodStartInput" class="form-input" />
+              <div class="calendar-container" style="margin-top: 12px; background: #FFFFFF; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 16px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+                <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: 700; color: var(--text-main);">
+                  <button type="button" onclick="prevMonth()" style="background:none; border:none; font-size:16px; cursor:pointer; color:var(--brand-pink); padding: 4px 8px;">◀</button>
+                  <span id="calendarMonthYear" style="font-family: var(--font-serif); font-size: 15px; user-select: none;">June 2026</span>
+                  <button type="button" onclick="nextMonth()" style="background:none; border:none; font-size:16px; cursor:pointer; color:var(--brand-pink); padding: 4px 8px;">▶</button>
                 </div>
-                <div class="form-group">
-                  <label class="form-label" for="periodEndInput">Period end date</label>
-                  <input type="date" id="periodEndInput" class="form-input" />
+                <div class="calendar-weekdays" style="display: grid; grid-template-columns: repeat(7, 1fr); font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px;">
+                  <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                </div>
+                <div id="calendarDaysGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
+                  <!-- Days generated dynamically -->
                 </div>
               </div>
 

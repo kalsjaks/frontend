@@ -20,6 +20,8 @@ let isLoading = false;
 let suggestionsHidden = false;
 let activeModalId = null;
 let viewHistory = [];
+const selectedPeriodDates = new Set();
+let currentCalendarDate = new Date();
 
 // ── Application State ─────────────────────────────────────────
 let state = {
@@ -275,27 +277,81 @@ async function initApp() {
     showAuthSubScreen('choice');
   }
   updateUIFromState();
-  setupPeriodTrackerListeners();
 }
 
-function setupPeriodTrackerListeners() {
-  const startInput = document.getElementById('periodStartInput');
-  const endInput = document.getElementById('periodEndInput');
-  if (startInput && endInput) {
-    startInput.addEventListener('change', () => {
-      const val = startInput.value;
-      if (val) {
-        const startDate = new Date(val);
-        // Add 4 days to make it a 5-day duration (inclusive of start date)
-        startDate.setDate(startDate.getDate() + 4);
-        
-        const yyyy = startDate.getFullYear();
-        const mm = String(startDate.getMonth() + 1).padStart(2, '0');
-        const dd = String(startDate.getDate()).padStart(2, '0');
-        endInput.value = `${yyyy}-${mm}-${dd}`;
-      }
-    });
+function renderCalendar() {
+  const monthYearEl = document.getElementById('calendarMonthYear');
+  const gridEl = document.getElementById('calendarDaysGrid');
+  if (!monthYearEl || !gridEl) return;
+
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  monthYearEl.textContent = `${monthNames[month]} ${year}`;
+
+  gridEl.innerHTML = '';
+
+  const firstDayIndex = new Date(year, month, 1).getDay();
+  const lastDay = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < firstDayIndex; i++) {
+    const emptyCell = document.createElement('div');
+    emptyCell.className = 'calendar-day empty';
+    gridEl.appendChild(emptyCell);
   }
+
+  for (let day = 1; day <= lastDay; day++) {
+    const dayCell = document.createElement('div');
+    dayCell.className = 'calendar-day';
+    dayCell.textContent = day;
+
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    if (selectedPeriodDates.has(dateStr)) {
+      dayCell.classList.add('selected');
+    }
+
+    dayCell.onclick = () => {
+      handleCalendarDateClick(dateStr);
+    };
+
+    gridEl.appendChild(dayCell);
+  }
+}
+
+function prevMonth() {
+  currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+  renderCalendar();
+}
+
+function nextMonth() {
+  currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+  renderCalendar();
+}
+
+function handleCalendarDateClick(dateStr) {
+  if (selectedPeriodDates.size === 0) {
+    const baseDate = new Date(dateStr);
+    for (let i = 0; i < 5; i++) {
+      const tempDate = new Date(baseDate);
+      tempDate.setDate(baseDate.getDate() + i);
+      
+      const y = tempDate.getFullYear();
+      const m = String(tempDate.getMonth() + 1).padStart(2, '0');
+      const d = String(tempDate.getDate()).padStart(2, '0');
+      selectedPeriodDates.add(`${y}-${m}-${d}`);
+    }
+  } else {
+    if (selectedPeriodDates.has(dateStr)) {
+      selectedPeriodDates.delete(dateStr);
+    } else {
+      selectedPeriodDates.add(dateStr);
+    }
+  }
+  renderCalendar();
 }
 
 // ── State Syncing (Local Storage Fallback) ─────────────────────────────
@@ -571,6 +627,11 @@ function switchView(viewName, isBack = false) {
     document.getElementById('periodView').classList.add('active');
     document.getElementById('tab-home').classList.add('active');
     
+    // Clear calendar state and render
+    selectedPeriodDates.clear();
+    currentCalendarDate = new Date();
+    renderCalendar();
+
     // Pre-fill age, height, and weight inputs
     const trackerAge = document.getElementById('trackerAgeInput');
     const trackerHeight = document.getElementById('trackerHeightInput');
@@ -2213,13 +2274,14 @@ function selectSeverityCard(cardEl, val) {
 }
 
 async function submitFullPeriodLog() {
-  const start = document.getElementById('periodStartInput').value;
-  const end = document.getElementById('periodEndInput').value;
-
-  if (!start) {
-    showToast('⚠️ Please select a period start date.', 'error');
+  if (selectedPeriodDates.size === 0) {
+    showToast('⚠️ Please select at least one period date on the calendar.', 'error');
     return;
   }
+
+  const sortedDates = Array.from(selectedPeriodDates).sort();
+  const start = sortedDates[0];
+  const end = sortedDates[sortedDates.length - 1];
 
   // Read tracker inputs for Age, Height, Weight
   const trackerAge = parseInt(document.getElementById('trackerAgeInput').value) || state.user.age;

@@ -2458,3 +2458,29 @@ button.chip.selected {
 #customMedsCheckboxContainer label:hover {
   background-color: var(--brand-pink-light);
 }
+
+/* ── Interactive Calendar Styling ── */
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.calendar-day:hover {
+  background-color: var(--brand-pink-light);
+}
+.calendar-day.selected {
+  background-color: #E87C8A !important;
+  color: #FFFFFF !important;
+}
+.calendar-day.empty {
+  cursor: default;
+  background: none !important;
+}
