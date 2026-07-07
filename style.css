@@ -854,13 +854,15 @@ body {
   border: 1.5px solid var(--brand-pink);
   color: #FFFFFF;
   cursor: pointer;
-  padding: 8px;
-  width: 38px;
+  padding: 8px 16px;
   height: 38px;
-  border-radius: 50%;
+  border-radius: 19px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 600;
+  font-size: 13.5px;
+  font-family: var(--font-sans);
   transition: all var(--duration) var(--ease);
 }
 
