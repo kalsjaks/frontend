@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=21" />
+  <link rel="stylesheet" href="style.css?v=22" />
 </head>
 <body>
 
@@ -509,12 +509,13 @@
               <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
                 <!-- Language selector -->
                 <select id="speechLanguageSelect" class="form-input" style="width: auto; padding: 0 10px; margin: 0; border-radius: 20px; font-size: 11.5px; height: 42px; border: 1.5px solid var(--border); background: #FFFFFF; font-weight: 600; cursor: pointer; outline: none;">
-                  <option value="en-US">🇺🇸 EN</option>
-                  <option value="hi-IN">🇮🇳 HI (हिंदी)</option>
-                  <option value="te-IN">🇮🇳 TE (తెలుగు)</option>
-                  <option value="ta-IN">🇮🇳 TA (தமிழ்)</option>
-                  <option value="es-ES">🇪🇸 ES (Español)</option>
-                  <option value="ar-AE">🇦🇪 AR (العربية)</option>
+                  <option value="en-US" selected>Select Language</option>
+                  <option value="en-US">English</option>
+                  <option value="hi-IN">Hindi</option>
+                  <option value="te-IN">Telugu</option>
+                  <option value="ta-IN">Tamil</option>
+                  <option value="es-ES">Spanish</option>
+                  <option value="ar-AE">Arabic</option>
                 </select>
 
                 <!-- Voice chat button -->
@@ -1288,7 +1289,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=21"></script>
+  <script src="app.js?v=22"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
