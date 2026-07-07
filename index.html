@@ -438,11 +438,6 @@
           <!-- Chat header -->
           <div class="chat-header">
             <div class="chat-header-left">
-              <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-              </button>
               <div class="avatar-ring">
                 <div class="avatar">🌸</div>
                 <span class="status-dot" id="statusDot"></span>
@@ -453,7 +448,12 @@
               </div>
             </div>
             <div class="chat-header-right">
-              <div class="api-status">
+              <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <div class="api-status" style="display: none;">
                 <span class="status-indicator" id="statusIndicator"></span>
                 <span id="statusText">Connecting…</span>
               </div>
@@ -542,9 +542,16 @@
       <!-- ── C. SETTINGS VIEW (Profile Configuration) ── -->
       <div id="settingsView" class="app-view">
         <div class="profile-settings-container">
-          <div class="settings-header">
-            <h2 class="settings-title">Profile Settings</h2>
-            <p class="settings-subtitle">Manage your personal information and botanical wellness goals</p>
+          <div class="settings-header-row" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px;">
+            <div class="settings-header" style="margin-bottom: 0;">
+              <h2 class="settings-title">Profile Settings</h2>
+              <p class="settings-subtitle">Manage your personal information and botanical wellness goals</p>
+            </div>
+            <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
           </div>
 
           <form id="profileForm" onsubmit="handleSaveProfile(event)" class="settings-form">
@@ -623,12 +630,19 @@
             <h2 class="period-title">Period Tracker</h2>
             <p class="period-subtitle">Your "Bloom Guide" is here to help you understand your cycle better. Logging your symptoms helps us provide personalized insights for your hormonal health.</p>
           </div>
-          <button class="history-btn" onclick="openPeriodHistoryModal()">
-            <svg class="history-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;">
-              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            View Past History
-          </button>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="history-btn" onclick="openPeriodHistoryModal()">
+              <svg class="history-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;">
+                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              View Past History
+            </button>
+            <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <div class="period-grid">
@@ -767,9 +781,16 @@
 
       <!-- ── E. SYMPTOMS LOG VIEW ── -->
       <div id="symptomsView" class="app-view">
-        <div class="symptoms-header">
-          <h2 class="symptoms-title">How are you feeling today?</h2>
-          <p class="symptoms-subtitle">Your symptoms help us understand your hormonal cycle better.</p>
+        <div class="symptoms-header-row" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; animation: fadeInUp 0.4s var(--ease) both;">
+          <div class="symptoms-header" style="margin-bottom: 0; animation: none;">
+            <h2 class="symptoms-title">How are you feeling today?</h2>
+            <p class="symptoms-subtitle">Your symptoms help us understand your hormonal cycle better.</p>
+          </div>
+          <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
         </div>
 
         <div class="symptoms-container-card">
@@ -846,12 +867,19 @@
             <h2 class="period-title">My Health Summary</h2>
             <p class="period-subtitle">Aggregated view of your wellness journey.</p>
           </div>
-          <button class="history-btn" onclick="exportSummaryPDF()">
-            <svg class="history-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;">
-              <path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Export PDF
-          </button>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button class="history-btn" onclick="exportSummaryPDF()">
+              <svg class="history-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline-block; vertical-align: middle;">
+                <path d="M4 16v1a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Export PDF
+            </button>
+            <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <!-- Main Dashboard Cards Grid -->

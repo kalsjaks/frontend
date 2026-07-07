@@ -1480,7 +1480,7 @@ async function checkBackendHealth() {
 
     setStatus('online', '● Cloud Connected');
     statusDot.className = 'status-dot';
-    chatSubtitle.textContent = 'Ready to answer';
+    chatSubtitle.textContent = 'Your trusted friend for PCOS. Ask anything, or use the mic button in your preferred language to get guidance.';
   } catch (e) {
     console.error("Database connection error:", e);
     setStatus('offline', '● Connection Error');
