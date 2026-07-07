@@ -275,6 +275,27 @@ async function initApp() {
     showAuthSubScreen('choice');
   }
   updateUIFromState();
+  setupPeriodTrackerListeners();
+}
+
+function setupPeriodTrackerListeners() {
+  const startInput = document.getElementById('periodStartInput');
+  const endInput = document.getElementById('periodEndInput');
+  if (startInput && endInput) {
+    startInput.addEventListener('change', () => {
+      const val = startInput.value;
+      if (val) {
+        const startDate = new Date(val);
+        // Add 4 days to make it a 5-day duration (inclusive of start date)
+        startDate.setDate(startDate.getDate() + 4);
+        
+        const yyyy = startDate.getFullYear();
+        const mm = String(startDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(startDate.getDate()).padStart(2, '0');
+        endInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+    });
+  }
 }
 
 // ── State Syncing (Local Storage Fallback) ─────────────────────────────
@@ -549,6 +570,19 @@ function switchView(viewName, isBack = false) {
   } else if (viewName === 'period') {
     document.getElementById('periodView').classList.add('active');
     document.getElementById('tab-home').classList.add('active');
+    
+    // Pre-fill age, height, and weight inputs
+    const trackerAge = document.getElementById('trackerAgeInput');
+    const trackerHeight = document.getElementById('trackerHeightInput');
+    const trackerWeight = document.getElementById('trackerWeightInput');
+    if (trackerAge) trackerAge.value = state.user.age || '';
+    if (trackerHeight) trackerHeight.value = state.user.height || '';
+    if (trackerWeight) trackerWeight.value = state.user.weight || '';
+
+    // Proactively check if details are missing
+    if (!state.user.age || !state.user.height || !state.user.weight) {
+      showToast('💡 Please provide your Age, Height, and Weight below to enable personalized cycle insights.', 'info');
+    }
   } else if (viewName === 'symptoms') {
     document.getElementById('symptomsView').classList.add('active');
     document.getElementById('tab-home').classList.add('active');
@@ -2187,6 +2221,15 @@ async function submitFullPeriodLog() {
     return;
   }
 
+  // Read tracker inputs for Age, Height, Weight
+  const trackerAge = parseInt(document.getElementById('trackerAgeInput').value) || state.user.age;
+  const trackerHeight = parseInt(document.getElementById('trackerHeightInput').value) || null;
+  const trackerWeight = parseInt(document.getElementById('trackerWeightInput').value) || null;
+
+  state.user.age = trackerAge;
+  state.user.height = trackerHeight;
+  state.user.weight = trackerWeight;
+
   // Get Flow
   let flow = 'Medium';
   document.querySelectorAll('#flowGroup .flow-option-card').forEach(card => {
@@ -2219,6 +2262,24 @@ async function submitFullPeriodLog() {
   state.logs.period = `Last log: ${start} (Flow: ${flow})`;
   saveState();
   updateUIFromState();
+
+  // Update profile vitals in database
+  if (state.user.id) {
+    try {
+      await sb.from('profiles').upsert({
+        id: state.user.id,
+        name: state.user.name,
+        pcos_type: state.user.pcosType,
+        age: trackerAge,
+        cycle_length: state.user.cycleLength,
+        height: trackerHeight,
+        weight: trackerWeight,
+        updated_at: new Date().toISOString()
+      });
+    } catch (e) {
+      console.error('Failed to sync profile vitals from tracker log:', e);
+    }
+  }
 
   if (state.user.id) {
     const payload = {
