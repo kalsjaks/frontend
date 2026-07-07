@@ -491,23 +491,47 @@
 
           <!-- Input prompt area -->
           <div class="input-area">
-            <div class="input-wrapper">
-              <textarea
-                id="questionInput"
-                class="question-input"
-                placeholder="Type your health question for Bloom…"
-                rows="1"
-                maxlength="1000"
-                aria-label="Your PCOS/PMOS question"
-              ></textarea>
-              <button class="send-button" id="sendBtn" onclick="sendQuestion()" aria-label="Send question">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-              </button>
+            <div style="display: flex; align-items: center; gap: 8px; width: 100%;">
+              <div class="input-wrapper" style="flex: 1; display: flex; align-items: center; margin: 0;">
+                <textarea
+                  id="questionInput"
+                  class="question-input"
+                  placeholder="Ask a question about PCOS..."
+                  rows="1"
+                  maxlength="1000"
+                  aria-label="Your PCOS/PMOS question"
+                ></textarea>
+                <button class="send-button" id="sendBtn" onclick="sendQuestion()" aria-label="Send question">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                </button>
+              </div>
+              
+              <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                <!-- Language selector -->
+                <select id="speechLanguageSelect" class="form-input" style="width: auto; padding: 0 10px; margin: 0; border-radius: 20px; font-size: 11.5px; height: 42px; border: 1.5px solid var(--border); background: #FFFFFF; font-weight: 600; cursor: pointer; outline: none;">
+                  <option value="en-US">🇺🇸 EN</option>
+                  <option value="hi-IN">🇮🇳 HI (हिंदी)</option>
+                  <option value="te-IN">🇮🇳 TE (తెలుగు)</option>
+                  <option value="ta-IN">🇮🇳 TA (தமிழ்)</option>
+                  <option value="es-ES">🇪🇸 ES (Español)</option>
+                  <option value="ar-AE">🇦🇪 AR (العربية)</option>
+                </select>
+
+                <!-- Voice chat button -->
+                <button class="mic-chat-button" id="micChatBtn" onclick="toggleChatVoiceInput()" style="width: 42px; height: 42px; border-radius: 50%; border: 1.5px solid var(--border); background: #F5F5F7; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05); color: var(--text-main); outline: none;" aria-label="Voice input">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                    <line x1="12" y1="19" x2="12" y2="23"/>
+                    <line x1="8" y1="23" x2="16" y2="23"/>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <p class="input-disclaimer">
+            <p class="input-disclaimer" style="margin-top: 6px;">
               ⚕️ For custom medical decisions, always consult a qualified healthcare professional.
             </p>
           </div>

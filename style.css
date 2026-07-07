@@ -2484,3 +2484,17 @@ button.chip.selected {
   cursor: default;
   background: none !important;
 }
+
+/* ── Chat Voice Input Styling ── */
+.mic-chat-button.listening {
+  background-color: #FFF0F2 !important;
+  border-color: #E87C8A !important;
+  color: #E87C8A !important;
+  animation: pulse-red-mic 1.5s infinite;
+}
+
+@keyframes pulse-red-mic {
+  0% { box-shadow: 0 0 0 0 rgba(232, 124, 138, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(232, 124, 138, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(232, 124, 138, 0); }
+}

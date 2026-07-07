@@ -22,6 +22,8 @@ let activeModalId = null;
 let viewHistory = [];
 const selectedPeriodDates = new Set();
 let currentCalendarDate = new Date();
+let chatSpeechRecognition = null;
+let isChatListening = false;
 
 // ── Application State ─────────────────────────────────────────
 let state = {
@@ -352,6 +354,76 @@ function handleCalendarDateClick(dateStr) {
     }
   }
   renderCalendar();
+}
+
+function toggleChatVoiceInput() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showToast('⚠️ Speech recognition is not supported in this browser. Please use Chrome or Safari.', 'error');
+    return;
+  }
+
+  const micBtn = document.getElementById('micChatBtn');
+  const inputEl = document.getElementById('questionInput');
+  const langSelect = document.getElementById('speechLanguageSelect');
+  if (!micBtn || !inputEl) return;
+
+  if (isChatListening) {
+    if (chatSpeechRecognition) {
+      chatSpeechRecognition.stop();
+    }
+    return;
+  }
+
+  try {
+    chatSpeechRecognition = new SpeechRecognition();
+    chatSpeechRecognition.continuous = false;
+    chatSpeechRecognition.interimResults = false;
+    chatSpeechRecognition.lang = langSelect ? langSelect.value : 'en-US';
+
+    chatSpeechRecognition.onstart = () => {
+      isChatListening = true;
+      micBtn.classList.add('listening');
+      showToast('🎙️ Listening... Please speak your question.', 'info');
+    };
+
+    chatSpeechRecognition.onresult = (event) => {
+      const resultText = event.results[0][0].transcript;
+      if (resultText) {
+        inputEl.value = resultText;
+        if (typeof setupInputAutoResize === 'function') {
+          setupInputAutoResize();
+        }
+        showToast('✓ Speech captured!', 'success');
+      }
+    };
+
+    chatSpeechRecognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      if (event.error !== 'aborted') {
+        showToast(`❌ Voice input error: ${event.error}`, 'error');
+      }
+      stopChatListening();
+    };
+
+    chatSpeechRecognition.onend = () => {
+      stopChatListening();
+    };
+
+    chatSpeechRecognition.start();
+  } catch (err) {
+    console.error('Failed to initialize speech recognition:', err);
+    showToast('❌ Failed to start voice input.', 'error');
+    stopChatListening();
+  }
+}
+
+function stopChatListening() {
+  isChatListening = false;
+  const micBtn = document.getElementById('micChatBtn');
+  if (micBtn) {
+    micBtn.classList.remove('listening');
+  }
 }
 
 // ── State Syncing (Local Storage Fallback) ─────────────────────────────
