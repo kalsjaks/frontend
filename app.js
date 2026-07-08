@@ -237,6 +237,22 @@ async function initApp() {
   // Detect password recovery callback
   const hash = window.location.hash || '';
   const urlParams = new URLSearchParams(window.location.search);
+
+  // Check for authentication error (e.g. expired link)
+  if (hash.includes('error=') || urlParams.get('error') || hash.includes('error_code=')) {
+    let errorDesc = urlParams.get('error_description') || 'Email link is invalid or has expired.';
+    if (hash.includes('error_description=')) {
+      const match = hash.match(/error_description=([^&]+)/);
+      if (match) {
+        errorDesc = decodeURIComponent(match[1].replace(/\+/g, ' '));
+      }
+    }
+    showToast(`❌ Reset link error: ${errorDesc} Please request a new one.`, 'error');
+    if (window.location.hash || window.location.search) {
+      window.history.replaceState(null, null, window.location.pathname);
+    }
+  }
+
   if (hash.includes('type=recovery') || urlParams.get('type') === 'recovery' || hash.includes('access_token=')) {
     isRecovering = true;
   }
