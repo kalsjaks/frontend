@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=22" />
+  <link rel="stylesheet" href="style.css?v=23" />
 </head>
 <body>
 
@@ -283,7 +283,7 @@
                 BloomWell supports women navigating the challenges of PCOS/PMOS. Whether you are a creative, professional, or active individual, our phase-synced tracker, clinical dashboards, and AI companion are designed to integrate seamlessly into your busy routine and provide actionable advice.
               </p>
               
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
                 <div style="border-left: 3px solid var(--brand-pink); padding-left: 12px;">
                   <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Ask Bloom AI Companion</h4>
                   <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">Ask any PCOS-related questions and receive answers backed by our verified medical knowledge base — ensuring accuracy and expert validation every time.</p>
@@ -291,6 +291,10 @@
                 <div style="border-left: 3px solid var(--brand-green); padding-left: 12px;">
                   <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Fertility & Lifestyle Care</h4>
                   <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">Evaluate your logs to receive fertility assessments and cycle-syncing recommendations.</p>
+                </div>
+                <div style="border-left: 3px solid #D89B00; padding-left: 12px;">
+                  <h4 style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 2px;">Wellness Logs & Yoga</h4>
+                  <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.4;">Enter the Period Tracker, Symptoms Log, Vitals Log, Meds & Dose, and Lab Results. Get the information about Fertility Care and Yoga Exercises.</p>
                 </div>
               </div>
             </div>
@@ -1289,7 +1293,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=22"></script>
+  <script src="app.js?v=23"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
