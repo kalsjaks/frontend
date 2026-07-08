@@ -795,6 +795,19 @@ function showAuthSubScreen(screenName) {
     const el = document.getElementById('authLoginScreen');
     if (el) el.classList.remove('hidden');
   } else if (screenName === 'new') {
+    // Refresh session and reset states for a fresh signup
+    sb.auth.signOut().catch(err => console.warn('Error signing out during fresh setup:', err));
+    state.user.isLoggedIn = false;
+    state.user.id = null;
+    state.user.name = 'Guest User';
+    state.user.pcosType = 'Not Sure';
+    state.user.age = 24;
+    state.user.cycleLength = 28;
+    state.user.height = null;
+    state.user.weight = null;
+    state.logs = { symptoms: 'No symptoms logged', periods: 'No periods logged' };
+    saveState();
+
     const form = document.getElementById('setupForm');
     if (form) form.reset();
     const el = document.getElementById('authSetupScreen');
