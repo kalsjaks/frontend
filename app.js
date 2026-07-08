@@ -3205,33 +3205,25 @@ async function generateAIFertilityAssessment() {
   }).join('\n');
 
   try {
-    const prompt = `You are a clinical fertility and pregnancy care advisor specialized in PCOS.
+    const prompt = `You are a clinical fertility advisor.
 Patient Profile:
 - Age: ${state.user.age}
 - PCOS Classification: ${state.user.pcosType}
-- Height: ${state.user.height || 'N/A'} cm
-- Weight: ${state.user.weight || 'N/A'} kg
-
-Logged Symptoms:
-- Top symptoms reported: ${topSymptomsList}
-
-Logged Periods History (Last 6 entries):
-${periodsText || 'No periods logged yet.'}
-
-Lab Results:
-- HbA1c: ${state.labData.hba1c || 'N/A'}%
-- TSH: ${state.labData.tsh || 'N/A'} mIU/L
-- LH/FSH: ${state.labData.lhFsh || 'N/A'}
+- Top symptoms: ${topSymptomsList}
+- Logged Periods:
+${periodsText || 'None logged.'}
 
 TASK:
-Provide a compassionate, personalized fertility and pregnancy care evaluation.
-Address the following clearly:
-1. Based on their age, symptoms, and period logs, are there any potential fertility or pregnancy-related issues/considerations?
-2. What are the chances of conception (framed supportively, emphasizing that PCOS is a common and treatable cause of ovulatory delay, not absolute infertility)?
-3. What specific actions/steps should they take if they want to conceive (lifestyle, optimizing cycle regularity, tracking methods like BBT, and when to seek medical help)?
-Keep the tone clinical yet warm, supportive, and encouraging. Never make definitive diagnoses; frame everything as a helpful educational assessment.
-Use clean formatting with bullet points and bold headers. If they need to visit a reproductive specialist based on age (e.g. 35+) or prolonged cycle irregularities, highlight it clearly using a markdown blockquote (e.g. starting with '> ').
-NEVER output raw HTML tags (like <div>, <p>, <span>, or <style>) in your response. All formatting must be done in Markdown (using standard markdown syntax like '> **[WARNING]**' for highlights).
+Based on the patient's profile, provide a highly personalized fertility/conception evaluation.
+Answer in three sections:
+- **Fertility Risks**: Key age/symptom fertility factors.
+- **Conception Chances**: Realistic but encouraging overview.
+- **Action Steps**: Specific lifestyle/medical next steps.
+
+CRITICAL CONSTRAINTS:
+- Keep the response strictly under 500 characters total.
+- Structure it with bold headers for the three sections: **Fertility Risks**, **Conception Chances**, and **Action Steps**.
+- Use clean bullet points. Do NOT output any HTML tags.
 `;
 
     let answer;
@@ -3278,81 +3270,35 @@ NEVER output raw HTML tags (like <div>, <p>, <span>, or <style>) in your respons
 }
 
 function runLocalRuleBasedFertilityAssessment(symptomCounts, sortedSymps, cachedPeriods) {
-  let fertilityPotential = "Excellent (Supportive lifestyle recommended)";
-  let reasons = [];
-  let age = state.user.age || 24;
-  let pcosType = state.user.pcosType || 'Not Sure';
+  const age = state.user.age || 24;
+  const pcosType = state.user.pcosType || 'Not Sure';
 
-  // Age consideration
-  if (age >= 35) {
-    reasons.push("Age is 35 or above: fertility naturally declines, so if you are trying to conceive, it is clinically recommended to consult a fertility specialist/reproductive endocrinologist after 6 months of active trying (instead of the typical 12 months)");
-    fertilityPotential = "Moderate / Age-sync recommended";
-  } else {
-    reasons.push("Age is under 35: this is highly favorable for egg quality. Standard clinical advice is to try for up to 12 months before seeking specialized fertility intervention, unless cycle irregularity is severe");
+  let risks = `Age is under 35 (good egg quality). PCOS may cause irregular ovulation.`;
+  let chances = "High. PCOS causes ovulatory delay, which is highly treatable.";
+  let action = "Track ovulation using BBT (Basal Body Temperature) and check cervical mucus.";
+
+  if (age >= 45) {
+    risks = `Age is ${age} (post-menopausal range). Natural conception is extremely unlikely.`;
+    chances = "Very low/near zero naturally. Assisted reproduction (donor eggs) is required.";
+    action = "Consult a reproductive endocrinologist and a high-risk obstetrics team.";
+  } else if (age >= 35) {
+    risks = `Age is ${age} (fertility declines naturally). PCOS causes ovulatory delay.`;
+    chances = "Moderate. Conception is highly possible with medical/lifestyle support.";
+    action = "Consult a specialist after 6 months of trying. Track ovulation with BBT.";
   }
 
-  // PCOS status
-  reasons.push(`PCOS type is "${pcosType}". PCOS is a highly manageable condition, and the primary hurdle is ovulatory delay (irregular ovulation) rather than structural infertility`);
+  const md = `
+**Fertility Risks**
+- ${risks}
 
-  // Periods cycle checks
-  let irregular = false;
-  let regularCount = 0;
-  let totalPeriods = cachedPeriods.length;
-  
-  cachedPeriods.forEach(p => {
-    if (p.cycle_status === 'Regular') regularCount++;
-    if (p.cycle_status === 'Missed' || p.cycle_status === 'Late') irregular = true;
-  });
+**Conception Chances**
+- ${chances}
 
-  if (irregular || (totalPeriods > 0 && regularCount/totalPeriods < 0.7)) {
-    reasons.push("Logged cycles show irregular, late, or missed periods. This indicates possible anovulatory cycles (cycles where an egg is not released), which makes timing intercourse for conception difficult");
-    fertilityPotential = "Needs Cycle Syncing & Ovulation Tracking";
-  } else {
-    reasons.push("Your logged menstrual periods are mostly regular, suggesting that you are likely ovulating consistently. This is a very positive indicator for natural conception");
-  }
+**Action Steps**
+- ${action}
+`;
 
-  // Symptoms check
-  if (symptomCounts['Cravings'] || symptomCounts['Fatigue']) {
-    reasons.push("Persistent fatigue or cravings suggest potential insulin resistance, which can affect egg quality, ovulation frequency, and pregnancy safety (increases gestational diabetes risk)");
-  }
-
-  let html = `
-    <div style="margin-bottom:16px; border-bottom:1.5px solid var(--border-strong); padding-bottom:12px;">
-      <span style="background:var(--brand-pink-light); color:var(--brand-pink); font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; display:inline-block; margin-bottom:8px;">
-        🌱 Fertility Guidance (Local Diagnostics Engine)
-      </span>
-      <h4 style="font-size:16px; font-weight:800; color:var(--text-main); margin:4px 0;">Hello ${state.user.name}, here is your fertility and pregnancy assessment:</h4>
-    </div>
-
-    <div style="display:grid; grid-template-columns: 1fr; gap:12px; margin-bottom:20px;">
-      <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:12px;">
-        <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Fertility Sync Recommendation</span>
-        <div style="font-size:15px; font-weight:750; color:#8C2D3B; margin-top:4px;">${fertilityPotential}</div>
-      </div>
-    </div>
-
-    <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">1. Key Observations based on your profile</h5>
-    <ul style="margin:8px 0; padding-left:18px; font-size:13.5px; color:var(--text-sub);">
-      ${reasons.map(r => `<li style="margin:6px 0;">${r}.</li>`).join('')}
-    </ul>
-
-    <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">2. Can I conceive with PCOS?</h5>
-    <p style="margin-bottom:16px; font-size:13.5px; color:var(--text-sub); line-height:1.6;">
-      <strong>Yes, absolutely.</strong> PCOS is one of the most common causes of difficulty conceiving, but it is also one of the most treatable. The main challenge with PCOS is <em>irregular ovulation</em> (anovulation), not the absence of eggs. By managing insulin levels and balancing hormones, regular ovulation can be restored, leading to a successful pregnancy.
-    </p>
-
-    <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">3. Key Steps if you want to conceive</h5>
-    <div style="border-left:4px solid var(--brand-pink); background:var(--brand-pink-light); padding:14px; border-radius:var(--radius-md); margin-bottom:16px; color:#8C2D3B; font-size:13.5px; line-height:1.6;">
-      <strong>📝 Action Plan for Conception:</strong>
-      <ul style="margin:8px 0; padding-left:18px; color:var(--text-main);">
-        <li style="margin:6px 0;"><strong>Track Ovulation accurately:</strong> Standard LH test strips can give false positives in PCOS due to chronically high LH. Combine strips with <strong>Basal Body Temperature (BBT) tracking</strong> (a sustained temperature rise confirms ovulation has occurred) and checking cervical mucus.</li>
-        <li style="margin:6px 0;"><strong>Optimize Insulin Sensitivity:</strong> High insulin levels can negatively affect egg quality and prevent the ovaries from releasing eggs. Prioritize a low-glycemic diet and discuss Myo-Inositol supplements with your physician.</li>
-        <li style="margin:6px 0;"><strong>Supportive Supplements:</strong> Ask your doctor about Prenatal Multivitamins containing Folate (methylfolate is preferred over folic acid), Vitamin D3 (essential for ovarian function), and Omega-3 fish oils.</li>
-        <li style="margin:6px 0;"><strong>Consult a Specialist:</strong> If cycles are highly irregular (fewer than 6-9 periods a year) or if you have been actively trying for over 6 months (age 35+) or 12 months (age &lt;35), consult a reproductive endocrinologist. They can prescribe safe, first-line ovulation-induction medications like Letrozole or Clomiphene.</li>
-      </ul>
-    </div>
-  `;
-  return html;
+  return formatAnswer(md.trim());
 }
 
 async function navigateToFertilityAssessment() {
