@@ -3008,7 +3008,7 @@ function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, so
   }
 
   const md = `
-**Exercises**
+**Yoga for Harmony**
 - ${exercise}
 
 **Food Changes**
@@ -3096,13 +3096,13 @@ Lab Results:
 
 TASK:
 Based on their symptoms and period log, suggest:
-1. **Exercises**: Suggest specific yoga poses by name (such as Supta Baddha Konasana, Bhujangasana, Paschimottanasana, Setu Bandhasana, Viparita Karani, or Balasana) suited for their condition.
+1. **Yoga for Harmony**: Suggest specific yoga poses by name (such as Supta Baddha Konasana, Bhujangasana, Paschimottanasana, Setu Bandhasana, Viparita Karani, or Balasana) suited for their condition.
 2. **Food Changes**: Key dietary adjustments.
 3. **Daily Routine**: Actionable updates.
 
 CRITICAL CONSTRAINTS:
 - Keep the response strictly under 500 characters total.
-- Structure it with bold headers for the three sections: **Exercises**, **Food Changes**, and **Daily Routine**.
+- Structure it with bold headers for the three sections: **Yoga for Harmony**, **Food Changes**, and **Daily Routine**.
 - Use clean bullet points. Do NOT output any HTML tags.
 `;
 
