@@ -2958,10 +2958,12 @@ function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, so
     hasInsulinResistance = true;
   }
   
-  // Exercise suggestions based on symptoms/vitals
-  let exercise = "Strength training 3x/week & walking (LISS) help control cortisol.";
-  if (avgSleep < 6.5) {
-    exercise = "Focus on gentle yoga and walking. Avoid high-intensity cardio.";
+  // Exercise suggestions (specific yoga poses) based on symptoms/vitals
+  let exercise = "Perform Supta Baddha Konasana (Bound Angle) and Bhujangasana (Cobra) to stimulate ovaries and reduce stress.";
+  if (symptomCounts['Fatigue'] || avgSleep < 6.5) {
+    exercise = "Perform Viparita Karani (Legs-Up-Wall) and Balasana (Child's Pose) to calm the nervous system and relieve fatigue.";
+  } else if (symptomCounts['Cramps'] || symptomCounts['Mood swings']) {
+    exercise = "Perform Paschimottanasana (Seated Forward Bend) and Setu Bandhasana (Bridge Pose) to balance hormones and reduce cramps.";
   }
 
   // Food suggestions
@@ -3052,7 +3054,7 @@ Lab Results:
 
 TASK:
 Based on their symptoms and period log, suggest:
-1. **Exercises**: Best physical activities.
+1. **Exercises**: Suggest specific yoga poses by name (such as Supta Baddha Konasana, Bhujangasana, Paschimottanasana, Setu Bandhasana, Viparita Karani, or Balasana) suited for their condition.
 2. **Food Changes**: Key dietary adjustments.
 3. **Daily Routine**: Actionable updates.
 
