@@ -2998,9 +2998,22 @@ async function generateAIHealthCondition() {
   if (!resultDiv || !btn || isLoading) return;
 
   resultDiv.classList.remove('hidden');
-  resultDiv.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">🔎 Gathering your logs and invoking Clinical AI Advisor...</div>';
+  resultDiv.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">Analyzing...</div>';
   btn.disabled = true;
   btn.textContent = 'Analyzing...';
+
+  if (cachedPeriods.length === 0 && cachedSymptoms.length === 0 && cachedVitals.length === 0) {
+    resultDiv.innerHTML = `
+      <div style="border-left: 4px solid #ea580c; background: #fff7ed; padding: 14px; border-radius: var(--radius-md); color: #c2410c; font-size: 13.5px; line-height: 1.6;">
+        <strong>⚠️ No logs found</strong><br/>
+        Please log your periods, symptoms, or vitals first so we can analyze your condition and provide personalized yoga and dietary recommendations. (If you are using Guest Mode, please register or log in to sync and analyze your data.)
+      </div>
+    `;
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
+    btn.disabled = false;
+    btn.textContent = 'Analyze My Health Condition';
+    return;
+  }
 
   let avgSleep = 7.5;
   let avgWater = 2.0;
@@ -3118,9 +3131,22 @@ async function generateAIFertilityAssessment() {
   if (!resultDiv || !btn || isLoading) return;
 
   resultDiv.classList.remove('hidden');
-  resultDiv.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">🔎 Gathering your logs and invoking Fertility AI Advisor...</div>';
+  resultDiv.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">Analyzing...</div>';
   btn.disabled = true;
   btn.textContent = 'Analyzing...';
+
+  if (cachedPeriods.length === 0 && cachedSymptoms.length === 0 && cachedVitals.length === 0) {
+    resultDiv.innerHTML = `
+      <div style="border-left: 4px solid #ea580c; background: #fff7ed; padding: 14px; border-radius: var(--radius-md); color: #c2410c; font-size: 13.5px; line-height: 1.6;">
+        <strong>⚠️ No logs found</strong><br/>
+        Please log your periods, symptoms, or vitals first so we can analyze your fertility health. (If you are using Guest Mode, please register or log in to sync and analyze your data.)
+      </div>
+    `;
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
+    btn.disabled = false;
+    btn.textContent = 'Fertility & Pregnancy Care Assessment';
+    return;
+  }
 
   let avgSleep = 7.5;
   let avgWater = 2.0;
