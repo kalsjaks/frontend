@@ -2953,172 +2953,41 @@ async function loadSelectedMonthStats() {
 }
 
 function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, sortedSymps, cachedPeriods, cachedSymptoms) {
-  let overallStatus = "Good";
-  let pcosImpact = "Low";
-  let needsDoctor = false;
-  let reasons = [];
-
-  // Vitals checks
+  let hasInsulinResistance = false;
+  if (state.labData.hba1c && parseFloat(state.labData.hba1c) >= 5.7) {
+    hasInsulinResistance = true;
+  }
+  
+  // Exercise suggestions based on symptoms/vitals
+  let exercise = "Strength training 3x/week & walking (LISS) help control cortisol.";
   if (avgSleep < 6.5) {
-    reasons.push("Average sleep is below 6.5 hours, which elevates stress levels and cortisol");
-  }
-  if (avgWater < 1.8) {
-    reasons.push("Average hydration is low, which can impact metabolic rate and energy levels");
+    exercise = "Focus on gentle yoga and walking. Avoid high-intensity cardio.";
   }
 
-  // Periods checks
-  let regularCount = 0;
-  let totalPeriods = cachedPeriods.length;
-  let missedOrLate = false;
-  let hasBadPain = false;
-  let hasClots = false;
-  let flows = { Light: 0, Medium: 0, Heavy: 0, "Very Heavy": 0 };
-
-  cachedPeriods.forEach(p => {
-    if (p.cycle_status === 'Regular') regularCount++;
-    if (p.cycle_status === 'Missed' || p.cycle_status === 'Late') missedOrLate = true;
-    if (p.pain_level === 'Bad') hasBadPain = true;
-    if (p.any_clots) hasClots = true;
-    if (p.flow_intensity) flows[p.flow_intensity] = (flows[p.flow_intensity] || 0) + 1;
-  });
-
-  let regularityPercent = totalPeriods > 0 ? Math.round((regularCount / totalPeriods) * 100) : 100;
-  if (totalPeriods > 0 && regularityPercent < 70) {
-    reasons.push(`Menstrual regularity is low (${regularityPercent}% regular), indicating potential anovulatory cycles`);
-  }
-  if (missedOrLate) {
-    reasons.push("Missed or late periods logged, which is a classic clinical indicator of PCOS/PMOS");
-    pcosImpact = "Moderate";
-  }
-  if (hasBadPain) {
-    reasons.push("Significant cycle pain logged, suggesting high prostaglandin activity or pelvic inflammation");
-  }
-  if (hasClots) {
-    reasons.push("Blood clots logged during flow, indicating heavy bleeding episodes");
-  }
-  if (flows.Heavy > 0 || flows["Very Heavy"] > 0) {
-    reasons.push("Heavy or very heavy flow logged, which can lead to fatigue and iron deficiency");
+  // Food suggestions
+  let food = "Emphasize low-GI food, lean proteins, healthy fats, and high fiber.";
+  if (hasInsulinResistance || symptomCounts['Cravings']) {
+    food = "Reduce sugars & refined carbs. Focus on high-fiber, low-GI foods, and omega-3s.";
   }
 
-  // Symptoms check
-  let symptomLoad = 0;
-  let highImpactSymptoms = [];
-  for (const [symp, count] of Object.entries(symptomCounts)) {
-    symptomLoad += count;
-    if (count >= 2) {
-      highImpactSymptoms.push(symp);
-    }
+  // Daily Routine suggestions
+  let routine = "Aim for 7.5h+ of sleep and drink 2L+ of water daily.";
+  if (avgSleep < 6.5 || avgWater < 1.8) {
+    routine = `Increase sleep to 7.5h (currently: ${avgSleep.toFixed(1)}h) and water to 2L.`;
   }
 
-  if (symptomLoad > 6) {
-    pcosImpact = "High";
-    overallStatus = "Needs Attention";
-  } else if (symptomLoad > 2) {
-    pcosImpact = "Moderate";
-    overallStatus = "Needs Attention";
-  }
+  const md = `
+**Exercises**
+- ${exercise}
 
-  // Doctor recommendation flags
-  if (missedOrLate && (flows.Heavy > 0 || flows["Very Heavy"] > 0)) {
-    needsDoctor = true;
-  }
-  if (hasBadPain && symptomLoad > 8) {
-    needsDoctor = true;
-  }
-  if (state.user.id && state.labData.hba1c && parseFloat(state.labData.hba1c) >= 5.7) {
-    reasons.push(`HbA1c level of ${state.labData.hba1c}% suggests insulin resistance or prediabetic range`);
-    needsDoctor = true;
-    pcosImpact = "High";
-  }
-  if (state.user.id && state.labData.lhFsh && parseFloat(state.labData.lhFsh) >= 2.0) {
-    reasons.push(`LH/FSH ratio is ${state.labData.lhFsh}, which is a classic biomarker indicator of PCOS/PMOS`);
-    pcosImpact = "High";
-  }
-  if (state.user.id && state.labData.tsh && parseFloat(state.labData.tsh) >= 4.0) {
-    reasons.push(`TSH level of ${state.labData.tsh} mIU/L indicates a sluggish thyroid, which mimics/worsens PCOS/PMOS fatigue`);
-    needsDoctor = true;
-  }
+**Food Changes**
+- ${food}
 
-  if (needsDoctor || pcosImpact === "High") {
-    overallStatus = "Doctor Visit Suggested";
-  }
+**Daily Routine**
+- ${routine}
+`;
 
-  // Construct response HTML
-  let html = `
-    <div style="margin-bottom:16px; border-bottom:1.5px solid var(--border-strong); padding-bottom:12px;">
-      <span style="background:var(--brand-pink-light); color:var(--brand-pink); font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; text-transform:uppercase; letter-spacing:0.5px; display:inline-block; margin-bottom:8px;">
-        💡 Clinical AI Assessment (Local Diagnostics Engine)
-      </span>
-      <h4 style="font-size:16px; font-weight:800; color:var(--text-main); margin:4px 0;">Hello ${state.user.name}, here is your personal clinical evaluation:</h4>
-    </div>
-
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:20px;">
-      <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:12px;">
-        <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Overall Health Status</span>
-        <div style="font-size:15px; font-weight:750; color:${overallStatus === 'Good' ? 'var(--brand-green)' : '#C62828'}; margin-top:4px;">${overallStatus}</div>
-      </div>
-      <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:12px;">
-        <span style="font-size:11px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">PCOS/PMOS Impact Level</span>
-        <div style="font-size:15px; font-weight:750; color:${pcosImpact === 'Low' ? 'var(--brand-green)' : pcosImpact === 'Moderate' ? '#F57C00' : '#C62828'}; margin-top:4px;">${pcosImpact}</div>
-      </div>
-    </div>
-
-    <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">1. How is your overall health status right now?</h5>
-    <p style="margin-bottom:16px; font-size:13.5px; color:var(--text-sub);">
-      Your logged data indicates your overall health is <strong>${overallStatus}</strong>.
-      ${reasons.length > 0 
-        ? `We noted the following observations from your logs:<br/>
-           <ul style="margin:8px 0; padding-left:18px;">
-             ${reasons.map(r => `<li style="margin:4px 0;">${r}.</li>`).join('')}
-           </ul>`
-        : `Your sleep (${avgSleep.toFixed(1)}h) and water intake (${avgWater.toFixed(1)}L) are in healthy ranges, and your menstrual cycle logs indicate minimal distress.`}
-    </p>
-
-    <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">2. Is PCOS/PMOS heavily affecting you right now?</h5>
-    <p style="margin-bottom:16px; font-size:13.5px; color:var(--text-sub);">
-      PCOS/PMOS impact is currently classified as <strong>${pcosImpact}</strong>.
-      ${symptomLoad > 0 
-        ? `You have logged a total of <strong>${symptomLoad} symptom instances</strong> recently.
-           ${highImpactSymptoms.length > 0 
-             ? `Your most persistent symptoms are <strong>${highImpactSymptoms.join(', ')}</strong>, which are typical manifestations of underlying insulin resistance and androgen imbalance.` 
-             : `The symptoms you logged are mild and dispersed, indicating that your metabolic systems are relatively stable.`}`
-        : `You have not logged any significant symptoms recently. This is a positive indicator that your body is in a stable hormonal state.`}
-    </p>
-
-    <h5 style="font-size:14px; font-weight:750; color:var(--text-main); margin-bottom:8px;">3. Should you visit a doctor, or is exercise/diet enough?</h5>
-    <p style="margin-bottom:16px; font-size:13.5px; color:var(--text-sub);">
-  `;
-
-  if (overallStatus === "Doctor Visit Suggested" || needsDoctor) {
-    html += `
-      <div style="border-left:4px solid #C62828; background:#FFEBEE; padding:14px; border-radius:var(--radius-md); margin-bottom:16px; color:#B71C1C; font-size:13.5px; line-height:1.6;">
-        <strong>⚠️ Recommendation: Schedule a Doctor's Visit</strong><br/>
-        Based on clinical markers (such as missed periods, heavy bleeding with clots, bad cycle pain, or insulin/thyroid lab results), we highly recommend consulting a gynecologist or endocrinologist. They can order a pelvic ultrasound to check for ovarian follicles and perform a detailed hormone panel (LH, FSH, Free Testosterone, fasting insulin) to tailor a clinical management plan.
-      </div>
-    `;
-  } else {
-    html += `
-      <div style="border-left:4px solid var(--brand-green); background:var(--brand-green-light); padding:14px; border-radius:var(--radius-md); margin-bottom:16px; color:var(--brand-green); font-size:13.5px; line-height:1.6;">
-        <strong>🌸 Recommendation: Lifestyle Maintenance & Cycle-Syncing</strong><br/>
-        Your logged symptoms are mild and cycles appear reasonably regular. Active medical intervention is not urgently indicated, and home-based lifestyle maintenance is likely sufficient to keep symptoms under control.
-      </div>
-    `;
-  }
-
-  html += `
-      <strong>Recommended Lifestyle Adjustments:</strong>
-      <ul style="margin:8px 0; padding-left:18px; font-size:13.5px; color:var(--text-sub);">
-        <li style="margin:6px 0;">
-          <strong>Nutrition & Supplements:</strong> Focus on a low-glycemic index (low-GI) diet rich in fiber, healthy fats (avocado, nuts, omega-3s), and lean proteins to stabilize glucose levels and reduce cravings. Consider asking your doctor about Myo-Inositol, which is clinically proven to improve insulin sensitivity and restore ovulation in PCOS.
-        </li>
-        <li style="margin:6px 0;">
-          <strong>Cycle-Synced Exercise:</strong> Avoid excessive high-intensity cardio (like spinning or long runs) if you are fatigued, as it can spike cortisol and worsen insulin resistance. Instead, prioritize <strong>strength/resistance training</strong> 3 times a week (builds insulin-receptive muscle) and <strong>low-intensity steady-state (LISS) exercise</strong> such as brisk walking, pilates, or yoga.
-        </li>
-      </ul>
-    </p>
-  `;
-
-  return html;
+  return formatAnswer(md.trim());
 }
 
 async function generateAIHealthCondition() {
@@ -3159,7 +3028,7 @@ async function generateAIHealthCondition() {
   }).join('\n');
 
   try {
-    const prompt = `You are a clinical PCOS advisor checking a patient's self-logged data.
+    const prompt = `You are PCOSCare AI — a clinical PCOS advisor checking a patient's self-logged data.
 Patient Profile:
 - Age: ${state.user.age}
 - PCOS Classification: ${state.user.pcosType}
@@ -3171,10 +3040,10 @@ Logged Vitals Averages:
 - Avg Water: ${avgWater.toFixed(1)} liters
 
 Logged Symptoms:
-- Top symptoms reported: ${topSymptomsList}
+- Top symptoms: ${topSymptomsList}
 
-Logged Periods History (Last 6 entries):
-${periodsText || 'No periods logged yet.'}
+Logged Periods:
+${periodsText || 'None logged.'}
 
 Lab Results:
 - HbA1c: ${state.labData.hba1c || 'N/A'}%
@@ -3182,15 +3051,15 @@ Lab Results:
 - LH/FSH: ${state.labData.lhFsh || 'N/A'}
 
 TASK:
-Provide a compassionate, personalized evaluation of their current health condition.
-Acknowledge whether their logs indicate that their PCOS symptoms are severe, moderate, or well-managed.
-Answer the following clearly:
-1. How is their overall health status based on their logged cycles and symptoms? Is it good, bad, or does it need a doctor's visit?
-2. Does it look like PCOS is heavily affecting them right now?
-3. Should they visit a doctor/physician, or are lifestyle maintenance, cycle-syncing exercises, and dietary adjustments sufficient?
-Keep the tone clinical yet warm and encouraging. Never make definitive diagnoses; frame everything as an assessment with advice.
-Use clean formatting with bullet points and bold headers. If they need to visit a doctor, highlight it clearly using a markdown blockquote (e.g. starting with '> ').
-NEVER output raw HTML tags (like <div>, <p>, <span>, or <style>) in your response. All formatting must be done in Markdown (using standard markdown syntax like '> **[WARNING]**' for highlights).
+Based on their symptoms and period log, suggest:
+1. **Exercises**: Best physical activities.
+2. **Food Changes**: Key dietary adjustments.
+3. **Daily Routine**: Actionable updates.
+
+CRITICAL CONSTRAINTS:
+- Keep the response strictly under 500 characters total.
+- Structure it with bold headers for the three sections: **Exercises**, **Food Changes**, and **Daily Routine**.
+- Use clean bullet points. Do NOT output any HTML tags.
 `;
 
     let answer;
