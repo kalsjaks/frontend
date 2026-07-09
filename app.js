@@ -1573,6 +1573,78 @@ function hideSuggestionsBar() {
 let extractor = null;
 let isModelLoading = false;
 
+async function translateToEnglishIfNeeded(question) {
+  const isAscii = /^[\x00-\x7F]*$/.test(question);
+  const selectedLang = document.getElementById('speechLanguageSelect')?.value || 'en-US';
+  
+  if (isAscii && selectedLang === 'en-US') {
+    return question;
+  }
+
+  try {
+    const provider = state.ai?.provider || 'gemini';
+    const userKey = state.ai?.apiKey || (provider === 'gemini' ? DEFAULT_GEMINI_KEY : '');
+    if (!userKey) return question;
+
+    console.log(`Translating non-English query: "${question}" (selected language: ${selectedLang})`);
+    const prompt = `Translate the following user question to English for database search. Return ONLY the translation, with no explanation or extra text.\n\nQuestion: ${question}`;
+
+    let translatedText = '';
+    if (provider === 'gemini') {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: prompt }]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.1
+            }
+          })
+        }
+      );
+      if (response.ok) {
+        const resJson = await response.json();
+        translatedText = resJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      }
+    } else if (provider === 'openai') {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userKey}`
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.1
+        })
+      });
+      if (response.ok) {
+        const resJson = await response.json();
+        translatedText = resJson.choices?.[0]?.message?.content || '';
+      }
+    }
+
+    if (translatedText.trim()) {
+      const result = translatedText.trim();
+      console.log(`Translated query to: "${result}"`);
+      return result;
+    }
+  } catch (err) {
+    console.warn("Client-side query translation failed:", err);
+  }
+  return question;
+}
+
 async function getEmbedding(text) {
   if (!extractor) {
     if (isModelLoading) {
@@ -1613,6 +1685,7 @@ GUIDELINES:
 - Personalize responses when user health data is provided
 - Use plain language, avoid excessive medical jargon
 - Never diagnose; always recommend professional consultation for medical decisions
+- Respond in the same language as the user's question (e.g. Hindi, Spanish, Telugu, Tamil, Arabic, etc.). Translate the information accurately from the context into the user's query language, while maintaining the same warm and empathetic tone.
 
 SECURITY & COMPLIANCE GUARDRAILS:
 1. Security Guardrails:
@@ -1657,6 +1730,7 @@ GUIDELINES:
 - Suggest the user consult a healthcare professional for personalized advice
 - Use plain language, avoid excessive medical jargon
 - Never diagnose; always recommend professional consultation for medical decisions
+- Respond in the same language as the user's question (e.g. Hindi, Spanish, Telugu, Tamil, Arabic, etc.). Translate the information accurately into the user's query language, while maintaining the same warm and empathetic tone.
 
 SECURITY & COMPLIANCE GUARDRAILS:
 1. Security Guardrails:
@@ -2108,9 +2182,12 @@ async function sendQuestion() {
     let queryEmbedding = null;
     const threshold = 0.40;
 
+    // Translate query to English if needed for semantic search
+    const translatedQuestion = await translateToEnglishIfNeeded(question);
+
     // 1. Generate local browser embedding for query
     try {
-      queryEmbedding = await getEmbedding(question);
+      queryEmbedding = await getEmbedding(translatedQuestion);
     } catch (embErr) {
       console.warn("Embedding generation failed, falling back to external model:", embErr);
     }
