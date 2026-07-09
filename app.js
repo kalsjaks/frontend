@@ -1582,6 +1582,49 @@ async function translateText(text, fromLang, toLang) {
   
   if (src === tgt) return text;
 
+  // Attempt Gemini translation first for maximum accuracy and native-level output
+  try {
+    const provider = state.ai?.provider || 'gemini';
+    const userKey = state.ai?.apiKey || (provider === 'gemini' ? DEFAULT_GEMINI_KEY : '');
+    if (userKey && provider === 'gemini') {
+      const srcFull = getFullLanguageName(src);
+      const tgtFull = getFullLanguageName(tgt);
+      
+      const prompt = `Translate the following text from ${srcFull} to ${tgtFull}. Return ONLY the translation, with no explanation, intro, or extra text.\n\nText: ${text}`;
+      
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: 'user',
+                parts: [{ text: prompt }]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.1
+            }
+          })
+        }
+      );
+      if (response.ok) {
+        const resJson = await response.json();
+        const translated = resJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        if (translated.trim()) {
+          return translated.trim();
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`Gemini translation from ${src} to ${tgt} failed, falling back to MyMemory:`, err);
+  }
+
+  // Fallback to MyMemory translation memory
   try {
     const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${tgt}`;
     const res = await fetch(url);
@@ -1595,6 +1638,18 @@ async function translateText(text, fromLang, toLang) {
     console.warn(`MyMemory translation failed from ${src} to ${tgt}:`, err);
   }
   return text;
+}
+
+function getFullLanguageName(code) {
+  const map = {
+    'en': 'English',
+    'hi': 'Hindi',
+    'te': 'Telugu',
+    'ta': 'Tamil',
+    'es': 'Spanish',
+    'ar': 'Arabic'
+  };
+  return map[code.toLowerCase()] || code;
 }
 
 function cleanMarkdownForTTS(text) {
@@ -1637,7 +1692,7 @@ async function getEmbedding(text) {
   return output.tolist()[0];
 }
 
-async function generateAnswer(question, context, userContext) {
+async function generateAnswer(question, context, userContext, targetLanguage = 'English') {
   const provider = state.ai?.provider || 'gemini';
   const userKey = state.ai?.apiKey || (provider === 'gemini' ? DEFAULT_GEMINI_KEY : '');
 
@@ -1651,7 +1706,7 @@ GUIDELINES:
 - Personalize responses when user health data is provided
 - Use plain language, avoid excessive medical jargon
 - Never diagnose; always recommend professional consultation for medical decisions
-- Respond in the same language as the user's question (e.g. Hindi, Spanish, Telugu, Tamil, Arabic, etc.). Translate the information accurately from the context into the user's query language, while maintaining the same warm and empathetic tone.
+- CRITICAL: You must write your response entirely in ${targetLanguage}. Translate the information accurately from the context into ${targetLanguage}, while maintaining the same warm and empathetic tone.
 
 SECURITY & COMPLIANCE GUARDRAILS:
 1. Security Guardrails:
@@ -1696,7 +1751,7 @@ GUIDELINES:
 - Suggest the user consult a healthcare professional for personalized advice
 - Use plain language, avoid excessive medical jargon
 - Never diagnose; always recommend professional consultation for medical decisions
-- Respond in the same language as the user's question (e.g. Hindi, Spanish, Telugu, Tamil, Arabic, etc.). Translate the information accurately into the user's query language, while maintaining the same warm and empathetic tone.
+- CRITICAL: You must write your response entirely in ${targetLanguage}. Translate the information accurately into ${targetLanguage}, while maintaining the same warm and empathetic tone.
 
 SECURITY & COMPLIANCE GUARDRAILS:
 1. Security Guardrails:
@@ -2210,18 +2265,9 @@ async function sendQuestion() {
         content: doc.content.substring(0, 300) + '...'
       }));
 
-      // Generate grounded completion in English
-      const answerText = await generateAnswer(englishQuery, contextStr, pcosContext);
-
-      // Translate the answer back to user's selected language
-      let finalAnswerText = answerText;
-      if (langCode !== 'en') {
-        try {
-          finalAnswerText = await translateText(answerText, 'en', langCode);
-        } catch (transErr) {
-          console.warn("Answer translation failed:", transErr);
-        }
-      }
+      const targetLanguage = getFullLanguageName(langCode);
+      // Generate grounded completion in target language directly
+      const finalAnswerText = await generateAnswer(englishQuery, contextStr, pcosContext, targetLanguage);
 
       removeTypingIndicator(typingId);
       appendBotMessage({
