@@ -2394,7 +2394,7 @@ function appendBotMessage(data) {
     <div class="message-bubble bot-bubble">
       <div class="message-text">${formatAnswer(answer)}</div>
       <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 4px;">
-        <audio controls src="${ttsUrl}" style="width: 100%; max-width: 260px; height: 32px; border-radius: 4px; outline: none; background: transparent;"></audio>
+        <audio controls referrerpolicy="no-referrer" src="${ttsUrl}" style="width: 100%; max-width: 260px; height: 32px; border-radius: 4px; outline: none; background: transparent;"></audio>
       </div>
       <div class="message-time">${formatTime()}</div>
     </div>
