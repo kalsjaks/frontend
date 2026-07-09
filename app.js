@@ -1573,76 +1573,42 @@ function hideSuggestionsBar() {
 let extractor = null;
 let isModelLoading = false;
 
-async function translateToEnglishIfNeeded(question) {
-  const isAscii = /^[\x00-\x7F]*$/.test(question);
-  const selectedLang = document.getElementById('speechLanguageSelect')?.value || 'en-US';
+async function translateText(text, fromLang, toLang) {
+  if (!text || fromLang === toLang) return text;
   
-  if (isAscii && selectedLang === 'en-US') {
-    return question;
-  }
+  // Normalize languages (e.g. te-IN -> te, en-US -> en)
+  const src = fromLang.split('-')[0].toLowerCase();
+  const tgt = toLang.split('-')[0].toLowerCase();
+  
+  if (src === tgt) return text;
 
   try {
-    const provider = state.ai?.provider || 'gemini';
-    const userKey = state.ai?.apiKey || (provider === 'gemini' ? DEFAULT_GEMINI_KEY : '');
-    if (!userKey) return question;
-
-    console.log(`Translating non-English query: "${question}" (selected language: ${selectedLang})`);
-    const prompt = `Translate the following user question to English for database search. Return ONLY the translation, with no explanation or extra text.\n\nQuestion: ${question}`;
-
-    let translatedText = '';
-    if (provider === 'gemini') {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${userKey}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                role: 'user',
-                parts: [{ text: prompt }]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.1
-            }
-          })
-        }
-      );
-      if (response.ok) {
-        const resJson = await response.json();
-        translatedText = resJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${tgt}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.responseData?.translatedText) {
+        return data.responseData.translatedText;
       }
-    } else if (provider === 'openai') {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${userKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.1
-        })
-      });
-      if (response.ok) {
-        const resJson = await response.json();
-        translatedText = resJson.choices?.[0]?.message?.content || '';
-      }
-    }
-
-    if (translatedText.trim()) {
-      const result = translatedText.trim();
-      console.log(`Translated query to: "${result}"`);
-      return result;
     }
   } catch (err) {
-    console.warn("Client-side query translation failed:", err);
+    console.warn(`MyMemory translation failed from ${src} to ${tgt}:`, err);
   }
-  return question;
+  return text;
+}
+
+function cleanMarkdownForTTS(text) {
+  if (!text) return '';
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, '$1') // remove bold
+    .replace(/\*([^*]+)\*/g, '$1')   // remove italic
+    .replace(/###/g, '')             // remove headers
+    .replace(/##/g, '')
+    .replace(/#/g, '')
+    .replace(/-\s+/g, '')            // remove bullet points
+    .replace(/`([^`]+)`/g, '$1')      // remove code blocks
+    .replace(/\n+/g, ' ')            // replace newlines with space
+    .trim();
 }
 
 async function getEmbedding(text) {
@@ -2083,38 +2049,6 @@ async function sendQuestion() {
   const question = questionInput.value.trim();
   if (!question || isLoading) return;
 
-  const rejection = checkGuardrails(question);
-  if (rejection) {
-    hideSuggestionsBar();
-    isLoading = true;
-    sendBtn.disabled = true;
-    statusDot.className = 'status-dot loading';
-
-    // Append user message
-    appendUserMessage(question);
-
-    // Reset input
-    questionInput.value = '';
-    questionInput.style.height = 'auto';
-
-    // Typing delay emulation
-    const typingId = appendTypingIndicator();
-    setTimeout(() => {
-      removeTypingIndicator(typingId);
-      appendBotMessage({
-        answer: rejection,
-        sources: [],
-        source_type: 'external',
-        confidence: 0.0
-      });
-      isLoading = false;
-      sendBtn.disabled = false;
-      statusDot.className = 'status-dot';
-      questionInput.focus();
-    }, 400);
-    return;
-  }
-
   hideSuggestionsBar();
   isLoading = true;
   sendBtn.disabled = true;
@@ -2129,6 +2063,48 @@ async function sendQuestion() {
 
   // Show typing indicator
   const typingId = appendTypingIndicator();
+
+  const selectedLang = document.getElementById('speechLanguageSelect')?.value || 'en-US';
+  const langCode = selectedLang.split('-')[0].toLowerCase();
+
+  // 1. Translate query to English if non-English
+  let englishQuery = question;
+  if (langCode !== 'en' || !/^[\x00-\x7F]*$/.test(question)) {
+    try {
+      englishQuery = await translateText(question, langCode, 'en');
+      console.log(`Translated user query: "${question}" -> "${englishQuery}"`);
+    } catch (transErr) {
+      console.warn("Query translation to English failed, using original:", transErr);
+    }
+  }
+
+  // 2. Check Guardrails on the English translated query
+  const rejection = checkGuardrails(englishQuery);
+  if (rejection) {
+    let finalRejection = rejection;
+    if (langCode !== 'en') {
+      try {
+        finalRejection = await translateText(rejection, 'en', langCode);
+      } catch (transErr) {
+        console.warn("Rejection translation failed:", transErr);
+      }
+    }
+    
+    setTimeout(() => {
+      removeTypingIndicator(typingId);
+      appendBotMessage({
+        answer: finalRejection,
+        sources: [],
+        source_type: 'external',
+        confidence: 0.0
+      });
+      isLoading = false;
+      sendBtn.disabled = false;
+      statusDot.className = 'status-dot';
+      questionInput.focus();
+    }, 400);
+    return;
+  }
 
   // Create context payload including user profile details
   const pcosContext = `User is a ${state.user.age}-year-old female named ${state.user.name}. ` +
@@ -2150,7 +2126,7 @@ async function sendQuestion() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        question: question,
+        question: englishQuery,
         user_context: pcosContext
       })
     });
@@ -2158,13 +2134,22 @@ async function sendQuestion() {
     if (response.ok) {
       const resJson = await response.json();
       removeTypingIndicator(typingId);
+      
+      let finalAnswer = resJson.answer;
+      if (langCode !== 'en') {
+        try {
+          finalAnswer = await translateText(resJson.answer, 'en', langCode);
+        } catch (transErr) {
+          console.warn("Backend response translation failed:", transErr);
+        }
+      }
+
       appendBotMessage({
-        answer: resJson.answer,
+        answer: finalAnswer,
         sources: resJson.sources,
         source_type: resJson.source_type || 'external',
         confidence: resJson.confidence || 0.0
       });
-      // Reset loading state and button
       isLoading = false;
       sendBtn.disabled = false;
       statusDot.className = 'status-dot';
@@ -2182,17 +2167,14 @@ async function sendQuestion() {
     let queryEmbedding = null;
     const threshold = 0.40;
 
-    // Translate query to English if needed for semantic search
-    const translatedQuestion = await translateToEnglishIfNeeded(question);
-
-    // 1. Generate local browser embedding for query
+    // Generate local browser embedding for query
     try {
-      queryEmbedding = await getEmbedding(translatedQuestion);
+      queryEmbedding = await getEmbedding(englishQuery);
     } catch (embErr) {
       console.warn("Embedding generation failed, falling back to external model:", embErr);
     }
 
-    // 2. Perform Supabase vector similarity search using stored procedure RPC
+    // Perform Supabase vector similarity search using stored procedure RPC
     if (queryEmbedding) {
       const { data, error } = await sb.rpc('match_documents', {
         query_embedding: queryEmbedding,
@@ -2219,7 +2201,7 @@ async function sendQuestion() {
       return maxVal;
     }
 
-    // 3. Ground answer in context or use external LLM fallback
+    // Ground answer in context or use external LLM fallback
     if (documents.length > 0) {
       sourceType = 'internal';
       contextStr = documents.map(doc => `[Source: ${doc.source}]\n${doc.content}`).join('\n\n---\n\n');
@@ -2228,14 +2210,22 @@ async function sendQuestion() {
         content: doc.content.substring(0, 300) + '...'
       }));
 
-      // 4. Generate grounded completion from OpenAI
-      const answerText = await generateAnswer(question, contextStr, pcosContext);
+      // Generate grounded completion in English
+      const answerText = await generateAnswer(englishQuery, contextStr, pcosContext);
+
+      // Translate the answer back to user's selected language
+      let finalAnswerText = answerText;
+      if (langCode !== 'en') {
+        try {
+          finalAnswerText = await translateText(answerText, 'en', langCode);
+        } catch (transErr) {
+          console.warn("Answer translation failed:", transErr);
+        }
+      }
 
       removeTypingIndicator(typingId);
-
-      // Render result
       appendBotMessage({
-        answer: answerText,
+        answer: finalAnswerText,
         sources: sources,
         source_type: sourceType,
         confidence: bestScore
@@ -2244,8 +2234,17 @@ async function sendQuestion() {
       removeTypingIndicator(typingId);
 
       // Return out-of-knowledge response
+      let fallbackText = "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN.";
+      if (langCode !== 'en') {
+        try {
+          fallbackText = await translateText(fallbackText, 'en', langCode);
+        } catch (transErr) {
+          console.warn("Fallback translation failed:", transErr);
+        }
+      }
+
       appendBotMessage({
-        answer: "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN.",
+        answer: fallbackText,
         sources: [],
         source_type: 'external',
         confidence: bestScore
@@ -2260,8 +2259,23 @@ async function sendQuestion() {
     const isApiError = err.message.includes('API key') || err.message.includes('quota') || err.message.includes('429') || err.message.includes('401');
 
     if (isApiError) {
-      const fallbackResult = runLocalChatbotFallback(question, documents);
-      appendBotMessage(fallbackResult);
+      const fallbackResult = runLocalChatbotFallback(englishQuery, documents);
+      
+      let finalFallbackText = fallbackResult.answer;
+      if (langCode !== 'en') {
+        try {
+          finalFallbackText = await translateText(fallbackResult.answer, 'en', langCode);
+        } catch (transErr) {
+          console.warn("Fallback result translation failed:", transErr);
+        }
+      }
+
+      appendBotMessage({
+        answer: finalFallbackText,
+        sources: fallbackResult.sources,
+        source_type: fallbackResult.source_type,
+        confidence: fallbackResult.confidence
+      });
     } else {
       let errMsg = `❌ Error: ${err.message}`;
       if (err.name === 'TimeoutError') {
@@ -2298,10 +2312,21 @@ function appendBotMessage(data) {
 
   const row = document.createElement('div');
   row.className = 'message-row bot-row';
+  
+  const selectedLang = document.getElementById('speechLanguageSelect')?.value || 'en-US';
+  const langCode = selectedLang.split('-')[0].toLowerCase();
+  
+  const cleanText = cleanMarkdownForTTS(answer);
+  const shortText = cleanText.substring(0, 200).trim();
+  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(shortText)}`;
+
   row.innerHTML = `
     <div class="message-avatar">🌸</div>
     <div class="message-bubble bot-bubble">
       <div class="message-text">${formatAnswer(answer)}</div>
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 4px;">
+        <audio controls src="${ttsUrl}" style="width: 100%; max-width: 260px; height: 32px; border-radius: 4px; outline: none; background: transparent;"></audio>
+      </div>
       <div class="message-time">${formatTime()}</div>
     </div>
   `;
