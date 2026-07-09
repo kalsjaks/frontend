@@ -2500,3 +2500,18 @@ button.chip.selected {
   70% { box-shadow: 0 0 0 10px rgba(232, 124, 138, 0); }
   100% { box-shadow: 0 0 0 0 rgba(232, 124, 138, 0); }
 }
+
+/* ── Hero Split Grid Styling ── */
+.hero-split-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .hero-split-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
