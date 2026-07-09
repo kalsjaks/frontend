@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=36" />
+  <link rel="stylesheet" href="style.css?v=37" />
 </head>
 <body>
 
@@ -305,6 +305,11 @@
                     Your Polycystic Ovary Syndrome (PCOS) friend that can help in your language, at any time, at any place. Get personalized empathy, not just clinical data.
                   </p>
                   
+                  <!-- Get Started Button -->
+                  <button onclick="switchView('chat')" style="align-self: flex-start; margin-top: 8px; background: #1A1A1A; color: #FFFFFF; font-size: 15px; font-weight: 700; padding: 14px 36px; border: none; border-radius: 30px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); outline: none;">
+                    Get Started
+                  </button>
+                  
                   <!-- Trust Footer -->
                   <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px;">
                     <!-- Overlapping Avatars -->
@@ -352,17 +357,6 @@
           <div class="dashboard-right-panel">
             
             <div class="banners-container" style="display: flex; gap: 16px; width: 100%; flex-wrap: wrap;">
-              <!-- Ask Bloom Chatbot Banner (Ask Eva equivalent) -->
-              <div class="ask-bloom-banner" style="flex: 1; min-width: 280px; margin-bottom: 0;">
-                <div class="ask-bloom-banner-left">
-                  <h3 class="ask-bloom-banner-title">Ask Bloom</h3>
-                  <p class="ask-bloom-banner-desc">Hi! I'm Bloom, your personal AI guide for PCOS/PMOS hormonal wellness. How can I help you today?</p>
-                  <button class="ask-bloom-banner-btn" onclick="switchView('chat')">Chat with Bloom</button>
-                </div>
-                <div class="ask-bloom-banner-right">
-                  <span class="ask-bloom-banner-avatar">🌸</span>
-                </div>
-              </div>
 
               <!-- Book Consultation with Doctor Banner -->
               <div class="ask-bloom-banner book-doctor-banner" onclick="toggleVoiceAssistantWidget()" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(46, 125, 50, 0.2); background: linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(46, 125, 50, 0.06);">
@@ -1341,7 +1335,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=36"></script>
+  <script src="app.js?v=37"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
