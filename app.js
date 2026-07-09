@@ -97,6 +97,29 @@ window.addEventListener('DOMContentLoaded', () => {
   checkBackendHealth();
   setupInputAutoResize();
   setupKeyboardShortcuts();
+
+  // Rotate hero prompt text and subtext dynamically
+  const heroPrompts = [
+    { text: '"How can I manage my PCOS symptoms?"', sub: 'Bloom is listening in English...' },
+    { text: '"मैं अपने पीसीओएस लक्षणों को कैसे प्रबंधित कर सकती हूँ?"', sub: 'Bloom is listening in Hindi...' },
+    { text: '"నా పిసిఒఎస్ లక్షణాలను నేను ఎలా నిర్వహించగలను?"', sub: 'Bloom is listening in Telugu...' }
+  ];
+  let heroPromptIdx = 0;
+  setInterval(() => {
+    const textEl = document.getElementById('heroPromptText');
+    const subEl = document.getElementById('heroPromptSubText');
+    if (textEl && subEl) {
+      textEl.style.opacity = '0';
+      subEl.style.opacity = '0';
+      setTimeout(() => {
+        heroPromptIdx = (heroPromptIdx + 1) % heroPrompts.length;
+        textEl.textContent = heroPrompts[heroPromptIdx].text;
+        subEl.textContent = heroPrompts[heroPromptIdx].sub;
+        textEl.style.opacity = '1';
+        subEl.style.opacity = '1';
+      }, 500);
+    }
+  }, 4000);
 });
 
 // ── Supabase Log Syncing ──────────────────────────────────────
