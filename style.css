@@ -316,7 +316,6 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 95px; /* Space for centered bottom tab nav */
 }
 
 /* Top Sticky Header */
@@ -2729,15 +2728,18 @@ button.chip.selected {
 
 /* Premium Footer */
 .app-footer {
-  margin-top: 60px;
-  padding: 40px 48px;
+  width: 100%;
+  max-width: 1280px;
+  margin: 60px auto 0 auto;
+  padding: 40px 24px;
   border-top: 1px solid var(--border);
-  background: var(--bg-card);
+  background: transparent;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 24px;
+  box-sizing: border-box;
 }
 
 .footer-left h4 {
@@ -2772,16 +2774,46 @@ button.chip.selected {
   color: var(--brand-pink);
 }
 
+/* Chat Button on Footer */
+.footer-chat-btn {
+  background-color: #904151; /* Dark rose pink from screenshot */
+  color: #FFFFFF;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+  box-shadow: 0 4px 12px rgba(144, 65, 81, 0.25);
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.footer-chat-btn:hover {
+  transform: scale(1.08);
+  background-color: #a24b5d;
+  box-shadow: 0 6px 18px rgba(144, 65, 81, 0.4);
+}
+
+.footer-chat-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
 @media (max-width: 768px) {
   .app-footer {
     flex-direction: column;
     align-items: flex-start;
     padding: 30px 24px;
-    margin-bottom: 80px; /* Space for the bottom navigation tab bar on mobile */
+    margin-bottom: 30px; /* Reduced space since bottom nav is gone */
   }
   .footer-right {
-    flex-direction: column;
-    align-items: flex-start;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
     gap: 14px;
   }
 }
