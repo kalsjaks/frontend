@@ -1277,19 +1277,29 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: var(--shadow-glow);
-  transition: transform var(--duration), background var(--duration);
-}
-
-.send-button:hover {
-  transform: scale(1.05);
-  background: #d86a78;
+  transition: all var(--duration) var(--ease);
 }
 
 .send-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
+  background: #F4CAD0 !important;
+  color: #FFFFFF !important;
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.send-button:not(:disabled) {
+  background: var(--brand-pink) !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(232, 124, 138, 0.3) !important;
+}
+
+.send-button:not(:disabled):hover {
+  transform: scale(1.05);
+  background: #d86a78 !important;
+  box-shadow: 0 6px 16px rgba(232, 124, 138, 0.45) !important;
 }
 
 .input-disclaimer {

@@ -1610,11 +1610,25 @@ function setStatus(stateName, text) {
 }
 
 // Input helpers
+function updateSendButtonState() {
+  if (sendBtn && questionInput) {
+    const hasText = questionInput.value.trim().length > 0;
+    sendBtn.disabled = !hasText || isLoading;
+  }
+}
+
 function setupInputAutoResize() {
   if (!questionInput) return;
+  
+  // Disable send button initially since chat input is empty on load
+  updateSendButtonState();
+
   questionInput.addEventListener('input', () => {
     questionInput.style.height = 'auto';
     questionInput.style.height = Math.min(questionInput.scrollHeight, 100) + 'px';
+    
+    // Toggle active state styling on the send button
+    updateSendButtonState();
   });
 }
 
@@ -2188,7 +2202,7 @@ async function sendQuestion() {
 
   hideSuggestionsBar();
   isLoading = true;
-  sendBtn.disabled = true;
+  updateSendButtonState();
   statusDot.className = 'status-dot loading';
 
   // Append user message
@@ -2236,7 +2250,7 @@ async function sendQuestion() {
         confidence: 0.0
       });
       isLoading = false;
-      sendBtn.disabled = false;
+      updateSendButtonState();
       statusDot.className = 'status-dot';
       questionInput.focus();
     }, 400);
@@ -2288,7 +2302,7 @@ async function sendQuestion() {
         confidence: resJson.confidence || 0.0
       });
       isLoading = false;
-      sendBtn.disabled = false;
+      updateSendButtonState();
       statusDot.className = 'status-dot';
       questionInput.focus();
       return; // Success! Return early.
@@ -2413,7 +2427,7 @@ async function sendQuestion() {
     }
   } finally {
     isLoading = false;
-    sendBtn.disabled = false;
+    updateSendButtonState();
     statusDot.className = 'status-dot';
     questionInput.focus();
   }
