@@ -2785,3 +2785,32 @@ button.chip.selected {
     gap: 14px;
   }
 }
+
+/* Highly Highlighted Sign Up Action Button */
+.highlight-signup {
+  background: linear-gradient(135deg, var(--brand-pink) 0%, #E25C70 100%) !important;
+  border: none !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(232, 124, 138, 0.4) !important;
+  animation: pulse-glow-signup 3s infinite ease-in-out;
+  transition: all var(--duration) var(--ease) !important;
+}
+
+.highlight-signup:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 6px 24px rgba(232, 124, 138, 0.65) !important;
+  background: linear-gradient(135deg, #E25C70 0%, #D84B61 100%) !important;
+}
+
+@keyframes pulse-glow-signup {
+  0%, 100% {
+    box-shadow: 0 4px 18px rgba(232, 124, 138, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 28px rgba(232, 124, 138, 0.75);
+  }
+}

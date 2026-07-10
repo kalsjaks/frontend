@@ -301,7 +301,7 @@ async function initApp() {
       await syncUserLogs(session.user.id);
       switchView('home');
     } else {
-      state.user.isLoggedIn = true;
+      state.user.isLoggedIn = false;
       state.user.id = null;
       state.user.name = 'Guest User';
       state.user.pcosType = 'Not Sure';
@@ -312,7 +312,7 @@ async function initApp() {
     }
   } catch (err) {
     console.error('Failed to get Supabase session:', err);
-    state.user.isLoggedIn = true;
+    state.user.isLoggedIn = false;
     state.user.id = null;
     state.user.name = 'Guest User';
     state.user.pcosType = 'Not Sure';
@@ -512,16 +512,16 @@ function saveState() {
 }
 
 function updateUIFromState() {
-  // Toggle guest vs. logged-in options inside the profile dropdown menu
-  const isRegisteredUser = !!state.user.id;
-  const dropdownAuthGroup = document.getElementById('dropdownAuthGroup');
-  const dropdownUserGroup = document.getElementById('dropdownUserGroup');
-  if (isRegisteredUser) {
-    if (dropdownAuthGroup) dropdownAuthGroup.classList.add('hidden');
-    if (dropdownUserGroup) dropdownUserGroup.classList.remove('hidden');
+  // Toggle guest vs. logged-in header buttons
+  const isLoggedOut = !state.user.isLoggedIn;
+  const headerActionsLoggedOut = document.getElementById('headerActionsLoggedOut');
+  const headerActionsLoggedIn  = document.getElementById('headerActionsLoggedIn');
+  if (isLoggedOut) {
+    if (headerActionsLoggedOut) headerActionsLoggedOut.classList.remove('hidden');
+    if (headerActionsLoggedIn) headerActionsLoggedIn.classList.add('hidden');
   } else {
-    if (dropdownAuthGroup) dropdownAuthGroup.classList.remove('hidden');
-    if (dropdownUserGroup) dropdownUserGroup.classList.add('hidden');
+    if (headerActionsLoggedOut) headerActionsLoggedOut.classList.add('hidden');
+    if (headerActionsLoggedIn) headerActionsLoggedIn.classList.remove('hidden');
   }
 
   // Update name greetings
@@ -1120,7 +1120,7 @@ async function handleLogout() {
     pcosType: 'Not Sure',
     age: 24,
     cycleLength: 28,
-    isLoggedIn: true
+    isLoggedIn: false
   };
   saveState();
   updateUIFromState();
