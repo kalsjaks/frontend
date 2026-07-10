@@ -251,8 +251,7 @@ async function initApp() {
     if (event === 'PASSWORD_RECOVERY') {
       console.log('PASSWORD_RECOVERY event received from Supabase.');
       isRecovering = true;
-      authContainer.classList.remove('hidden');
-      appContainer.classList.add('hidden');
+      openModal('modal-auth');
       showAuthSubScreen('reset');
     }
   });
@@ -282,8 +281,7 @@ async function initApp() {
 
   if (isRecovering) {
     console.log('Recovery flow active.');
-    authContainer.classList.remove('hidden');
-    appContainer.classList.add('hidden');
+    openModal('modal-auth');
     showAuthSubScreen('reset');
 
     // Clear hash/query params from URL to prevent loop on reload
@@ -301,21 +299,27 @@ async function initApp() {
       state.user.isLoggedIn = true;
       state.user.id = session.user.id;
       await syncUserLogs(session.user.id);
-      authContainer.classList.add('hidden');
-      appContainer.classList.remove('hidden');
       switchView('home');
     } else {
       state.user.isLoggedIn = false;
-      authContainer.classList.remove('hidden');
-      appContainer.classList.add('hidden');
-      showAuthSubScreen('choice'); // Default to landing choice
+      state.user.id = null;
+      state.user.name = 'Guest User';
+      state.user.pcosType = 'Not Sure';
+      state.user.age = 24;
+      state.user.cycleLength = 28;
+      saveState();
+      switchView('home');
     }
   } catch (err) {
     console.error('Failed to get Supabase session:', err);
     state.user.isLoggedIn = false;
-    authContainer.classList.remove('hidden');
-    appContainer.classList.add('hidden');
-    showAuthSubScreen('choice');
+    state.user.id = null;
+    state.user.name = 'Guest User';
+    state.user.pcosType = 'Not Sure';
+    state.user.age = 24;
+    state.user.cycleLength = 28;
+    saveState();
+    switchView('home');
   }
   updateUIFromState();
 }
@@ -508,6 +512,18 @@ function saveState() {
 }
 
 function updateUIFromState() {
+  // Toggle guest vs. logged-in header buttons
+  const isGuest = !state.user.id;
+  const headerActionsLoggedOut = document.getElementById('headerActionsLoggedOut');
+  const headerActionsLoggedIn  = document.getElementById('headerActionsLoggedIn');
+  if (isGuest) {
+    if (headerActionsLoggedOut) headerActionsLoggedOut.classList.remove('hidden');
+    if (headerActionsLoggedIn) headerActionsLoggedIn.classList.add('hidden');
+  } else {
+    if (headerActionsLoggedOut) headerActionsLoggedOut.classList.add('hidden');
+    if (headerActionsLoggedIn) headerActionsLoggedIn.classList.remove('hidden');
+  }
+
   // Update name greetings
   document.querySelectorAll('.user-display-name').forEach(el => {
     el.textContent = state.user.name;
@@ -918,8 +934,7 @@ async function handleExistingLogin(e) {
   await syncUserLogs(data.user.id);
 
   // Transitions
-  authContainer.classList.add('hidden');
-  appContainer.classList.remove('hidden');
+  closeActiveModal();
   switchView('home');
 
   console.log('🌸 Welcome back, ' + state.user.name + '!');
@@ -1005,8 +1020,7 @@ async function handleNewUserSetup(e) {
   updateUIFromState();
 
   // Transitions
-  authContainer.classList.add('hidden');
-  appContainer.classList.remove('hidden');
+  closeActiveModal();
   switchView('home');
 
   console.log('🌸 Welcome to BloomWell PCOS, ' + name + '! Profile created successfully.');
@@ -1035,8 +1049,7 @@ function continueAsGuest() {
   updateUIFromState();
 
   // Transitions
-  authContainer.classList.add('hidden');
-  appContainer.classList.remove('hidden');
+  closeActiveModal();
   switchView('home');
 
   console.log('🌸 Welcome to BloomWell PCOS! You are logged in as a Guest (offline local mode).');
@@ -1097,13 +1110,18 @@ async function handleUpdatePassword(e) {
 
 async function handleLogout() {
   await sb.auth.signOut();
-  state.user.isLoggedIn = false;
-  state.user.id = null;
+  state.user = {
+    id: null,
+    name: 'Guest User',
+    pcosType: 'Not Sure',
+    age: 24,
+    cycleLength: 28,
+    isLoggedIn: false
+  };
   saveState();
+  updateUIFromState();
 
-  appContainer.classList.add('hidden');
-  authContainer.classList.remove('hidden');
-  showAuthSubScreen('choice'); // Return to choice select
+  switchView('home');
 
   showToast('👋 Logged out from BloomWell PCOS successfully.', 'info');
 }
@@ -1160,6 +1178,12 @@ function openSymptomsModal() { openModal('modal-symptoms'); }
 function openLabResultsModal() { openModal('modal-lab'); }
 function openMedicationsModal() { openModal('modal-meds'); }
 function openHealthSummaryModal() { openModal('modal-summary'); }
+function openAuthModal(mode) {
+  showAuthSubScreen(mode);
+  openModal('modal-auth');
+}
+function openAboutModal() { openModal('modal-about'); }
+
 
 function openModal(modalId) {
   const overlay = document.getElementById('modalOverlay');
@@ -3506,4 +3530,60 @@ function toggleVoiceAssistantWidget() {
     }
   }
 }
+
+// ── Custom Language Dropdown Logic (Redesigned Chat Interface) ──────────────────
+function toggleCustomDropdown(event) {
+  event.stopPropagation();
+  const menu = document.getElementById('customDropdownMenu');
+  if (menu) {
+    menu.classList.toggle('hidden');
+  }
+}
+
+function selectCustomLanguage(langCode, displayName, event) {
+  if (event) event.stopPropagation();
+
+  // Update hidden native select
+  const nativeSelect = document.getElementById('speechLanguageSelect');
+  if (nativeSelect) {
+    nativeSelect.value = langCode;
+    nativeSelect.dispatchEvent(new Event('change'));
+  }
+
+  // Update button text
+  const label = document.getElementById('selectedLanguageLabel');
+  if (label) {
+    label.textContent = displayName;
+  }
+
+  // Update selected class in dropdown list items
+  const items = document.querySelectorAll('.dropdown-menu-item');
+  items.forEach(item => {
+    const isSelected = item.getAttribute('data-value') === langCode;
+    if (isSelected) {
+      item.classList.add('selected');
+      item.querySelector('.check-icon')?.classList.remove('hidden');
+    } else {
+      item.classList.remove('selected');
+      item.querySelector('.check-icon')?.classList.add('hidden');
+    }
+  });
+
+  // Close dropdown menu
+  const menu = document.getElementById('customDropdownMenu');
+  if (menu) {
+    menu.classList.add('hidden');
+  }
+
+  showToast(`Language set to ${displayName}`, 'success');
+}
+
+// Global click handler to dismiss language dropdown on outside clicks
+document.addEventListener('click', (event) => {
+  const menu = document.getElementById('customDropdownMenu');
+  const dropdownContainer = document.getElementById('customLangDropdown');
+  if (menu && dropdownContainer && !dropdownContainer.contains(event.target)) {
+    menu.classList.add('hidden');
+  }
+});
 

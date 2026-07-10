@@ -358,6 +358,42 @@ body {
   gap: 16px;
 }
 
+.header-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-main);
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.nav-btn:hover {
+  background-color: var(--brand-pink-light);
+  color: var(--brand-pink);
+}
+
+.nav-btn-primary {
+  background-color: var(--brand-pink);
+  color: white !important;
+  box-shadow: var(--shadow-glow);
+}
+
+.nav-btn-primary:hover {
+  background-color: #d66472;
+  box-shadow: 0 6px 22px rgba(232, 124, 138, 0.25);
+  color: white !important;
+}
+
+
 .icon-btn {
   background: transparent;
   border: none;
@@ -836,17 +872,47 @@ body {
 
 .chat-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 28px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 28px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-card);
 }
 
-.chat-header-left {
+.chat-header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.chat-header-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.chat-header-logo {
+  font-size: 26px;
+}
+
+.chat-header-bottom-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+
+.shield-check-icon {
+  margin-top: 2px;
+  color: var(--brand-green);
+}
+
+.chat-header-bottom-row .chat-subtitle {
+  font-size: 13.5px;
+  color: var(--text-sub);
+  line-height: 1.45;
+  margin: 0;
 }
 
 .chat-back-btn {
@@ -1233,6 +1299,151 @@ body {
   margin-top: 8px;
   text-align: center;
   font-weight: 500;
+}
+
+/* Welcome banner card rules */
+.chat-welcome-banner {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-image: url('chatwomen.png');
+  background-size: cover;
+  background-position: right center;
+  display: flex;
+  align-items: center;
+  padding: 32px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.03);
+  border: 1px solid var(--border-strong);
+  margin-bottom: 12px;
+  box-sizing: border-box;
+}
+
+.welcome-banner-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(255,255,255,1) 0%, rgba(255,255,255,0.92) 35%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
+  z-index: 1;
+}
+
+.welcome-banner-card {
+  position: relative;
+  z-index: 2;
+  max-width: 58%;
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(28, 46, 36, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.welcome-text-highlight {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.welcome-text-normal {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+/* Custom Language Dropdown styling */
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-dropdown-btn {
+  background: var(--brand-pink);
+  color: #FFFFFF;
+  border: none;
+  padding: 8px 18px;
+  height: 38px;
+  border-radius: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  box-shadow: var(--shadow-glow);
+  transition: all var(--duration) var(--ease);
+}
+
+.custom-dropdown-btn:hover {
+  background: #d86a78;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(232, 124, 138, 0.25);
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 200px;
+  background: #FFFFFF;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(28, 46, 36, 0.15);
+  border: 1px solid var(--border-strong);
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.2s var(--ease) both;
+}
+
+.dropdown-menu-item {
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  color: var(--text-main);
+  font-size: 13.5px;
+  font-weight: 600;
+  transition: background-color var(--duration);
+}
+
+.dropdown-menu-item:hover {
+  background: var(--brand-pink-light);
+}
+
+.dropdown-menu-item.selected {
+  background: var(--brand-pink-light);
+  color: var(--brand-pink);
+}
+
+.check-icon {
+  color: var(--brand-pink);
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .chat-welcome-banner {
+    min-height: 380px;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 20px;
+    background-position: center center;
+  }
+  .welcome-banner-gradient-overlay {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.85) 60%, rgba(255,255,255,1) 100%);
+  }
+  .welcome-banner-card {
+    max-width: 100%;
+    width: 100%;
+    padding: 20px;
+  }
 }
 
 /* ── 5. SETTINGS VIEW (Profile Details) ── */
