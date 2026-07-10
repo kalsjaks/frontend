@@ -513,10 +513,10 @@ function saveState() {
 
 function updateUIFromState() {
   // Toggle guest vs. logged-in header buttons
-  const isGuest = !state.user.id;
+  const isLoggedOut = !state.user.isLoggedIn;
   const headerActionsLoggedOut = document.getElementById('headerActionsLoggedOut');
   const headerActionsLoggedIn  = document.getElementById('headerActionsLoggedIn');
-  if (isGuest) {
+  if (isLoggedOut) {
     if (headerActionsLoggedOut) headerActionsLoggedOut.classList.remove('hidden');
     if (headerActionsLoggedIn) headerActionsLoggedIn.classList.add('hidden');
   } else {
@@ -742,17 +742,21 @@ function switchView(viewName, isBack = false) {
   // Activate chosen view & tab
   if (viewName === 'home') {
     document.getElementById('homeView').classList.add('active');
-    document.getElementById('tab-home').classList.add('active');
+    const tab = document.getElementById('tab-home');
+    if (tab) tab.classList.add('active');
   } else if (viewName === 'chat') {
     document.getElementById('chatView').classList.add('active');
-    document.getElementById('tab-chat').classList.add('active');
+    const tab = document.getElementById('tab-chat');
+    if (tab) tab.classList.add('active');
     setTimeout(() => questionInput.focus(), 200);
   } else if (viewName === 'settings') {
     document.getElementById('settingsView').classList.add('active');
-    document.getElementById('tab-settings').classList.add('active');
+    const tab = document.getElementById('tab-settings');
+    if (tab) tab.classList.add('active');
   } else if (viewName === 'period') {
     document.getElementById('periodView').classList.add('active');
-    document.getElementById('tab-home').classList.add('active');
+    const tab = document.getElementById('tab-home');
+    if (tab) tab.classList.add('active');
     
     // Clear calendar state and render
     selectedPeriodDates.clear();
