@@ -434,9 +434,7 @@ function toggleChatVoiceInput() {
       const resultText = event.results[0][0].transcript;
       if (resultText) {
         inputEl.value = resultText;
-        if (typeof setupInputAutoResize === 'function') {
-          setupInputAutoResize();
-        }
+        inputEl.dispatchEvent(new Event('input'));
         showToast('✓ Speech captured!', 'success');
       }
     };
