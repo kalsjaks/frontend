@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=42" />
+  <link rel="stylesheet" href="style.css?v=43" />
 </head>
 <body>
 
@@ -317,19 +317,10 @@
 
           <!-- Messages scroll area -->
           <div class="messages-area" id="messagesArea">
-            <!-- Welcome message (Styled as a full-bleed banner card) -->
-            <div class="chat-welcome-banner" id="welcomeMessage">
-              <div class="welcome-banner-gradient-overlay"></div>
-              <div class="welcome-banner-card">
-                <p class="welcome-text-highlight">
-                  👋 Hi, I’m Bloom, your personalized BloomWell PCOS/PMOS assistant.
-                </p>
-                <p class="welcome-text-normal">
-                  Ask me anything about PCOS/PMOS symptoms, hormonal balance, nutrition, or cycle‑syncing exercises.
-                </p>
-                <p class="welcome-text-normal">
-                  I’ll share evidence‑based insights from trusted medical sources, complemented by general health guidance when needed.
-                </p>
+            <div class="message-row bot-row">
+              <div class="message-avatar">🌸</div>
+              <div class="message-bubble bot-bubble">
+                <div class="message-text">Hello! I am your PCOS Dost. What questions do you have about managing PCOS?</div>
               </div>
             </div>
           </div>
@@ -1398,7 +1389,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=42"></script>
+  <script src="app.js?v=43"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
