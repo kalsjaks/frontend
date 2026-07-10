@@ -518,11 +518,11 @@ function updateUIFromState() {
   const headerActionsLoggedIn  = document.getElementById('headerActionsLoggedIn');
   if (isLoggedOut) {
     if (headerActionsLoggedOut) headerActionsLoggedOut.classList.remove('hidden');
-    if (headerActionsLoggedIn) headerActionsLoggedIn.classList.add('hidden');
   } else {
     if (headerActionsLoggedOut) headerActionsLoggedOut.classList.add('hidden');
-    if (headerActionsLoggedIn) headerActionsLoggedIn.classList.remove('hidden');
   }
+  // Keep the profile avatar settings dropdown permanently visible in the header
+  if (headerActionsLoggedIn) headerActionsLoggedIn.classList.remove('hidden');
 
   // Update name greetings
   document.querySelectorAll('.user-display-name').forEach(el => {
