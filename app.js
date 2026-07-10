@@ -1184,6 +1184,37 @@ function openAuthModal(mode) {
 }
 function openAboutModal() { openModal('modal-about'); }
 
+function openFooterInfoModal(type) {
+  const modalTitle = document.getElementById('footerInfoTitle');
+  const modalBody = document.getElementById('footerInfoBody');
+  if (!modalTitle || !modalBody) return;
+  
+  if (type === 'privacy') {
+    modalTitle.innerHTML = '🔒 Privacy Policy';
+    modalBody.innerHTML = `
+      <p style="margin-bottom: 12px;">At BloomWell PCOS, we prioritize your data privacy. Your personal health metrics, period logs, and symptom notes are stored securely.</p>
+      <p style="margin-bottom: 12px;"><strong>Data Security:</strong> We use industry-standard encryption to sync and store your logs in Supabase. You can clear your data anytime via the settings tab.</p>
+      <p>We do not share or sell your personal details with third-party advertising services.</p>
+    `;
+  } else if (type === 'terms') {
+    modalTitle.innerHTML = '⚖️ Terms of Service';
+    modalBody.innerHTML = `
+      <p style="margin-bottom: 12px;">By using the BloomWell companion, you agree to store your wellness logs and utilize the AI guidance responsibly.</p>
+      <p style="margin-bottom: 12px;"><strong>Medical Disclaimer:</strong> The content and insights provided by Bloom AI are for educational and self-management support purposes only. They do not substitute professional medical advice, diagnosis, or treatment.</p>
+      <p>Consult a qualified gynecologist or healthcare provider for specific clinical recommendations.</p>
+    `;
+  } else if (type === 'contact') {
+    modalTitle.innerHTML = '✉️ Contact Support';
+    modalBody.innerHTML = `
+      <p style="margin-bottom: 12px;">Need assistance or have feedback about BloomWell PCOS? We would love to hear from you!</p>
+      <p style="margin-bottom: 12px;"><strong>Email Us:</strong> support@bloomwellpcos.com</p>
+      <p>We typically respond within 24–48 hours to help resolve database syncing issues or platform bugs.</p>
+    `;
+  }
+  openModal('modal-footer-info');
+}
+
+
 
 function openModal(modalId) {
   const overlay = document.getElementById('modalOverlay');

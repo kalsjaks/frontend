@@ -959,6 +959,19 @@
         <span class="tab-label">Settings</span>
       </button>
     </nav>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <h4>BloomWell PCOS</h4>
+        <p>&copy; 2026 BloomWell. Empowering wellness and hormonal balance with grace.</p>
+      </div>
+      <div class="footer-right">
+        <a href="#" onclick="openFooterInfoModal('privacy'); event.preventDefault();" class="footer-link">Privacy Policy</a>
+        <a href="#" onclick="openFooterInfoModal('terms'); event.preventDefault();" class="footer-link">Terms of Service</a>
+        <a href="#" onclick="openFooterInfoModal('contact'); event.preventDefault();" class="footer-link">Contact Support</a>
+      </div>
+    </footer>
   </div>
 
   <!-- ════════════════════════════════
@@ -1356,6 +1369,18 @@
       </div>
       <div class="modal-footer" style="margin-top: 16px;">
         <button class="btn-primary" onclick="closeActiveModal()" style="width: 100%;">Got it!</button>
+      </div>
+    </div>
+
+    <!-- Modal: Footer Info -->
+    <div id="modal-footer-info" class="modal-content hidden" style="max-width: 480px;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title" id="footerInfoTitle">ℹ️ Information</h3>
+      <div class="modal-body" id="footerInfoBody" style="line-height: 1.6; font-size: 14.5px; color: var(--text-sub);">
+        <!-- Content injected dynamically -->
+      </div>
+      <div class="modal-footer" style="margin-top: 24px;">
+        <button class="btn-primary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
       </div>
     </div>
 
