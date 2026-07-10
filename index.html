@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=41" />
+  <link rel="stylesheet" href="style.css?v=42" />
 </head>
 <body>
 
@@ -292,7 +292,10 @@
           <div class="chat-header">
             <div class="chat-header-top-row">
               <div class="chat-header-brand">
-                <span class="chat-header-logo">🌸</span>
+                <div style="position: relative; display: inline-block;">
+                  <span class="chat-header-logo">🌸</span>
+                  <span class="status-dot" id="statusDot"></span>
+                </div>
                 <h2 class="chat-title">Ask Bloom</h2>
               </div>
               <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
@@ -304,7 +307,7 @@
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 <polyline points="9 11 11 13 15 9" />
               </svg>
-              <p class="chat-subtitle">Your trusted friend for PCOS. Ask anything, or use the mic button in your preferred language to get guidance.</p>
+              <p class="chat-subtitle" id="chatSubtitle">Your trusted friend for PCOS. Ask anything, or use the mic button in your preferred language to get guidance.</p>
             </div>
             <div class="api-status" style="display: none;">
               <span class="status-indicator" id="statusIndicator"></span>
@@ -1395,7 +1398,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=41"></script>
+  <script src="app.js?v=42"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
