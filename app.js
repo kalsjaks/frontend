@@ -1726,6 +1726,7 @@ function getFullLanguageName(code) {
     'hi': 'Hindi',
     'te': 'Telugu',
     'ta': 'Tamil',
+    'mr': 'Marathi',
     'es': 'Spanish',
     'ar': 'Arabic'
   };

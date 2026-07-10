@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=45" />
+  <link rel="stylesheet" href="style.css?v=46" />
 </head>
 <body>
 
@@ -366,6 +366,12 @@
                 </div>
                 <div class="dropdown-menu-item" data-value="mr-IN" onclick="selectCustomLanguage('mr-IN', 'मराठी', event)">
                   <span>मराठी</span>
+                  <svg class="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div class="dropdown-menu-item" data-value="te-IN" onclick="selectCustomLanguage('te-IN', 'తెలుగు', event)">
+                  <span>తెలుగు</span>
                   <svg class="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
@@ -1357,7 +1363,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=45"></script>
+  <script src="app.js?v=46"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
