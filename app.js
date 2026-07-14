@@ -777,6 +777,18 @@ function switchView(viewName, isBack = false) {
     document.getElementById('chatView').classList.add('active');
     const tab = document.getElementById('tab-chat');
     if (tab) tab.classList.add('active');
+    
+    // Reset suggestions bar visibility so the custom language selector is visible
+    suggestionsHidden = false;
+    if (suggestionsBar) {
+      suggestionsBar.style.display = 'flex';
+      suggestionsBar.style.opacity = '1';
+      suggestionsBar.style.maxHeight = '';
+      suggestionsBar.style.paddingTop = '';
+      suggestionsBar.style.paddingBottom = '';
+      suggestionsBar.style.transition = '';
+    }
+    
     setTimeout(() => questionInput.focus(), 200);
   } else if (viewName === 'settings') {
     document.getElementById('settingsView').classList.add('active');
