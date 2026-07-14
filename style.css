@@ -2848,3 +2848,74 @@ button.chip.selected {
     box-shadow: 0 4px 28px rgba(232, 124, 138, 0.75);
   }
 }
+
+/* ── Premium Custom Audio / TTS Player styling ── */
+.tts-player-wrapper {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 6px 14px;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.tts-player-wrapper:hover {
+  border-color: var(--brand-pink-light);
+  box-shadow: 0 4px 12px rgba(232, 124, 138, 0.08);
+}
+
+.tts-play-btn {
+  background: linear-gradient(135deg, var(--brand-pink) 0%, #E25C70 100%);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(232, 124, 138, 0.3);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.tts-play-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 3px 12px rgba(232, 124, 138, 0.5);
+}
+
+.tts-play-btn:active {
+  transform: scale(0.96);
+}
+
+.tts-play-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.tts-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  user-select: none;
+}
+
+.tts-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.3px;
+}
+
+.tts-subtitle {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}

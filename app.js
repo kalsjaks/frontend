@@ -2471,6 +2471,106 @@ function appendUserMessage(text) {
   scrollBottom();
 }
 
+let currentUtterance = null;
+let currentTtsButton = null;
+
+function toggleTTS(btn, lang) {
+  if (!window.speechSynthesis) {
+    showToast("⚠️ Speech Synthesis is not supported in this browser.", "error");
+    return;
+  }
+
+  const text = btn.getAttribute('data-tts-text') || '';
+
+  if (currentTtsButton === btn) {
+    if (window.speechSynthesis.speaking) {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+        updateTtsButtonState(btn, 'playing');
+      } else {
+        window.speechSynthesis.pause();
+        updateTtsButtonState(btn, 'paused');
+      }
+    } else {
+      startTTS(btn, text, lang);
+    }
+    return;
+  }
+
+  if (window.speechSynthesis.speaking) {
+    window.speechSynthesis.cancel();
+  }
+  if (currentTtsButton) {
+    updateTtsButtonState(currentTtsButton, 'stopped');
+  }
+
+  startTTS(btn, text, lang);
+}
+
+function startTTS(btn, text, lang) {
+  currentTtsButton = btn;
+  currentUtterance = new SpeechSynthesisUtterance(text);
+  currentUtterance.lang = lang || 'en-US';
+
+  if (window.speechSynthesis.getVoices) {
+    const voices = window.speechSynthesis.getVoices();
+    let voice = voices.find(v => v.lang === lang);
+    if (!voice) {
+      const prefix = lang.split('-')[0];
+      voice = voices.find(v => v.lang.startsWith(prefix));
+    }
+    if (voice) {
+      currentUtterance.voice = voice;
+    }
+  }
+
+  currentUtterance.onstart = () => {
+    updateTtsButtonState(btn, 'playing');
+  };
+
+  currentUtterance.onend = () => {
+    updateTtsButtonState(btn, 'stopped');
+    if (currentTtsButton === btn) {
+      currentTtsButton = null;
+      currentUtterance = null;
+    }
+  };
+
+  currentUtterance.onerror = (e) => {
+    console.error("Speech Synthesis Error:", e);
+    updateTtsButtonState(btn, 'stopped');
+    if (currentTtsButton === btn) {
+      currentTtsButton = null;
+      currentUtterance = null;
+    }
+  };
+
+  window.speechSynthesis.speak(currentUtterance);
+}
+
+function updateTtsButtonState(btn, state) {
+  const icon = btn.querySelector('.tts-icon');
+  const wrapper = btn.closest('.tts-player-wrapper');
+  const subtitle = wrapper ? wrapper.querySelector('.tts-subtitle') : null;
+  
+  if (state === 'playing') {
+    if (icon) icon.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:currentColor;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>`;
+    if (subtitle) subtitle.textContent = 'Speaking...';
+    btn.style.background = 'linear-gradient(135deg, #4A90E2 0%, #357ABD 100%)';
+    btn.style.boxShadow = '0 2px 8px rgba(74, 144, 226, 0.4)';
+  } else if (state === 'paused') {
+    if (icon) icon.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:currentColor;"><path d="M8 5v14l11-7z"></path></svg>`;
+    if (subtitle) subtitle.textContent = 'Paused';
+    btn.style.background = 'linear-gradient(135deg, var(--brand-pink) 0%, #E25C70 100%)';
+    btn.style.boxShadow = '0 2px 8px rgba(232, 124, 138, 0.3)';
+  } else {
+    if (icon) icon.innerHTML = `<svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:currentColor;"><path d="M8 5v14l11-7z"></path></svg>`;
+    if (subtitle) subtitle.textContent = 'Voice AI Assistant';
+    btn.style.background = 'linear-gradient(135deg, var(--brand-pink) 0%, #E25C70 100%)';
+    btn.style.boxShadow = '0 2px 8px rgba(232, 124, 138, 0.3)';
+  }
+}
+
 function appendBotMessage(data) {
   const { answer } = data;
 
@@ -2478,18 +2578,22 @@ function appendBotMessage(data) {
   row.className = 'message-row bot-row';
   
   const selectedLang = document.getElementById('speechLanguageSelect')?.value || 'en-US';
-  const langCode = selectedLang.split('-')[0].toLowerCase();
-  
   const cleanText = cleanMarkdownForTTS(answer);
-  const shortText = cleanText.substring(0, 200).trim();
-  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${langCode}&client=tw-ob&q=${encodeURIComponent(shortText)}`;
 
   row.innerHTML = `
     <div class="message-avatar">🌸</div>
     <div class="message-bubble bot-bubble">
       <div class="message-text">${formatAnswer(answer)}</div>
-      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 4px;">
-        <audio controls referrerpolicy="no-referrer" src="${ttsUrl}" style="width: 100%; max-width: 260px; height: 32px; border-radius: 4px; outline: none; background: transparent;"></audio>
+      <div class="tts-player-wrapper">
+        <button class="tts-play-btn" data-tts-text="${escapeHtml(cleanText)}" onclick="toggleTTS(this, '${selectedLang}')" aria-label="Listen to response">
+          <span class="tts-icon">
+            <svg viewBox="0 0 24 24" style="width:14px; height:14px; fill:currentColor;"><path d="M8 5v14l11-7z"></path></svg>
+          </span>
+        </button>
+        <div class="tts-info">
+          <span class="tts-title">Listen to Response</span>
+          <span class="tts-subtitle">Voice AI Assistant</span>
+        </div>
       </div>
       <div class="message-time">${formatTime()}</div>
     </div>
