@@ -474,12 +474,40 @@ function loadState() {
     try {
       state = JSON.parse(local);
       
-      // Initialize state.ai if missing
+      // Ensure all root structures exist with fallback defaults
+      if (!state.user) {
+        state.user = { name: 'Lakshmi', pcosType: 'Not Sure', age: 24, cycleLength: 28, height: 165, weight: 62, isLoggedIn: false };
+      }
+      
       if (!state.ai) {
         state.ai = { provider: 'gemini', apiKey: '' };
       }
       
-      // Initialize medsData if missing
+      if (!state.logs) {
+        state.logs = {
+          period: 'Last log: 28 days ago',
+          vitals: 'Update your daily vitals',
+          symptoms: 'Log your daily symptoms',
+          lab: 'Log your blood work',
+          meds: 'Manage your daily dose'
+        };
+      }
+      if (!state.logs.period) state.logs.period = 'Last log: 28 days ago';
+      if (!state.logs.vitals) state.logs.vitals = 'Update your daily vitals';
+      if (!state.logs.symptoms) state.logs.symptoms = 'Log your daily symptoms';
+      if (!state.logs.lab) state.logs.lab = 'Log your blood work';
+      if (!state.logs.meds) state.logs.meds = 'Manage your daily dose';
+
+      if (!state.vitalsData) {
+        state.vitalsData = { water: 2.0, sleep: 7.5, temp: 36.6 };
+      }
+      if (!state.symptomsData) {
+        state.symptomsData = { acne: false, fatigue: true, hairThinning: false, cravings: true, bloating: false, moodSwings: false };
+      }
+      if (!state.labData) {
+        state.labData = { hba1c: '', tsh: '', lhFsh: '' };
+      }
+
       if (!state.medsData) {
         state.medsData = { metformin: false, inositol: true, omega3: true, vitD: false, custom: {}, customList: [] };
       }
@@ -529,19 +557,19 @@ function updateUIFromState() {
 
   // Update card log descriptions
   const elPeriod = document.getElementById('periodLogDesc');
-  if (elPeriod) elPeriod.textContent = state.logs.period;
+  if (elPeriod) elPeriod.textContent = state.logs?.period || 'Last log: 28 days ago';
 
   const elVitals = document.getElementById('vitalsLogDesc');
-  if (elVitals) elVitals.textContent = state.logs.vitals;
+  if (elVitals) elVitals.textContent = state.logs?.vitals || 'Update your daily vitals';
 
   const elSymptoms = document.getElementById('symptomsLogDesc');
-  if (elSymptoms) elSymptoms.textContent = state.logs.symptoms;
+  if (elSymptoms) elSymptoms.textContent = state.logs?.symptoms || 'Log your daily symptoms';
 
   const elLab = document.getElementById('labLogDesc');
-  if (elLab) elLab.textContent = state.logs.lab;
+  if (elLab) elLab.textContent = state.logs?.lab || 'Log your blood work';
 
   const elMeds = document.getElementById('medsLogDesc');
-  if (elMeds) elMeds.textContent = state.logs.meds;
+  if (elMeds) elMeds.textContent = state.logs?.meds || 'Manage your daily dose';
 
   // Pre-fill profile settings form
   document.getElementById('profileNameInput').value = state.user.name;
@@ -683,10 +711,13 @@ function updateUIFromState() {
   }
 
   // Pre-fill health summary modal
-  document.getElementById('summaryPcosType').textContent = state.user.pcosType;
-  document.getElementById('summaryLastPeriod').textContent = state.logs.period.replace('Last log: ', '');
-  document.getElementById('summaryWater').textContent = state.vitalsData.water.toFixed(1) + ' liters';
-  document.getElementById('summarySleep').textContent = state.vitalsData.sleep.toFixed(1) + ' hours';
+  document.getElementById('summaryPcosType').textContent = state.user.pcosType || 'Not Sure';
+  const periodVal = (state.logs && state.logs.period) ? state.logs.period : 'Last log: 28 days ago';
+  document.getElementById('summaryLastPeriod').textContent = periodVal.replace('Last log: ', '');
+  const waterVal = (state.vitalsData && typeof state.vitalsData.water === 'number') ? state.vitalsData.water : 2.0;
+  const sleepVal = (state.vitalsData && typeof state.vitalsData.sleep === 'number') ? state.vitalsData.sleep : 7.5;
+  document.getElementById('summaryWater').textContent = waterVal.toFixed(1) + ' liters';
+  document.getElementById('summarySleep').textContent = sleepVal.toFixed(1) + ' hours';
 
   // Build symptoms list string
   let symps = [];
@@ -846,7 +877,13 @@ function showAuthSubScreen(screenName) {
     state.user.cycleLength = 28;
     state.user.height = null;
     state.user.weight = null;
-    state.logs = { symptoms: 'No symptoms logged', periods: 'No periods logged' };
+    state.logs = {
+      period: 'Last log: 28 days ago',
+      vitals: 'Update your daily vitals',
+      symptoms: 'Log your daily symptoms',
+      lab: 'Log your blood work',
+      meds: 'Manage your daily dose'
+    };
     saveState();
 
     const form = document.getElementById('setupForm');
