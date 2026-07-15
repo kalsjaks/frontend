@@ -3616,14 +3616,16 @@ Lab Results:
 - LH/FSH: ${state.labData.lhFsh || 'N/A'}
 
 TASK:
-Based on their symptoms and period log, suggest:
-1. **Yoga for Harmony**: Suggest specific yoga poses by name (such as Supta Baddha Konasana, Bhujangasana, Paschimottanasana, Setu Bandhasana, Viparita Karani, or Balasana) suited for their condition.
-2. **Food Changes**: Key dietary adjustments.
-3. **Daily Routine**: Actionable updates.
+Provide a warm, supportive, high-level summary of their current health based on their logged data (symptoms, vitals, period logs, and lab results). Then suggest specific recommendations:
+1. **Health Summary**: A high-level overview of their health condition.
+2. **Yoga for Harmony**: Specific yoga poses by name (such as Supta Baddha Konasana, Bhujangasana, Paschimottanasana, Setu Bandhasana, Viparita Karani, or Balasana) suited for their condition.
+3. **Food Changes**: Key dietary adjustments to follow for the next one month.
+4. **Daily Routine**: Actionable lifestyle updates to follow for the next one month.
+Tell them to follow this plan and track their metrics next month to see better results.
 
 CRITICAL CONSTRAINTS:
-- Keep the response strictly under 500 characters total.
-- Structure it with bold headers for the three sections: **Yoga for Harmony**, **Food Changes**, and **Daily Routine**.
+- Keep the response strictly under 600 characters total.
+- Structure it with bold headers for the four sections: **Health Summary**, **Yoga for Harmony**, **Food Changes**, and **Daily Routine**.
 - Use clean bullet points. Do NOT output any HTML tags.
 `;
 
