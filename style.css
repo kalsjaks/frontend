@@ -2969,6 +2969,10 @@ button.chip.selected {
   object-position: center;
   mask-image: none !important;
   -webkit-mask-image: none !important;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .feature-grid-card.fertility-card .feature-card-header,
