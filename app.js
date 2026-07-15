@@ -1648,9 +1648,9 @@ function showToast(message, type = 'info') {
   // Fade out and remove after 3.5 seconds
   setTimeout(() => {
     toast.classList.add('fade-out');
-    toast.addEventListener('transitionend', () => {
+    setTimeout(() => {
       toast.remove();
-    });
+    }, 400); // Wait for fade-out transition (300ms) to complete
   }, 3500);
 }
 
