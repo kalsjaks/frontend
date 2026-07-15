@@ -812,16 +812,15 @@ function switchView(viewName, isBack = false) {
     if (trackerHeight) trackerHeight.value = state.user.height || '';
     if (trackerWeight) trackerWeight.value = state.user.weight || '';
 
-    // Proactively check if details are missing
-    if (!state.user.age || !state.user.height || !state.user.weight) {
-      showToast('💡 Please provide your Age, Height, and Weight below to enable personalized cycle insights.', 'info');
-    }
+
   } else if (viewName === 'symptoms') {
     document.getElementById('symptomsView').classList.add('active');
-    document.getElementById('tab-home').classList.add('active');
+    const tab = document.getElementById('tab-home');
+    if (tab) tab.classList.add('active');
   } else if (viewName === 'summary') {
     document.getElementById('summaryView').classList.add('active');
-    document.getElementById('tab-home').classList.add('active');
+    const tab = document.getElementById('tab-home');
+    if (tab) tab.classList.add('active');
     
     // Default to showing Clinical card and hiding Fertility card
     const clinicalCard = document.getElementById('clinicalAssessmentCard');
@@ -1173,8 +1172,6 @@ async function handleLogout() {
   updateUIFromState();
 
   switchView('home');
-
-  showToast('👋 Logged out from BloomWell PCOS successfully.', 'info');
 }
 
 async function handleSaveProfile(e) {
@@ -2871,8 +2868,6 @@ async function submitFullPeriodLog() {
       additional_notes: notes
     };
 
-    showToast('Saving cycle log to cloud...', 'info');
-
     const { error } = await sb.from('period_logs').insert(payload);
 
     if (error) {
@@ -2993,7 +2988,11 @@ async function submitFullSymptomsLog() {
     hairThinning: hair,
     cravings,
     bloating,
-    moodSwings: mood
+    moodSwings: mood,
+    headache,
+    cramps,
+    anxiety,
+    brainFog: brain_fog
   };
 
   let activeSymps = [];
@@ -3029,8 +3028,6 @@ async function submitFullSymptomsLog() {
       severity,
       notes
     };
-
-    showToast('Saving symptoms log to cloud...', 'info');
 
     let { error } = await sb.from('symptoms_logs').insert(payload);
 
@@ -3245,6 +3242,10 @@ async function initSummaryPage() {
         if (s.cravings) list.push('Cravings');
         if (s.bloating) list.push('Bloating');
         if (s.moodSwings) list.push('Mood swings');
+        if (s.headache) list.push('Headache');
+        if (s.cramps) list.push('Cramps');
+        if (s.anxiety) list.push('Anxiety');
+        if (s.brainFog) list.push('Brain fog');
         
         if (list.length > 0) {
           symptomsContainer.innerHTML = `<div style="font-weight:550;color:var(--text-main);">Latest Log: <span style="font-weight:700;color:var(--brand-pink);">${list.join(', ')}</span></div>`;
@@ -3848,10 +3849,8 @@ function toggleVoiceAssistantWidget() {
   if (widget) {
     if (widget.style.display === 'none') {
       widget.style.display = 'block';
-      showToast('🩺 Doctor Consultation Call activated! Click "Start a call" at the bottom right to begin speaking.', 'success');
     } else {
       widget.style.display = 'none';
-      showToast('🩺 Doctor Consultation Call deactivated.', 'info');
     }
   }
 }
@@ -3899,8 +3898,6 @@ function selectCustomLanguage(langCode, displayName, event) {
   if (menu) {
     menu.classList.add('hidden');
   }
-
-  showToast(`Language set to ${displayName}`, 'success');
 }
 
 // Global click handler to dismiss language dropdown on outside clicks
