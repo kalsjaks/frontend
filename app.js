@@ -1593,14 +1593,9 @@ async function submitMedsLog() {
 function showToast(message, type = 'info') {
   console.log(`[TOAST - ${type.toUpperCase()}]:`, message);
 
-  // If it is an info log or success message, we do not show any popup at all (silent console feedback)
-  if (type === 'info' || type === 'success') {
-    return;
-  }
-
-  // If it is an error or warning, we try to display it inline inside the active screen/modal
+  // 1. If it's an error/warning on a modal, show it inline
   const activeModal = document.querySelector('.modal-content:not(.hidden)');
-  if (activeModal) {
+  if (activeModal && (type === 'error' || type === 'warning')) {
     const modalBody = activeModal.querySelector('.modal-body');
     if (modalBody) {
       let msgEl = activeModal.querySelector('.modal-inline-message');
@@ -1617,11 +1612,49 @@ function showToast(message, type = 'info') {
     }
   }
 
+  // 2. If it's an auth screen message, show it inline
   const activeAuthScreen = document.querySelector('.auth-sub-screen:not(.hidden)');
-  if (activeAuthScreen) {
+  if (activeAuthScreen && (type === 'error' || type === 'warning' || type === 'success')) {
     const formId = activeAuthScreen.id.replace('auth', '').replace('Screen', '').toLowerCase(); // e.g. login, setup, forgot, reset
     showFormMessage(formId, message, type);
+    // If it's an error/warning on auth screen, we don't show the toast to avoid double alerts
+    if (type === 'error' || type === 'warning') return;
   }
+
+  // 3. Otherwise, show it as a beautiful toast notification popup!
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  // Create toast element
+  const toast = document.createElement('div');
+  toast.className = `toast-item ${type}`;
+  
+  // Set icon based on type
+  let icon = '🔔';
+  if (type === 'success') icon = '🌸';
+  else if (type === 'error') icon = '❌';
+  else if (type === 'warning' || type === 'info') icon = '💡';
+
+  // Allow bold tags and normal inline markup
+  toast.innerHTML = `
+    <span class="toast-icon">${icon}</span>
+    <span class="toast-message">${message}</span>
+  `;
+
+  container.appendChild(toast);
+
+  // Fade out and remove after 3.5 seconds
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    toast.addEventListener('transitionend', () => {
+      toast.remove();
+    });
+  }, 3500);
 }
 
 function triggerNotification() {
@@ -3160,92 +3193,150 @@ let cachedPeriods = [];
 let cachedSymptoms = [];
 
 async function initSummaryPage() {
-  // Update Snapshot labels
-  document.getElementById('snapName').textContent = state.user.name || 'N/A';
-  document.getElementById('snapPcos').textContent = state.user.pcosType || 'N/A';
-  document.getElementById('snapHeight').textContent = state.user.height ? `${state.user.height} cm` : 'N/A';
-  document.getElementById('snapWeight').textContent = state.user.weight ? `${state.user.weight} kg` : 'N/A';
-  document.getElementById('snapGoal').textContent = state.logs.period ? 'Track periods & manage symptoms' : 'Track periods';
+  console.log("Initializing summary page...");
+  try {
+    // Update Snapshot labels from local state
+    const nameVal = state.user.name || 'Guest User';
+    document.getElementById('snapName').textContent = nameVal;
+    document.getElementById('snapPcos').textContent = state.user.pcosType || 'N/A';
+    document.getElementById('snapHeight').textContent = state.user.height ? `${state.user.height} cm` : 'N/A';
+    document.getElementById('snapWeight').textContent = state.user.weight ? `${state.user.weight} kg` : 'N/A';
+    document.getElementById('snapGoal').textContent = state.logs?.period ? 'Track periods & manage symptoms' : 'Track periods';
 
-  // Fetch recent symptoms
-  if (state.user.id) {
-    const { data: symps } = await sb.from('symptoms_logs').select('*').eq('user_id', state.user.id).order('created_at', { ascending: false }).limit(3);
-    const container = document.getElementById('snapSymptoms');
-    if (symps && symps.length > 0) {
-      container.innerHTML = symps.map(s => {
+    // 1. Fetch recent symptoms (with Supabase try-catch and local fallback)
+    const symptomsContainer = document.getElementById('snapSymptoms');
+    let symptomsLoaded = false;
+    if (state.user.id) {
+      try {
+        const { data: symps, error } = await sb.from('symptoms_logs').select('*').eq('user_id', state.user.id).order('created_at', { ascending: false }).limit(3);
+        if (error) throw error;
+        if (symps && symps.length > 0) {
+          symptomsContainer.innerHTML = symps.map(s => {
+            let list = [];
+            if (s.acne) list.push('Acne');
+            if (s.fatigue) list.push('Fatigue');
+            if (s.hair_thinning) list.push('Hair loss');
+            if (s.cravings) list.push('Cravings');
+            if (s.bloating) list.push('Bloating');
+            if (s.mood_swings) list.push('Mood swings');
+            if (s.headache) list.push('Headache');
+            if (s.cramps) list.push('Cramps');
+            if (s.anxiety) list.push('Anxiety');
+            if (s.brain_fog) list.push('Brain fog');
+            
+            const dateStr = new Date(s.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
+            return `<div style="margin-bottom:6px;font-weight:550;color:var(--text-main);">${dateStr}: <span style="font-weight:700;color:var(--brand-pink);">${list.join(', ') || 'No symptoms'}</span> (${s.severity || 'Moderate'})</div>`;
+          }).join('');
+          symptomsLoaded = true;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch symptoms from Supabase, falling back to local:", e);
+      }
+    }
+
+    if (!symptomsLoaded) {
+      // Fallback to local state symptomsData
+      const s = state.symptomsData;
+      if (s) {
         let list = [];
         if (s.acne) list.push('Acne');
         if (s.fatigue) list.push('Fatigue');
-        if (s.hair_thinning) list.push('Hair loss');
+        if (s.hairThinning) list.push('Hair loss');
         if (s.cravings) list.push('Cravings');
         if (s.bloating) list.push('Bloating');
-        if (s.mood_swings) list.push('Mood swings');
-        if (s.headache) list.push('Headache');
-        if (s.cramps) list.push('Cramps');
-        if (s.anxiety) list.push('Anxiety');
-        if (s.brain_fog) list.push('Brain fog');
+        if (s.moodSwings) list.push('Mood swings');
         
-        const dateStr = new Date(s.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
-        return `<div style="margin-bottom:6px;font-weight:550;color:var(--text-main);">${dateStr}: <span style="font-weight:700;color:var(--brand-pink);">${list.join(', ') || 'No symptoms'}</span> (${s.severity || 'Moderate'})</div>`;
-      }).join('');
-    } else {
-      container.textContent = 'No recent symptoms logged.';
-    }
-  }
-
-  // Fetch active medications
-  if (state.user.id) {
-    const { data: meds } = await sb.from('medication_logs').select('*').eq('user_id', state.user.id).order('created_at', { ascending: false }).limit(1);
-    const container = document.getElementById('snapMeds');
-    if (meds && meds.length > 0) {
-      const m = meds[0];
-      let active = [];
-      if (m.metformin) active.push('Metformin (Prescription)');
-      if (m.inositol) active.push('Myo-Inositol (Supplement)');
-      if (m.omega3) active.push('Omega-3 Fish Oil');
-      if (m.vit_d3) active.push('Vitamin D3');
-      
-      // Parse custom medications
-      if (m.custom_meds) {
-        m.custom_meds.split(',').map(s => s.trim()).filter(Boolean).forEach(med => {
-          active.push(med);
-        });
+        if (list.length > 0) {
+          symptomsContainer.innerHTML = `<div style="font-weight:550;color:var(--text-main);">Latest Log: <span style="font-weight:700;color:var(--brand-pink);">${list.join(', ')}</span></div>`;
+        } else {
+          symptomsContainer.textContent = 'No recent symptoms logged.';
+        }
+      } else {
+        symptomsContainer.textContent = 'No recent symptoms logged.';
       }
-
-      container.innerHTML = active.length > 0
-        ? `<ul style="margin:4px 0;padding-left:16px;">${active.map(a => `<li style="margin:3px 0;font-weight:600;color:var(--text-main);">${a}</li>`).join('')}</ul>`
-        : 'No active medications logged.';
-    } else {
-      container.textContent = 'No medications currently active.';
     }
-  }
 
-  // Fetch lab results
-  const labsContainer = document.getElementById('snapLabs');
-  let markers = [];
-  if (state.labData.hba1c) markers.push(`HbA1c: <strong>${state.labData.hba1c}%</strong>`);
-  if (state.labData.tsh) markers.push(`Thyroid TSH: <strong>${state.labData.tsh} mIU/L</strong>`);
-  if (state.labData.lhFsh) markers.push(`LH/FSH Ratio: <strong>${state.labData.lhFsh}</strong>`);
-  labsContainer.innerHTML = markers.length > 0 ? markers.join(' · ') : 'No lab results found.';
-
-  // Build select Month options
-  const select = document.getElementById('summaryMonthSelect');
-  if (select) {
-    select.innerHTML = '<option value="all">Last 6 Months (Avg)</option>';
-    const now = new Date();
-    for (let i = 0; i < 6; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthName = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-      const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      select.innerHTML += `<option value="${value}">${monthName}</option>`;
+    // 2. Fetch active medications (with Supabase try-catch and local fallback)
+    const medsContainer = document.getElementById('snapMeds');
+    let medsLoaded = false;
+    if (state.user.id) {
+      try {
+        const { data: meds, error } = await sb.from('medication_logs').select('*').eq('user_id', state.user.id).order('created_at', { ascending: false }).limit(1);
+        if (error) throw error;
+        if (meds && meds.length > 0) {
+          const m = meds[0];
+          let active = [];
+          if (m.metformin) active.push('Metformin (Prescription)');
+          if (m.inositol) active.push('Myo-Inositol (Supplement)');
+          if (m.omega3) active.push('Omega-3 Fish Oil');
+          if (m.vit_d3) active.push('Vitamin D3');
+          if (m.custom_meds) {
+            m.custom_meds.split(',').map(s => s.trim()).filter(Boolean).forEach(med => {
+              active.push(med);
+            });
+          }
+          medsContainer.innerHTML = active.length > 0
+            ? `<ul style="margin:4px 0;padding-left:16px;">${active.map(a => `<li style="margin:3px 0;font-weight:600;color:var(--text-main);">${a}</li>`).join('')}</ul>`
+            : 'No active medications logged.';
+          medsLoaded = true;
+        }
+      } catch (e) {
+        console.warn("Failed to fetch meds from Supabase, falling back to local:", e);
+      }
     }
-  }
 
-  // Reset caches and load stats
-  cachedVitals = [];
-  cachedPeriods = [];
-  cachedSymptoms = [];
-  loadSelectedMonthStats();
+    if (!medsLoaded) {
+      // Fallback to local state medsData
+      const m = state.medsData;
+      if (m) {
+        let active = [];
+        if (m.metformin) active.push('Metformin (Prescription)');
+        if (m.inositol) active.push('Myo-Inositol (Supplement)');
+        if (m.omega3) active.push('Omega-3 Fish Oil');
+        if (m.vitD) active.push('Vitamin D3');
+        if (m.customList) {
+          m.customList.forEach(med => active.push(med));
+        }
+        medsContainer.innerHTML = active.length > 0
+          ? `<ul style="margin:4px 0;padding-left:16px;">${active.map(a => `<li style="margin:3px 0;font-weight:600;color:var(--text-main);">${a}</li>`).join('')}</ul>`
+          : 'No medications currently active.';
+      } else {
+        medsContainer.textContent = 'No medications currently active.';
+      }
+    }
+
+    // 3. Fetch lab results from local state
+    const labsContainer = document.getElementById('snapLabs');
+    let markers = [];
+    if (state.labData) {
+      if (state.labData.hba1c) markers.push(`HbA1c: <strong>${state.labData.hba1c}%</strong>`);
+      if (state.labData.tsh) markers.push(`Thyroid TSH: <strong>${state.labData.tsh} mIU/L</strong>`);
+      if (state.labData.lhFsh) markers.push(`LH/FSH Ratio: <strong>${state.labData.lhFsh}</strong>`);
+    }
+    labsContainer.innerHTML = markers.length > 0 ? markers.join(' · ') : 'No lab results found.';
+
+    // 4. Build select Month options
+    const select = document.getElementById('summaryMonthSelect');
+    if (select) {
+      select.innerHTML = '<option value="all">Last 6 Months (Avg)</option>';
+      const now = new Date();
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const monthName = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+        const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        select.innerHTML += `<option value="${value}">${monthName}</option>`;
+      }
+    }
+
+    // 5. Reset caches and load stats
+    cachedVitals = [];
+    cachedPeriods = [];
+    cachedSymptoms = [];
+    await loadSelectedMonthStats();
+
+  } catch (err) {
+    console.error("Error in initSummaryPage:", err);
+  }
 }
 
 async function loadSelectedMonthStats() {
@@ -3257,7 +3348,51 @@ async function loadSelectedMonthStats() {
   document.getElementById('statRegularity').textContent = '...';
   document.getElementById('statSymptoms').textContent = '...';
 
-  if (!state.user.id) return;
+  // If guest mode / local usage, pull stats from local state directly
+  if (!state.user.id) {
+    console.log("Guest mode stats loading from local state...");
+    if (state.vitalsData) {
+      document.getElementById('statSleep').textContent = state.vitalsData.sleep ? `${parseFloat(state.vitalsData.sleep).toFixed(1)} hours` : 'No logs';
+      document.getElementById('statWater').textContent = state.vitalsData.water ? `${parseFloat(state.vitalsData.water).toFixed(1)} L` : 'No logs';
+    } else {
+      document.getElementById('statSleep').textContent = 'No logs';
+      document.getElementById('statWater').textContent = 'No logs';
+    }
+
+    // Pain and regularity from logs
+    if (state.logs?.period && !state.logs.period.includes('Last log: 28 days ago')) {
+      document.getElementById('statPain').textContent = 'Mild'; // guest default
+      document.getElementById('statRegularity').textContent = 'Regular';
+    } else {
+      document.getElementById('statPain').textContent = 'No logs';
+      document.getElementById('statRegularity').textContent = 'No logs';
+    }
+
+    // Symptoms from local state
+    if (state.symptomsData) {
+      let active = [];
+      if (state.symptomsData.acne) active.push('Acne');
+      if (state.symptomsData.fatigue) active.push('Fatigue');
+      if (state.symptomsData.hairThinning) active.push('Hair loss');
+      if (state.symptomsData.cravings) active.push('Cravings');
+      if (state.symptomsData.bloating) active.push('Bloating');
+      if (state.symptomsData.moodSwings) active.push('Mood swings');
+      
+      document.getElementById('statSymptoms').textContent = active.length > 0 ? active.slice(0, 2).join(', ') : 'None logged';
+    } else {
+      document.getElementById('statSymptoms').textContent = 'No logs';
+    }
+
+    runLocalRuleBasedHealthAssessment(
+      state.vitalsData?.sleep || 7.5,
+      state.vitalsData?.water || 2.0,
+      {},
+      [],
+      [],
+      []
+    );
+    return;
+  }
 
   try {
     if (cachedVitals.length === 0 && cachedPeriods.length === 0 && cachedSymptoms.length === 0) {
@@ -3291,9 +3426,11 @@ async function loadSelectedMonthStats() {
     }
 
     // Averages Sleep & Hydration
+    let avgSleep = 7.5;
+    let avgWater = 2.0;
     if (filteredVitals.length > 0) {
-      const avgSleep = filteredVitals.reduce((sum, v) => sum + parseFloat(v.sleep_hours || 0), 0) / filteredVitals.length;
-      const avgWater = filteredVitals.reduce((sum, v) => sum + parseFloat(v.water_liters || 0), 0) / filteredVitals.length;
+      avgSleep = filteredVitals.reduce((sum, v) => sum + parseFloat(v.sleep_hours || 0), 0) / filteredVitals.length;
+      avgWater = filteredVitals.reduce((sum, v) => sum + parseFloat(v.water_liters || 0), 0) / filteredVitals.length;
       document.getElementById('statSleep').textContent = `${avgSleep.toFixed(1)} hours`;
       document.getElementById('statWater').textContent = `${avgWater.toFixed(1)} L`;
     } else {
@@ -3302,6 +3439,7 @@ async function loadSelectedMonthStats() {
     }
 
     // Avg pain & cycle regularity
+    let symptomCounts = {};
     if (filteredPeriods.length > 0) {
       const painMap = { 'None': 1, 'Mild': 2, 'Bad': 3 };
       const painReverseMap = { 1: 'None', 2: 'Mild', 3: 'Bad' };
