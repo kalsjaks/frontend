@@ -3958,39 +3958,21 @@ document.addEventListener('click', (event) => {
   }
 });
 
-function startGuideWalkthrough() {
-  const getStarted = document.getElementById('guideGetStarted');
-  const summaryCard = document.getElementById('guideSummaryCard');
-  const fertilityCard = document.getElementById('guideFertilityCard');
-  
-  if (!getStarted || !summaryCard || !fertilityCard) return;
-  
-  // Clear any existing glows
-  getStarted.classList.remove('guide-glow');
-  summaryCard.classList.remove('guide-glow');
-  fertilityCard.classList.remove('guide-glow');
-  
-  showToast('✨ Guide: Highlighting Ask Bloom AI button...', 'success');
-  getStarted.classList.add('guide-glow');
-  getStarted.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  
-  setTimeout(() => {
-    getStarted.classList.remove('guide-glow');
-    showToast('✨ Guide: Highlighting Smart Health Summary card...', 'success');
-    summaryCard.classList.add('guide-glow');
-    summaryCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    setTimeout(() => {
-      summaryCard.classList.remove('guide-glow');
-      showToast('✨ Guide: Highlighting Fertility Care card...', 'success');
-      fertilityCard.classList.add('guide-glow');
-      fertilityCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      
-      setTimeout(() => {
-        fertilityCard.classList.remove('guide-glow');
-        showToast('✨ Guide walkthrough complete! Feel free to explore.', 'success');
-      }, 4000);
-    }, 4000);
-  }, 4000);
+function openVideoModal() {
+  const modal = document.getElementById('videoModal');
+  if (modal) {
+    modal.classList.remove('hidden');
+    // Force reload image to ensure animation plays from start
+    const img = modal.querySelector('img');
+    if (img) {
+      const src = img.src.split('?')[0];
+      img.src = src + '?t=' + Date.now();
+    }
+  }
+}
+
+function closeVideoModal() {
+  const modal = document.getElementById('videoModal');
+  if (modal) modal.classList.add('hidden');
 }
 
