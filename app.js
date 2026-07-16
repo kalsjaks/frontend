@@ -3542,10 +3542,52 @@ function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, so
   return formatAnswer(md.trim());
 }
 
+async function getActiveMedsList() {
+  let activeMeds = [];
+  if (state.user.id) {
+    try {
+      const { data: meds, error } = await sb.from('medication_logs').select('*').eq('user_id', state.user.id).order('created_at', { ascending: false }).limit(1);
+      if (!error && meds && meds.length > 0) {
+        const m = meds[0];
+        if (m.metformin) activeMeds.push('Metformin');
+        if (m.inositol) activeMeds.push('Inositol');
+        if (m.omega3) activeMeds.push('Omega-3');
+        if (m.vit_d3) activeMeds.push('Vitamin D3');
+        if (m.custom_meds) {
+          m.custom_meds.split(',').map(s => s.trim()).filter(Boolean).forEach(med => {
+            activeMeds.push(med);
+          });
+        }
+        return activeMeds;
+      }
+    } catch (e) {
+      console.warn("Failed to fetch meds for health/fertility prompt from Supabase:", e);
+    }
+  }
+  const m = state.medsData;
+  if (m) {
+    if (m.metformin) activeMeds.push('Metformin');
+    if (m.inositol) activeMeds.push('Inositol');
+    if (m.omega3) activeMeds.push('Omega-3');
+    if (m.vitD) activeMeds.push('Vitamin D3');
+    if (m.custom) {
+      for (const [medName, isChecked] of Object.entries(m.custom)) {
+        if (isChecked) {
+          activeMeds.push(medName);
+        }
+      }
+    }
+  }
+  return activeMeds;
+}
+
 async function generateAIHealthCondition() {
   const resultDiv = document.getElementById('aiHealthConditionResult');
   const btn = document.getElementById('analyzeHealthBtn');
   if (!resultDiv || !btn || isLoading) return;
+
+  const activeMeds = await getActiveMedsList();
+  const medsText = activeMeds.length > 0 ? activeMeds.join(', ') : 'None';
 
   resultDiv.classList.remove('hidden');
   resultDiv.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">Analyzing...</div>';
@@ -3599,6 +3641,7 @@ Patient Profile:
 - PCOS Classification: ${state.user.pcosType}
 - Height: ${state.user.height || 'N/A'} cm
 - Weight: ${state.user.weight || 'N/A'} kg
+- Active Medications: ${medsText}
 
 Logged Vitals Averages:
 - Avg Sleep: ${avgSleep.toFixed(1)} hours
@@ -3616,8 +3659,8 @@ Lab Results:
 - LH/FSH: ${state.labData.lhFsh || 'N/A'}
 
 TASK:
-Provide a warm, supportive, high-level summary of their current health based on their logged data (symptoms, vitals, period logs, and lab results). Then suggest specific recommendations:
-1. **Health Summary**: A high-level overview of their health condition.
+Provide a warm, supportive, high-level summary of their current health based on their logged data (symptoms, vitals, period logs, lab results, and active medications). Suggest how their active medications (if any) affect their condition and metrics based on their logged data. Then suggest specific recommendations:
+1. **Health Summary**: A high-level overview of their health condition. You MUST split this section into three separate bullet points for readability: one for general health/symptoms, one for their lab results, and one for their active medications and how they affect their condition based on their data.
 2. **Yoga for Harmony**: Specific yoga poses by name (such as Supta Baddha Konasana, Bhujangasana, Paschimottanasana, Setu Bandhasana, Viparita Karani, or Balasana) suited for their condition.
 3. **Food Changes**: Key dietary adjustments to follow for the next one month.
 4. **Daily Routine**: Actionable lifestyle updates to follow for the next one month.
@@ -3682,6 +3725,9 @@ async function generateAIFertilityAssessment() {
   const btn = document.getElementById('analyzeFertilityBtn');
   if (!resultDiv || !btn || isLoading) return;
 
+  const activeMeds = await getActiveMedsList();
+  const medsText = activeMeds.length > 0 ? activeMeds.join(', ') : 'None';
+
   resultDiv.classList.remove('hidden');
   resultDiv.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">Analyzing...</div>';
   btn.disabled = true;
@@ -3733,13 +3779,14 @@ Patient Profile:
 - Age: ${state.user.age}
 - PCOS Classification: ${state.user.pcosType}
 - Top symptoms: ${topSymptomsList}
+- Active Medications: ${medsText}
 - Logged Periods:
 ${periodsText || 'None logged.'}
 
 TASK:
-Based on the patient's profile, provide a highly personalized fertility/conception evaluation.
+Based on the patient's profile (including symptoms, period logs, and active medications), provide a highly personalized fertility/conception evaluation. Specifically address how their active medications (if any) affect their fertility journey and metrics based on their data.
 Answer in three sections:
-- **Fertility Risks**: Key age/symptom fertility factors.
+- **Fertility Risks**: Key age/symptom fertility factors. You MUST split this section into separate bullet points: one for age/symptom factors, and one for active medication impacts on fertility.
 - **Conception Chances**: Realistic but encouraging overview.
 - **Action Steps**: Specific lifestyle/medical next steps.
 
