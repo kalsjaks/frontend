@@ -2999,3 +2999,22 @@ button.chip.selected {
   }
 }
 
+/* Guide walk glow effect */
+.guide-glow {
+  position: relative;
+  animation: pulse-guide-glow 1.5s infinite alternate ease-in-out !important;
+  transition: box-shadow 0.3s ease, transform 0.3s ease !important;
+  z-index: 10 !important;
+  border-color: var(--brand-pink) !important;
+}
+@keyframes pulse-guide-glow {
+  0% {
+    box-shadow: 0 0 6px rgba(232, 124, 138, 0.4), 0 0 10px rgba(232, 124, 138, 0.2) !important;
+    transform: scale(1.01) !important;
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(232, 124, 138, 0.9), 0 0 32px rgba(46, 125, 50, 0.7) !important;
+    transform: scale(1.035) !important;
+  }
+}
+
