@@ -965,6 +965,12 @@
   ════════════════════════════════ -->
   <div id="modalOverlay" class="modal-overlay hidden" onclick="closeModalOnOverlay(event)">
     
+    <!-- Modal: Platform Walkthrough Video -->
+    <div id="videoModal" class="modal-content hidden" style="max-width: 800px; width: 90%; background: #000; padding: 0; overflow: hidden; border-radius: var(--radius-lg); box-shadow: var(--shadow-modal); aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; position: relative;">
+      <button class="modal-close" onclick="closeVideoModal()" style="position: absolute; right: 16px; top: 16px; font-size: 28px; font-weight: 700; color: #FFF; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 11;">&times;</button>
+      <img src="guide.webp" alt="PCOS Platform Guide Video" style="width: 100%; display: block; max-height: 80vh; object-fit: contain;" />
+    </div>
+
     <!-- Modal 1: Log Period -->
     <div id="modal-period" class="modal-content hidden">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
@@ -1370,15 +1376,6 @@
       </div>
     </div>
 
-    <!-- Walkthrough Video Modal -->
-    <div id="videoModal" class="modal hidden" style="z-index: 10000; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center;">
-      <div class="modal-content" style="max-width: 800px; width: 90%; background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-modal); position: relative; animation: scaleIn 0.3s ease; padding: 0;">
-        <button class="modal-close" onclick="closeVideoModal()" style="position: absolute; right: 16px; top: 16px; font-size: 28px; font-weight: 700; color: #FFF; background: rgba(0,0,0,0.5); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 11;">&times;</button>
-        <div class="modal-body" style="padding: 0; background: #000; display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 9;">
-          <img src="guide.webp" alt="PCOS Platform Guide Video" style="width: 100%; display: block;" />
-        </div>
-      </div>
-    </div>
 
   </div>
 
@@ -1387,7 +1384,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=46"></script>
+  <script src="app.js?v=47"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
