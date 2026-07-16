@@ -3958,17 +3958,5 @@ document.addEventListener('click', (event) => {
   }
 });
 
-function openVideoModal() {
-  openModal('videoModal');
-  // Force reload image to ensure animation plays from start
-  const img = document.querySelector('#videoModal img');
-  if (img) {
-    const src = img.src.split('?')[0];
-    img.src = src + '?t=' + Date.now();
-  }
-}
 
-function closeVideoModal() {
-  closeActiveModal();
-}
 
