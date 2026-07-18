@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=46" />
+  <link rel="stylesheet" href="style.css?v=47" />
 </head>
 <body>
 
@@ -300,9 +300,51 @@
                 </div>
                 <h2 class="chat-title">Ask Bloom</h2>
               </div>
-              <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
-                &lt; Back
-              </button>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <!-- Custom Language Dropdown (Always Visible in Header) -->
+                <div class="custom-dropdown" id="customLangDropdown">
+                  <button class="custom-dropdown-btn" id="customDropdownBtn" onclick="toggleCustomDropdown(event)" style="background: transparent; border: 1.5px solid var(--border); color: var(--text-main); font-weight: 550; height: 32px; padding: 4px 12px; box-shadow: none;">
+                    <svg class="dropdown-globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 4px; color: var(--brand-pink);">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="2" y1="12" x2="22" y2="12" />
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    </svg>
+                    <span id="selectedLanguageLabel" style="font-size: 12px;">English</span>
+                    <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 10px; height: 10px; margin-left: 4px;">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  <div class="custom-dropdown-menu hidden" id="customDropdownMenu" style="top: calc(100% + 6px); bottom: auto;">
+                    <div class="dropdown-menu-item selected" data-value="en-US" onclick="selectCustomLanguage('en-US', 'English', event)">
+                      <span>English</span>
+                      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    <div class="dropdown-menu-item" data-value="hi-IN" onclick="selectCustomLanguage('hi-IN', 'हिन्दी', event)">
+                      <span>हिन्दी</span>
+                      <svg class="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    <div class="dropdown-menu-item" data-value="mr-IN" onclick="selectCustomLanguage('mr-IN', 'मराठी', event)">
+                      <span>मराठी</span>
+                      <svg class="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    <div class="dropdown-menu-item" data-value="te-IN" onclick="selectCustomLanguage('te-IN', 'తెలుగు', event)">
+                      <span>తెలుగు</span>
+                      <svg class="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <button class="chat-back-btn" onclick="goBack()" aria-label="Back">
+                  &lt; Back
+                </button>
+              </div>
             </div>
             <div class="chat-header-bottom-row">
               <svg class="shield-check-icon" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="2" style="width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px;">
@@ -337,47 +379,6 @@
                 <button class="suggestion-chip" onclick="useSuggestion(this)">What foods should I avoid with PCOS/PMOS?</button>
                 <button class="suggestion-chip" onclick="useSuggestion(this)">Can PCOS/PMOS be reversed naturally?</button>
                 <button class="suggestion-chip" onclick="useSuggestion(this)">Best exercises for PCOS/PMOS?</button>
-              </div>
-            </div>
-            
-            <!-- Custom Language Dropdown (Pink button + list menu) -->
-            <div class="custom-dropdown" id="customLangDropdown">
-              <button class="custom-dropdown-btn" id="customDropdownBtn" onclick="toggleCustomDropdown(event)">
-                <svg class="dropdown-globe-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px; margin-right: 6px;">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                </svg>
-                <span id="selectedLanguageLabel">Choose Language</span>
-                <svg class="dropdown-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 12px; height: 12px; margin-left: 6px;">
-                  <polyline points="6 9 12 15 18 9" />
-                </svg>
-              </button>
-              <div class="custom-dropdown-menu hidden" id="customDropdownMenu">
-                <div class="dropdown-menu-item selected" data-value="en-US" onclick="selectCustomLanguage('en-US', 'English', event)">
-                  <span>English</span>
-                  <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-                <div class="dropdown-menu-item" data-value="hi-IN" onclick="selectCustomLanguage('hi-IN', 'हिन्दी', event)">
-                  <span>हिन्दी</span>
-                  <svg class="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-                <div class="dropdown-menu-item" data-value="mr-IN" onclick="selectCustomLanguage('mr-IN', 'मराठी', event)">
-                  <span>मराठी</span>
-                  <svg class="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
-                <div class="dropdown-menu-item" data-value="te-IN" onclick="selectCustomLanguage('te-IN', 'తెలుగు', event)">
-                  <span>తెలుగు</span>
-                  <svg class="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width: 12px; height: 12px;">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </div>
               </div>
             </div>
           </div>
@@ -1367,7 +1368,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=49"></script>
+  <script src="app.js?v=50"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->

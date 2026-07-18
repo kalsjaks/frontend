@@ -2219,41 +2219,6 @@ function checkGuardrails(text) {
     "app", "apps", "application", "applications", "using", "use", "make", "build", "create", "write"
   ]);
 
-  const coreScopeWords = new Set([
-    // PCOS & Cycle Syncing
-    "pcos", "cyst", "cysts", "ovary", "ovaries", "ovulation", "ovulate", "menstrual", "period", "periods", 
-    "cycle", "cycles", "follicular", "luteal", "ovulatory", "fertility", "pregnancy", "pregnant", "conceive",
-    "hormone", "hormones", "hormonal", "androgen", "androgens", "hyperandrogenism", "estrogen", "oestrogen",
-    "progesterone", "testosterone", "cortisol", "insulin", "insulinresistance", "ovarian", "polycystic",
-    "infertility", "conception", "hirsutism", "amenorrhea", "oligomenorrhea", "luteinizing", "lh", "fsh",
-    "irregular", "irregularity", "anovulation",
-    // Lifestyle & Diet
-    "diet", "diets", "food", "foods", "eat", "eating", "nutrition", "exercise", "exercises", "workout", "workouts",
-    "yoga", "cardio", "pilates", "hiit", "running", "walking", "stretching", "water", "sleep", "lifestyle",
-    "cleanse", "cleanses", "detox", "transition", "transitioning", "spearmint", "tea", "teas", "herb", "herbs", "herbal",
-    "seed", "seeds", "cycling",
-    // Symptoms & Conditions
-    "symptom", "symptoms", "acne", "fatigue", "weight", "cramp", "cramps", "pain", "pains", "bleeding", "flow",
-    "bloating", "cravings", "mood", "swings", "hirsutism", "insulin", "resistance",
-    // Medical & Supplements
-    "metformin", "inositol", "ovasitol", "supplement", "supplements", "vitamins", "vitamin", "d3", "omega3", "omega",
-    "health", "doctor", "doctors", "medical", "wellness", "clinical", "gynecologist", "ob-gyn", "obgyn",
-    "capsule", "capsules", "tablet", "tablets", "dose", "dosage", "cream", "creams", "gel", "gels", "oil", "oils",
-    // Custom helper terms
-    "tips", "guidelines"
-  ]);
-
-  const querySub = new Set();
-  for (const w of words) {
-    if (!fillerWords.has(w)) {
-      querySub.add(w);
-    }
-  }
-
-  if (querySub.size > 0 && !hasOverlap(querySub, coreScopeWords)) {
-    return "I don't have enough information on that topic yet. For personalized advice, please consult your healthcare provider or OB-GYN.";
-  }
-
   return null;
 }
 

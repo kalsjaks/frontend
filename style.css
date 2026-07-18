@@ -2999,4 +2999,10 @@ button.chip.selected {
   }
 }
 
+/* Custom Language Dropdown in chat header alignment */
+.chat-header .custom-dropdown-menu {
+  bottom: auto !important;
+  top: calc(100% + 6px) !important;
+}
+
 
