@@ -427,7 +427,6 @@ function toggleChatVoiceInput() {
     chatSpeechRecognition.onstart = () => {
       isChatListening = true;
       micBtn.classList.add('listening');
-      showToast('🎙️ Listening... Please speak your question.', 'info');
     };
 
     chatSpeechRecognition.onresult = (event) => {
@@ -435,7 +434,6 @@ function toggleChatVoiceInput() {
       if (resultText) {
         inputEl.value = resultText;
         inputEl.dispatchEvent(new Event('input'));
-        showToast('✓ Speech captured!', 'success');
       }
     };
 
