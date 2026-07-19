@@ -439,8 +439,12 @@ function toggleChatVoiceInput() {
 
     chatSpeechRecognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
-      if (event.error !== 'aborted') {
-        showToast(`❌ Voice input error: ${event.error}`, 'error');
+      if (event.error !== 'aborted' && event.error !== 'no-speech') {
+        if (event.error === 'not-allowed') {
+          showToast('❌ Microphone access denied. Please enable microphone permission in your browser settings.', 'error');
+        } else {
+          showToast(`❌ Voice input error: ${event.error}`, 'error');
+        }
       }
       stopChatListening();
     };
@@ -1739,7 +1743,33 @@ async function translateText(text, fromLang, toLang) {
   
   if (src === tgt) return text;
 
-  // Attempt Gemini translation first for maximum accuracy and native-level output
+  // 1. Attempt Backend secure translation endpoint
+  try {
+    const response = await fetch(`${BACKEND_API_URL}/api/translate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: text,
+        from_lang: src,
+        to_lang: tgt
+      })
+    });
+    if (response.ok) {
+      const resJson = await response.json();
+      if (resJson.translated_text && resJson.translated_text.trim()) {
+        console.log(`Backend translated [${src} -> ${tgt}] using ${resJson.method_used}: "${resJson.translated_text}"`);
+        return resJson.translated_text.trim();
+      }
+    } else {
+      console.warn(`Backend translation returned status ${response.status}: ${await response.text()}`);
+    }
+  } catch (err) {
+    console.warn(`Backend translation failed, falling back to client-side methods:`, err);
+  }
+
+  // 2. Client-side Fallback A: Gemini (if API key is present)
   try {
     const provider = state.ai?.provider || 'gemini';
     const userKey = state.ai?.apiKey || (provider === 'gemini' ? DEFAULT_GEMINI_KEY : '');
@@ -1773,26 +1803,36 @@ async function translateText(text, fromLang, toLang) {
         const resJson = await response.json();
         const translated = resJson.candidates?.[0]?.content?.parts?.[0]?.text || '';
         if (translated.trim()) {
+          console.log(`Client Gemini fallback translated [${src} -> ${tgt}]`);
           return translated.trim();
         }
       }
     }
   } catch (err) {
-    console.warn(`Gemini translation from ${src} to ${tgt} failed, falling back to MyMemory:`, err);
+    console.warn(`Client-side Gemini translation fallback from ${src} to ${tgt} failed:`, err);
   }
 
-  // Fallback to MyMemory translation memory
-  try {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${tgt}`;
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.responseData?.translatedText) {
-        return data.responseData.translatedText;
+  // 3. Client-side Fallback B: MyMemory public translation memory (only for text <= 500 chars)
+  if (text.length <= 500) {
+    try {
+      const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${src}|${tgt}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.responseData?.translatedText) {
+          const translated = data.responseData.translatedText;
+          // Reject error message masquerading as translation
+          if (!translated.toUpperCase().includes("LIMIT EXCEEDED") && !translated.toUpperCase().includes("MAX ALLOWED QUERY")) {
+            console.log(`Client MyMemory fallback translated [${src} -> ${tgt}]`);
+            return translated.trim();
+          } else {
+            console.warn("Client MyMemory fallback returned quota/limit error message. Skipping.");
+          }
+        }
       }
+    } catch (err) {
+      console.warn(`Client MyMemory fallback translation failed from ${src} to ${tgt}:`, err);
     }
-  } catch (err) {
-    console.warn(`MyMemory translation failed from ${src} to ${tgt}:`, err);
   }
   return text;
 }
