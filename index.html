@@ -1100,38 +1100,28 @@
       </div>
     </div>
 
-    <!-- Modal 5: Lab Results (PDF Upload) -->
-    <div id="modal-lab" class="modal-content hidden">
+    <!-- Modal 5: Lab Results (PDF Upload & AI Summary) -->
+    <div id="modal-lab" class="modal-content hidden" style="max-width: 500px;">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
-      <h3 class="modal-title">🔬 Upload PDF Report & Lab Log</h3>
+      <h3 class="modal-title">🔬 Upload PDF Diagnostics Report</h3>
       <div class="modal-body">
-        <p style="margin-bottom: 14px; font-size: 13px; color: var(--text-sub);">Upload a laboratory PDF report to automatically parse parameters, or enter them manually.</p>
+        <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-sub);">Upload your diagnostic report in PDF format. Our AI will automatically parse the values and compile a summary of areas needing attention (such as low hemoglobin, thyroid imbalances, or glucose anomalies).</p>
         
         <!-- PDF File Upload Picker -->
-        <div style="background: rgba(230, 92, 120, 0.05); border: 1.5px dashed var(--brand-pink); border-radius: var(--radius-md); padding: 14px; text-align: center; margin-bottom: 16px; position: relative;">
+        <div style="background: rgba(230, 92, 120, 0.05); border: 1.5px dashed var(--brand-pink); border-radius: var(--radius-md); padding: 20px 14px; text-align: center; margin-bottom: 16px; position: relative;">
           <input type="file" id="labPdfUpload" accept=".pdf" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="handleLabPdfUpload(event)" />
-          <span style="font-size: 24px; display: block; margin-bottom: 4px;">📄</span>
-          <span id="pdfUploadStatus" style="font-size: 12.5px; font-weight:600; color: var(--brand-pink);">Click to upload lab PDF report</span>
+          <span style="font-size: 32px; display: block; margin-bottom: 6px;">📄</span>
+          <span id="pdfUploadStatus" style="font-size: 13px; font-weight:600; color: var(--brand-pink);">Click to select and upload report PDF</span>
         </div>
 
-        <div class="form-row">
-          <div class="form-group col">
-            <label class="form-label">HbA1c (%)</label>
-            <input type="number" id="labHba1c" class="form-input" min="3" max="15" step="0.1" placeholder="e.g. 5.4" />
-          </div>
-          <div class="form-group col">
-            <label class="form-label">Thyroid TSH (mIU/L)</label>
-            <input type="number" id="labTsh" class="form-input" min="0" max="20" step="0.01" placeholder="e.g. 1.85" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">LH / FSH Ratio</label>
-          <input type="number" id="labLhFsh" class="form-input" min="0" max="10" step="0.1" placeholder="e.g. 2.1" />
+        <!-- AI Summary Output Area -->
+        <div id="labReportSummaryContainer" class="hidden" style="background: #f9f9fb; border: 1.5px solid #ececf1; border-radius: var(--radius-md); padding: 16px; margin-top: 12px;">
+          <h4 style="margin: 0 0 10px 0; color: #8A3546; font-weight: 700; font-size: 14px; border-bottom: 1px solid rgba(0,0,0,0.06); padding-bottom: 6px;">📋 Diagnostic Insights Summary</h4>
+          <div id="labReportSummaryText" style="font-size: 13px; line-height: 1.6; color: var(--text-main); max-height: 250px; overflow-y: auto;"></div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
-        <button class="btn-primary" onclick="submitLabLog()">Save Results</button>
+      <div class="modal-footer" style="margin-top: 16px;">
+        <button class="btn-secondary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
       </div>
     </div>
 

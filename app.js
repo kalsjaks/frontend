@@ -662,9 +662,12 @@ function updateUIFromState() {
   
   updateForecast();
 
-  document.getElementById('labHba1c').value = state.labData.hba1c;
-  document.getElementById('labTsh').value = state.labData.tsh;
-  document.getElementById('labLhFsh').value = state.labData.lhFsh;
+  const elHba1c = document.getElementById('labHba1c');
+  if (elHba1c) elHba1c.value = state.labData.hba1c;
+  const elTsh = document.getElementById('labTsh');
+  if (elTsh) elTsh.value = state.labData.tsh;
+  const elLhFsh = document.getElementById('labLhFsh');
+  if (elLhFsh) elLhFsh.value = state.labData.lhFsh;
 
   // Dynamically populate medications dropdown (LOV) options
   const medSelect = document.getElementById('medSelect');
@@ -1515,26 +1518,7 @@ async function submitSymptomsLog() {
 }
 
 function submitLabLog() {
-  const hba1c = document.getElementById('labHba1c').value.trim();
-  const tsh = document.getElementById('labTsh').value.trim();
-  const lhFsh = document.getElementById('labLhFsh').value.trim();
-
-  state.labData.hba1c = hba1c;
-  state.labData.tsh = tsh;
-  state.labData.lhFsh = lhFsh;
-
-  let markers = [];
-  if (hba1c) markers.push(`HbA1c ${hba1c}%`);
-  if (tsh) markers.push(`TSH ${tsh}`);
-  if (lhFsh) markers.push(`Ratio ${lhFsh}`);
-
-  state.logs.lab = markers.length > 0 ? 'Logged: ' + markers.join(' · ') : 'Log your blood work';
-
-  saveState();
-  updateUIFromState();
   closeActiveModal();
-
-  showToast('🔬 Blood lab results recorded.', 'success');
 }
 
 // Dropdown selection change handler for medications
@@ -4291,7 +4275,7 @@ async function handleLabPdfUpload(event) {
   if (!file) return;
 
   const statusLabel = document.getElementById('pdfUploadStatus');
-  statusLabel.textContent = `⏳ Parsing "${file.name}" using AI...`;
+  statusLabel.textContent = `⏳ Analyzing "${file.name}" using AI...`;
 
   const formData = new FormData();
   formData.append('file', file);
@@ -4305,16 +4289,40 @@ async function handleLabPdfUpload(event) {
     if (response.ok) {
       const data = await response.json();
       
-      // Auto-fill values
-      if (data.hba1c) document.getElementById('labHba1c').value = data.hba1c;
-      if (data.tsh) document.getElementById('labTsh').value = data.tsh;
-      if (data.lh_fsh_ratio) document.getElementById('labLhFsh').value = data.lh_fsh_ratio;
-
-      statusLabel.textContent = `✅ Successfully parsed "${file.name}"!`;
-      showToast('🔬 PDF Lab Report parsed and auto-filled successfully!', 'success');
+      const summaryText = document.getElementById('labReportSummaryText');
+      const summaryContainer = document.getElementById('labReportSummaryContainer');
       
-      if (data.notes) {
-        showToast(`💡 Notes: ${data.notes}`, 'info');
+      if (summaryText && summaryContainer) {
+        // Format bulleted summary string for clean HTML viewing
+        let formattedSummary = data.summary || "No specific items requiring immediate attention were identified.";
+        formattedSummary = formattedSummary.replace(/\n/g, '<br>');
+        summaryText.innerHTML = formattedSummary;
+        summaryContainer.classList.remove('hidden');
+      }
+
+      statusLabel.textContent = `✅ Successfully analyzed "${file.name}"!`;
+      showToast('🔬 PDF Diagnostics Report analyzed successfully!', 'success');
+      
+      // Save details to state logs
+      state.logs.lab = `Report scanned on ${new Date().toLocaleDateString()}`;
+      saveState();
+      updateUIFromState();
+
+      // Sync to database wellness_logs if logged in
+      if (state.user.id) {
+        await sb.from('wellness_logs').insert({
+          username: state.user.name,
+          log_type: 'lab_report_summary',
+          details: {
+            filename: file.name,
+            summary: data.summary,
+            hba1c: data.hba1c,
+            tsh: data.tsh,
+            lh_fsh_ratio: data.lh_fsh_ratio,
+            hemoglobin: data.hemoglobin,
+            logged_at: new Date().toISOString()
+          }
+        });
       }
     } else {
       const err = await response.json();
