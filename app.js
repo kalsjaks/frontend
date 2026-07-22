@@ -4293,25 +4293,42 @@ async function handleLabPdfUpload(event) {
       const summaryContainer = document.getElementById('labReportSummaryContainer');
       
       if (summaryText && summaryContainer) {
-        let htmlSummary = '';
-        if (data.summary) {
-          // split on bullet markers
-          const points = data.summary.split(/[•\*\-]/).map(p => p.trim()).filter(p => p.length > 0);
-          if (points.length > 0) {
-            htmlSummary = '<ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 14.5px; line-height: 1.6; color: var(--text-main);">';
-            points.forEach(pt => {
-              // Convert markdown bold **text** to HTML <strong>text</strong>
-              const cleanedPt = pt.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-              htmlSummary += `<li style="margin-bottom: 4px;">${cleanedPt}</li>`;
-            });
-            htmlSummary += '</ul>';
-          } else {
-            htmlSummary = `<div style="font-size:14.5px; line-height:1.6; color: var(--text-main);">${data.summary}</div>`;
-          }
+        let htmlSummary = '<div style="display: flex; flex-direction: column; gap: 18px; margin-top: 14px;">';
+        
+        const findings = data.findings || [];
+        if (findings.length > 0) {
+          findings.forEach(item => {
+            let icon = '!';
+            let iconBg = '#a855f7'; // Purple exclamation
+            
+            if (item.type === 'normal') {
+              icon = '✓';
+              iconBg = '#6366f1'; // Indigo check
+            } else if (item.type === 'warning') {
+              icon = '▶';
+              iconBg = '#f43f5e'; // Rose play icon
+            } else if (item.type === 'abnormal') {
+              icon = '!';
+              iconBg = '#a855f7'; // Purple exclamation
+            }
+            
+            htmlSummary += `
+              <div style="display: flex; align-items: flex-start; gap: 14px;">
+                <div style="display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: ${iconBg}; color: #ffffff; font-weight: 800; font-size: 14px; flex-shrink: 0; margin-top: 2px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+                  ${icon}
+                </div>
+                <div style="flex: 1;">
+                  <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #1e293b; line-height: 1.4;">${item.title}</h4>
+                  <p style="margin: 3px 0 0 0; font-size: 13.5px; color: #64748b; line-height: 1.5; font-weight: 500;">${item.description}</p>
+                </div>
+              </div>
+            `;
+          });
         } else {
-          htmlSummary = '<div style="font-size:14.5px; line-height:1.6; color: var(--text-main);">No specific items requiring immediate attention were identified.</div>';
+          htmlSummary += '<div style="font-size:14.5px; line-height:1.6; color: var(--text-main);">No specific items requiring immediate attention were identified.</div>';
         }
         
+        htmlSummary += '</div>';
         summaryText.innerHTML = htmlSummary;
         summaryContainer.classList.remove('hidden');
       }
