@@ -59,7 +59,10 @@ let state = {
     hairThinning: false,
     cravings: true,
     bloating: false,
-    moodSwings: false
+    moodSwings: false,
+    hirsutism: false,
+    weightGain: false,
+    pelvicPain: false
   },
   labData: {
     hba1c: '',
@@ -349,14 +352,56 @@ function renderCalendar() {
     gridEl.appendChild(emptyCell);
   }
 
+  // Get latest period start date
+  let lastPeriodStart = null;
+  if (selectedPeriodDates.size > 0) {
+    const sorted = Array.from(selectedPeriodDates).sort();
+    lastPeriodStart = new Date(sorted[0]);
+  }
+  const cycleLength = state.user.cycleLength || 28;
+
   for (let day = 1; day <= lastDay; day++) {
     const dayCell = document.createElement('div');
     dayCell.className = 'calendar-day';
     dayCell.textContent = day;
 
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    
+    // Check if cell is a logged period date
     if (selectedPeriodDates.has(dateStr)) {
       dayCell.classList.add('selected');
+    } else if (lastPeriodStart) {
+      // Calculate cycle phase relative to last period start
+      const cellDate = new Date(year, month, day);
+      const diffTime = cellDate - lastPeriodStart;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays >= 0) {
+        const cycleDay = (diffDays % cycleLength) + 1;
+        
+        if (cycleDay >= 6 && cycleDay <= 9) {
+          // Follicular phase (light green)
+          dayCell.style.background = '#d4edda';
+          dayCell.style.color = '#155724';
+        } else if (cycleDay >= 10 && cycleDay <= 16) {
+          // Fertile Window / Ovulation
+          if (cycleDay === 14) {
+            // Ovulation Day
+            dayCell.style.background = '#28a745';
+            dayCell.style.color = '#ffffff';
+            dayCell.style.fontWeight = 'bold';
+            dayCell.style.border = '1px solid #1e7e34';
+            const dot = document.createElement('span');
+            dot.textContent = ' •';
+            dot.style.color = '#fff';
+            dayCell.appendChild(dot);
+          } else {
+            // Fertile Window
+            dayCell.style.background = '#c3e6cb';
+            dayCell.style.color = '#155724';
+          }
+        }
+      }
     }
 
     dayCell.onclick = () => {
@@ -365,6 +410,8 @@ function renderCalendar() {
 
     gridEl.appendChild(dayCell);
   }
+  
+  updateForecast();
 }
 
 function prevMonth() {
@@ -504,7 +551,7 @@ function loadState() {
         state.vitalsData = { water: 2.0, sleep: 7.5, temp: 36.6 };
       }
       if (!state.symptomsData) {
-        state.symptomsData = { acne: false, fatigue: true, hairThinning: false, cravings: true, bloating: false, moodSwings: false };
+        state.symptomsData = { acne: false, fatigue: true, hairThinning: false, cravings: true, bloating: false, moodSwings: false, hirsutism: false, weightGain: false, pelvicPain: false };
       }
       if (!state.labData) {
         state.labData = { hba1c: '', tsh: '', lhFsh: '' };
@@ -605,6 +652,15 @@ function updateUIFromState() {
   document.getElementById('sympCravings').checked = state.symptomsData.cravings;
   document.getElementById('sympBloating').checked = state.symptomsData.bloating;
   document.getElementById('sympMood').checked = state.symptomsData.moodSwings;
+  
+  const sympHirs = document.getElementById('sympHirsutism');
+  if (sympHirs) sympHirs.checked = state.symptomsData.hirsutism || false;
+  const sympWeight = document.getElementById('sympWeight');
+  if (sympWeight) sympWeight.checked = state.symptomsData.weightGain || false;
+  const sympPelvic = document.getElementById('sympPelvic');
+  if (sympPelvic) sympPelvic.checked = state.symptomsData.pelvicPain || false;
+  
+  updateForecast();
 
   document.getElementById('labHba1c').value = state.labData.hba1c;
   document.getElementById('labTsh').value = state.labData.tsh;
@@ -946,33 +1002,50 @@ function selectChip(buttonEl, groupName) {
 // ── User Logins / Setup ───────────────────────────────────────
 async function handleExistingLogin(e) {
   e.preventDefault();
-  const username = document.getElementById('loginUsernameInput').value.trim();
+  const loginInput = document.getElementById('loginUsernameInput').value.trim();
   const password = document.getElementById('loginPasswordInput').value;
 
-  if (!username || !password) return;
+  if (!loginInput || !password) return;
 
-  console.log('Looking up username...');
+  let emailToAuth = "";
+  let userNameToUse = "";
 
-  // Search the profiles table to get the registered email for this username
-  const { data: profile, error: searchError } = await sb
-    .from('profiles')
-    .select('email, name')
-    .eq('name', username)
-    .maybeSingle();
+  console.log('Resolving login credentials...');
 
-  if (searchError || !profile) {
-    showFormMessage('login', '❌ Username not found. Please try again or create a New User profile.', 'error');
-    return;
-  }
+  if (loginInput.includes('@')) {
+    // Treat as direct email sign-in
+    emailToAuth = loginInput;
+    const { data: profile } = await sb
+      .from('profiles')
+      .select('name')
+      .eq('email', loginInput)
+      .maybeSingle();
+    userNameToUse = profile ? profile.name : loginInput.split('@')[0];
+  } else {
+    // Treat as username sign-in
+    const { data: profile, error: searchError } = await sb
+      .from('profiles')
+      .select('email, name')
+      .eq('name', loginInput)
+      .maybeSingle();
 
-  if (!profile.email) {
-    showFormMessage('login', '⚠️ No email linked to this username. Please contact support.', 'error');
-    return;
+    if (searchError || !profile) {
+      showFormMessage('login', '❌ Username not found. Please try again or create a New User profile.', 'error');
+      return;
+    }
+
+    if (!profile.email) {
+      showFormMessage('login', '⚠️ No email linked to this username. Please contact support.', 'error');
+      return;
+    }
+
+    emailToAuth = profile.email;
+    userNameToUse = profile.name;
   }
 
   console.log('Connecting to secure database...');
 
-  const { data, error } = await sb.auth.signInWithPassword({ email: profile.email, password: password });
+  const { data, error } = await sb.auth.signInWithPassword({ email: emailToAuth, password: password });
 
   if (error) {
     showFormMessage('login', '❌ Invalid password. Please try again.', 'error');
@@ -980,7 +1053,7 @@ async function handleExistingLogin(e) {
   }
 
   state.user.id = data.user.id;
-  state.user.name = profile.name;
+  state.user.name = userNameToUse;
   state.user.isLoggedIn = true;
 
   await syncUserLogs(data.user.id);
@@ -1242,16 +1315,31 @@ function openFooterInfoModal(type) {
   if (type === 'privacy') {
     modalTitle.innerHTML = '🔒 Privacy Policy';
     modalBody.innerHTML = `
-      <p style="margin-bottom: 12px;">At BloomWell PCOS, we prioritize your data privacy. Your personal health metrics, period logs, and symptom notes are stored securely.</p>
-      <p style="margin-bottom: 12px;"><strong>Data Security:</strong> We use industry-standard encryption to sync and store your logs in Supabase. You can clear your data anytime via the settings tab.</p>
-      <p>We do not share or sell your personal details with third-party advertising services.</p>
+      <p style="margin-bottom: 12px;">At BloomWell PCOS, we prioritize your data privacy. Your personal health metrics, period logs, and symptom notes are stored securely and encrypted in transit.</p>
+      <p style="margin-bottom: 12px;"><strong>Data Security:</strong> We use industry-standard encryption to sync and store your logs in Supabase. You can clear your data or request deletion anytime via settings.</p>
+      <p>We do not share or sell your personal details with third-party advertising or profiling services.</p>
     `;
   } else if (type === 'terms') {
-    modalTitle.innerHTML = '⚖️ Terms of Service';
+    modalTitle.innerHTML = '⚖️ Terms of Use';
     modalBody.innerHTML = `
       <p style="margin-bottom: 12px;">By using the BloomWell companion, you agree to store your wellness logs and utilize the AI guidance responsibly.</p>
       <p style="margin-bottom: 12px;"><strong>Medical Disclaimer:</strong> The content and insights provided by Bloom AI are for educational and self-management support purposes only. They do not substitute professional medical advice, diagnosis, or treatment.</p>
       <p>Consult a qualified gynecologist or healthcare provider for specific clinical recommendations.</p>
+    `;
+  } else if (type === 'grievance') {
+    modalTitle.innerHTML = '🛡️ Grievance Redressal Policy';
+    modalBody.innerHTML = `
+      <p style="margin-bottom: 12px;">We are committed to resolving any user grievances regarding data privacy, platform features, or compliance promptly.</p>
+      <p style="margin-bottom: 12px;"><strong>Grievance Officer:</strong> Lakshmi Reddy</p>
+      <p style="margin-bottom: 12px;"><strong>Email:</strong> grievance@bloomwellpcos.com</p>
+      <p>All complaints will be acknowledged within 24 hours and addressed within 15 working days.</p>
+    `;
+  } else if (type === 'consent') {
+    modalTitle.innerHTML = '📝 Consent for Data & AI Usage';
+    modalBody.innerHTML = `
+      <p style="margin-bottom: 12px;">By using the chat feature or logging metrics, you provide express consent to collect and process your logs.</p>
+      <p style="margin-bottom: 12px;"><strong>AI Processing:</strong> Curated clinical data and logged health metrics are processed using Google Vertex AI to generate empathetic, evidence-based recommendations.</p>
+      <p>No personally identifiable details (like passwords or emails) are sent to the AI processing layer.</p>
     `;
   } else if (type === 'contact') {
     modalTitle.innerHTML = '✉️ Contact Support';
@@ -1368,6 +1456,10 @@ async function submitSymptomsLog() {
   const cravings = document.getElementById('sympCravings').checked;
   const bloating = document.getElementById('sympBloating').checked;
   const mood = document.getElementById('sympMood').checked;
+  
+  const hirsutism = document.getElementById('sympHirsutism') ? document.getElementById('sympHirsutism').checked : false;
+  const weightGain = document.getElementById('sympWeight') ? document.getElementById('sympWeight').checked : false;
+  const pelvicPain = document.getElementById('sympPelvic') ? document.getElementById('sympPelvic').checked : false;
 
   state.symptomsData.acne = acne;
   state.symptomsData.fatigue = fatigue;
@@ -1375,14 +1467,20 @@ async function submitSymptomsLog() {
   state.symptomsData.cravings = cravings;
   state.symptomsData.bloating = bloating;
   state.symptomsData.moodSwings = mood;
+  state.symptomsData.hirsutism = hirsutism;
+  state.symptomsData.weightGain = weightGain;
+  state.symptomsData.pelvicPain = pelvicPain;
 
   let activeSymps = [];
   if (acne) activeSymps.push('Acne');
   if (fatigue) activeSymps.push('Fatigue');
-  if (hair) activeSymps.push('Thinning');
+  if (hair) activeSymps.push('Hair loss');
   if (cravings) activeSymps.push('Cravings');
   if (bloating) activeSymps.push('Bloating');
   if (mood) activeSymps.push('Mood');
+  if (hirsutism) activeSymps.push('Hirsutism');
+  if (weightGain) activeSymps.push('Weight Gain');
+  if (pelvicPain) activeSymps.push('Pelvic Pain');
 
   state.logs.symptoms = activeSymps.length > 0 ? 'Logged: ' + activeSymps.join(', ') : 'No symptoms logged';
 
@@ -1391,7 +1489,8 @@ async function submitSymptomsLog() {
   closeActiveModal();
 
   if (state.user.id) {
-    const { error } = await sb.from('symptoms_logs').insert({
+    // 1. Sync standard columns
+    await sb.from('symptoms_logs').insert({
       user_id: state.user.id,
       acne: acne,
       fatigue: fatigue,
@@ -1400,7 +1499,16 @@ async function submitSymptomsLog() {
       bloating: bloating,
       mood_swings: mood
     });
-    if (error) console.error('Failed to log symptoms to Supabase:', error);
+    
+    // 2. Sync to general logs table (safely stores the expanded checkin)
+    await sb.from('wellness_logs').insert({
+      username: state.user.name,
+      log_type: 'symptoms_v2',
+      details: {
+        acne, fatigue, hairThinning: hair, cravings, bloating, moodSwings: mood,
+        hirsutism, weightGain, pelvicPain, logged_at: new Date().toISOString()
+      }
+    });
   }
 
   showToast('📝 Daily symptoms logged successfully.', 'success');
@@ -2984,6 +3092,10 @@ async function submitFullSymptomsLog() {
 
   const notes = document.getElementById('symptomNotesInput').value.trim();
 
+  const hirsutism = document.querySelector('.symptom-chip-toggle[data-symptom="hirsutism"]')?.classList.contains('selected') || false;
+  const weight_gain = document.querySelector('.symptom-chip-toggle[data-symptom="weight_gain"]')?.classList.contains('selected') || false;
+  const pelvic_pain = document.querySelector('.symptom-chip-toggle[data-symptom="pelvic_pain"]')?.classList.contains('selected') || false;
+
   // Update local state
   state.symptomsData = {
     acne,
@@ -2995,7 +3107,10 @@ async function submitFullSymptomsLog() {
     headache,
     cramps,
     anxiety,
-    brainFog: brain_fog
+    brainFog: brain_fog,
+    hirsutism,
+    weightGain: weight_gain,
+    pelvicPain: pelvic_pain
   };
 
   let activeSymps = [];
@@ -3963,3 +4078,255 @@ document.addEventListener('click', (event) => {
 
 
 
+
+
+// ── NEW PRODUCT UPDATES HELPERS ──
+
+// 1. Doctors Modal
+function openDoctorsModal() {
+  openModal('modal-doctors');
+}
+
+// 2. Plans Modal & Tabs
+function openPlansModal() {
+  openModal('modal-plans');
+  switchPlansTab('diet');
+}
+
+function switchPlansTab(tab) {
+  const tabs = ['diet', 'workout', 'lifestyle'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+    const content = document.getElementById(`plansTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+    if (!btn || !content) return;
+    if (t === tab) {
+      btn.style.background = 'var(--brand-pink)';
+      btn.style.color = 'white';
+      content.classList.remove('hidden');
+    } else {
+      btn.style.background = '#ececf1';
+      btn.style.color = 'var(--text-sub)';
+      content.classList.add('hidden');
+    }
+  });
+}
+
+// Local static fallback maps for offline mode or fallback
+const LOCAL_DIET_PLANS = {
+  menstrual: "🍲 **Menstrual Phase Diet:** Focus on iron-rich foods (leafy greens, lean meats, beans) to replenish loss. Drink warm ginger tea for cramps and avoid cold/raw foods.",
+  follicular: "🥗 **Follicular Phase Diet:** Incorporate light, fresh foods. Focus on steamed broccoli, sprouts, fermented foods, and healthy fats like pumpkin seeds to support follicle development.",
+  ovulation: "✨ **Ovulation Phase Diet:** Focus on anti-inflammatory berries, quinoa, avocado, and cruciferous vegetables. Keep hydration high to flush excess estrogen.",
+  luteal: "🍂 **Luteal Phase Diet:** Eat magnesium-rich foods (dark chocolate, spinach, bananas) to reduce PMS and cravings. Prioritize complex carbs (sweet potato, oats) to sustain energy."
+};
+
+const LOCAL_WORKOUT_PLANS = {
+  menstrual: "🧘 **Menstrual Exercises:** Limit intensity. Perform gentle restorative yoga (Balasana/Child's Pose, Supta Baddha Konasana) and light walking.",
+  follicular: "🏃 **Follicular Exercises:** Energy is rising. Good time for weight training, brisk jogging, Pilates, and light HIIT.",
+  ovulation: "⚡ **Ovulation Exercises:** Peak energy phase. Engage in high-intensity workouts, heavy strength training, or challenging cardiovascular runs.",
+  luteal: "🚶 **Luteal Exercises:** Transition to low-intensity strength training, steady state cardio, or hiking. Switch to yin yoga in the late luteal phase."
+};
+
+async function fetchPlan(type, phase) {
+  const resultDiv = document.getElementById(type === 'diet' ? 'plansDietResult' : 'plansWorkoutResult');
+  if (!resultDiv) return;
+  resultDiv.innerHTML = "⏳ Fetching phase recommendations...";
+
+  try {
+    const endpoint = type === 'diet' ? '/api/tools/diet-plan' : '/api/tools/exercise-plan';
+    const payload = { phase: phase, symptoms: [], bmi: null };
+    
+    const response = await fetch(`${BACKEND_API_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      if (type === 'diet') {
+        const p = data.diet_plan || {};
+        let text = `🥦 **Focus:** ${p.focus || phase}\n\n`;
+        if (p.foods) text += `📌 **Foods:** ${p.foods.join(', ')}\n\n`;
+        if (p.avoid) text += `⚠️ **Avoid:** ${p.avoid.join(', ')}`;
+        resultDiv.innerHTML = text.replace(/\n/g, '<br>');
+      } else {
+        const p = data.workouts || {};
+        let text = `🏋️ **Activity:** ${p.type || phase}\n\n`;
+        if (p.description) text += `📝 **Detail:** ${p.description}\n\n`;
+        if (p.poses) text += `🧘 **Yoga Poses:** ${p.poses.join(', ')}`;
+        resultDiv.innerHTML = text.replace(/\n/g, '<br>');
+      }
+    } else {
+      throw new Error("Backend failed");
+    }
+  } catch (e) {
+    console.warn("Using local offline fallback for plans:", e);
+    const planText = type === 'diet' ? LOCAL_DIET_PLANS[phase] : LOCAL_WORKOUT_PLANS[phase];
+    resultDiv.innerHTML = planText.replace(/\n/g, '<br>');
+  }
+}
+
+// 3. Mood Logger
+let selectedMood = '';
+
+function openMoodModal() {
+  openModal('modal-mood');
+  selectedMood = '';
+  document.querySelectorAll('#moodChipsGroup .chip').forEach(c => c.classList.remove('selected'));
+  renderMoodHistory();
+}
+
+function selectMoodChip(el, mood) {
+  document.querySelectorAll('#moodChipsGroup .chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedMood = mood;
+}
+
+async function submitMoodLog() {
+  if (!selectedMood) {
+    showToast('⚠️ Please select a mood before logging.', 'error');
+    return;
+  }
+
+  // Save to local logs state
+  const timestamp = new Date().toLocaleString();
+  let moodHistory = JSON.parse(localStorage.getItem('mood_history') || '[]');
+  moodHistory.unshift({ mood: selectedMood, time: timestamp });
+  localStorage.setItem('mood_history', JSON.stringify(moodHistory));
+
+  // Sync to database if logged in
+  if (state.user.id) {
+    try {
+      await sb.from('wellness_logs').insert({
+        username: state.user.name,
+        log_type: 'mood',
+        details: { mood: selectedMood, logged_at: new Date().toISOString() }
+      });
+    } catch (err) {
+      console.error("Failed to sync mood log:", err);
+    }
+  }
+
+  showToast(`😊 Logged mood: ${selectedMood}`, 'success');
+  closeActiveModal();
+}
+
+function renderMoodHistory() {
+  const historyList = document.getElementById('moodHistoryList');
+  if (!historyList) return;
+
+  const moodHistory = JSON.parse(localStorage.getItem('mood_history') || '[]');
+  if (moodHistory.length === 0) {
+    historyList.innerHTML = "No mood entries logged yet.";
+    return;
+  }
+
+  let html = '<ul style="margin:0; padding-left:14px; display:flex; flex-direction:column; gap:6px;">';
+  moodHistory.slice(0, 10).forEach(item => {
+    html += `<li><strong>${item.mood}</strong> <span style="color:var(--text-muted); font-size:10.5px;">(${item.time})</span></li>`;
+  });
+  html += '</ul>';
+  historyList.innerHTML = html;
+}
+
+// 4. PDF Lab Report Upload & AI Parsing
+async function handleLabPdfUpload(event) {
+  const fileInput = event.target;
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  const statusLabel = document.getElementById('pdfUploadStatus');
+  statusLabel.textContent = `⏳ Parsing "${file.name}" using AI...`;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await fetch(`${BACKEND_API_URL}/api/parse-report`, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      
+      // Auto-fill values
+      if (data.hba1c) document.getElementById('labHba1c').value = data.hba1c;
+      if (data.tsh) document.getElementById('labTsh').value = data.tsh;
+      if (data.lh_fsh_ratio) document.getElementById('labLhFsh').value = data.lh_fsh_ratio;
+
+      statusLabel.textContent = `✅ Successfully parsed "${file.name}"!`;
+      showToast('🔬 PDF Lab Report parsed and auto-filled successfully!', 'success');
+      
+      if (data.notes) {
+        showToast(`💡 Notes: ${data.notes}`, 'info');
+      }
+    } else {
+      const err = await response.json();
+      throw new Error(err.detail || "Upload failed");
+    }
+  } catch (e) {
+    console.error("PDF parse failed:", e);
+    statusLabel.textContent = `❌ Failed to parse: ${e.message}`;
+    showToast(`❌ PDF parsing failed: ${e.message}`, 'error');
+  } finally {
+    fileInput.value = ''; // clear input
+  }
+}
+
+// 5. Intelligent Period Forecast calculations
+function updateForecast() {
+  const predictNextEl = document.getElementById('predictNextPeriodDate');
+  const predictWindowEl = document.getElementById('predictPeriodWindow');
+  const predictCycleEl = document.getElementById('predictCycleLength');
+  const predictFutureEl = document.getElementById('predictFutureEstimates');
+  
+  if (!predictNextEl) return;
+  
+  const cycleLength = state.user.cycleLength || 28;
+  predictCycleEl.textContent = `${cycleLength} days`;
+  
+  let lastPeriodStart = null;
+  if (selectedPeriodDates.size > 0) {
+    const sorted = Array.from(selectedPeriodDates).sort();
+    lastPeriodStart = new Date(sorted[0]);
+  }
+  
+  if (!lastPeriodStart) {
+    predictNextEl.textContent = "Log a period to predict";
+    predictWindowEl.textContent = "-";
+    predictFutureEl.innerHTML = "No logs available. Log your dates above.";
+    return;
+  }
+  
+  // Calculate next period
+  const nextPeriod = new Date(lastPeriodStart);
+  nextPeriod.setDate(lastPeriodStart.getDate() + cycleLength);
+  
+  const y = nextPeriod.getFullYear();
+  const m = String(nextPeriod.getMonth() + 1).padStart(2, '0');
+  const d = String(nextPeriod.getDate()).padStart(2, '0');
+  const nextPeriodStr = `${y}-${m}-${d}`;
+  
+  predictNextEl.textContent = nextPeriodStr;
+  
+  const windowEnd = new Date(nextPeriod);
+  windowEnd.setDate(nextPeriod.getDate() + 4);
+  const ye = windowEnd.getFullYear();
+  const me = String(windowEnd.getMonth() + 1).padStart(2, '0');
+  const de = String(windowEnd.getDate()).padStart(2, '0');
+  
+  predictWindowEl.textContent = `${nextPeriodStr} to ${ye}-${me}-${de}`;
+  
+  // Next 3 cycles
+  let futureHtml = '';
+  for (let i = 1; i <= 3; i++) {
+    const futDate = new Date(lastPeriodStart);
+    futDate.setDate(lastPeriodStart.getDate() + (i * cycleLength));
+    const fy = futDate.getFullYear();
+    const fm = String(futDate.getMonth() + 1).padStart(2, '0');
+    const fd = String(futDate.getDate()).padStart(2, '0');
+    futureHtml += `<div>• Cycle ${i + 1}: starting <strong>${fy}-${fm}-${fd}</strong></div>`;
+  }
+  predictFutureEl.innerHTML = futureHtml;
+}

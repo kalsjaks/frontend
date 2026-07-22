@@ -168,14 +168,26 @@
 
 
               <!-- Book Consultation with Doctor Banner -->
-              <div class="ask-bloom-banner book-doctor-banner" onclick="toggleVoiceAssistantWidget()" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(46, 125, 50, 0.2); background: linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(46, 125, 50, 0.06); padding: 20px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+              <div class="ask-bloom-banner book-doctor-banner" onclick="openDoctorsModal()" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(46, 125, 50, 0.2); background: linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(46, 125, 50, 0.06); padding: 20px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
                 <div class="ask-bloom-banner-left">
-                  <h3 class="ask-bloom-banner-title" style="color: #2E7D32; font-size: 16px; font-weight: 700;">Book Consultation with Doctor</h3>
-                  <p class="ask-bloom-banner-desc" style="max-width: 95%; font-size: 12.5px; color: var(--text-sub);">Start a voice call to find available doctors, emergency contacts, and get information for doctor consultantion instantly</p>
-                  <button class="ask-bloom-banner-btn" style="background: #2E7D32;" onclick="event.stopPropagation(); toggleVoiceAssistantWidget();">Start call</button>
+                  <h3 class="ask-bloom-banner-title" style="color: #2E7D32; font-size: 16px; font-weight: 700;">Consult a PCOS Specialist</h3>
+                  <p class="ask-bloom-banner-desc" style="max-width: 95%; font-size: 12.5px; color: var(--text-sub);">Find top Hyderabad-based gynecologists and endocrinologists specializing in PCOS care.</p>
+                  <button class="ask-bloom-banner-btn" style="background: #2E7D32;" onclick="event.stopPropagation(); openDoctorsModal();">Find Specialist</button>
                 </div>
                 <div class="ask-bloom-banner-right" style="right: 12px; bottom: -10px;">
                   <span class="ask-bloom-banner-avatar" style="font-size: 56px;">🩺</span>
+                </div>
+              </div>
+
+              <!-- Diet & Workout Plans Banner -->
+              <div class="ask-bloom-banner plans-banner" onclick="openPlansModal()" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(230, 92, 120, 0.2); background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(230, 92, 120, 0.06); padding: 20px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+                <div class="ask-bloom-banner-left">
+                  <h3 class="ask-bloom-banner-title" style="color: #8A3546; font-size: 16px; font-weight: 700;">Diet & Workout Plans</h3>
+                  <p class="ask-bloom-banner-desc" style="max-width: 95%; font-size: 12.5px; color: var(--text-sub);">Get your phase-synced meals, exercise routines, and lifestyle adjustments based on your logs.</p>
+                  <button class="ask-bloom-banner-btn" style="background: var(--brand-pink);" onclick="event.stopPropagation(); openPlansModal();">View Plans</button>
+                </div>
+                <div class="ask-bloom-banner-right" style="right: 12px; bottom: -10px;">
+                  <span class="ask-bloom-banner-avatar" style="font-size: 56px;">🥗</span>
                 </div>
               </div>
             </div>
@@ -271,10 +283,19 @@
                 </div>
 
                 <!-- Lab Results -->
-                <div class="dash-card compact-stack-card" onclick="openLabResultsModal()" style="padding: 10px 14px; border-radius: var(--radius-md); margin: 0; min-height: auto; grid-column: span 2;">
+                <div class="dash-card compact-stack-card" onclick="openLabResultsModal()" style="padding: 10px 14px; border-radius: var(--radius-md); margin: 0; min-height: auto;">
                   <div class="card-icon-container bg-pink" style="width: 28px; height: 28px; font-size: 14px;">🔬</div>
                   <div class="card-content">
                     <h3 class="card-title" style="font-size: 12.5px;">Lab Results</h3>
+                  </div>
+                  <span class="card-arrow" style="font-size: 14px;">›</span>
+                </div>
+
+                <!-- Mood Tracker -->
+                <div class="dash-card compact-stack-card" onclick="openMoodModal()" style="padding: 10px 14px; border-radius: var(--radius-md); margin: 0; min-height: auto;">
+                  <div class="card-icon-container bg-pink" style="width: 28px; height: 28px; font-size: 14px;">😊</div>
+                  <div class="card-content">
+                    <h3 class="card-title" style="font-size: 12.5px;">Mood Tracker</h3>
                   </div>
                   <span class="card-arrow" style="font-size: 14px;">›</span>
                 </div>
@@ -551,7 +572,28 @@
                 Select Cycle Dates
               </h3>
               
-              <div class="calendar-container" style="margin-top: 12px; background: #FFFFFF; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 16px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
+            <!-- Prediction Card -->
+            <div class="period-card" style="margin-bottom: 16px; background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%); border: 1.5px solid rgba(230, 92, 120, 0.2);">
+              <h3 class="period-card-title" style="color:#8A3546;">
+                <svg class="card-icon text-pink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px; display:inline-block; vertical-align:middle; margin-right:4px;">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+                Intelligent Cycle Forecast
+              </h3>
+              <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; line-height:1.4; color:var(--text-sub); margin-top:8px;">
+                <div>🔮 <strong>Predicted Next Period:</strong> <span id="predictNextPeriodDate" style="font-weight:600; color:var(--text-main);">Log a period to predict</span></div>
+                <div>📅 <strong>Expected Menstrual Window:</strong> <span id="predictPeriodWindow" style="font-weight:600; color:var(--text-main);">-</span></div>
+                <div>📏 <strong>Predicted Cycle Length:</strong> <span id="predictCycleLength" style="font-weight:600; color:var(--text-main);">28 days</span></div>
+                <div style="border-top: 1px dashed rgba(230, 92, 120, 0.15); padding-top:8px; margin-top:4px;">
+                  <h4 style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin:0 0 4px 0;">Future Cycle Estimates</h4>
+                  <div id="predictFutureEstimates" style="font-size:12px; display:flex; flex-direction:column; gap:4px; font-style:italic;">
+                    No logs available.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="calendar-container" style="margin-top: 12px; background: #FFFFFF; border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 16px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
                 <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-weight: 700; color: var(--text-main);">
                   <button type="button" onclick="prevMonth()" style="background:none; border:none; font-size:16px; cursor:pointer; color:var(--brand-pink); padding: 4px 8px;">◀</button>
                   <span id="calendarMonthYear" style="font-family: var(--font-serif); font-size: 15px; user-select: none;">June 2026</span>
@@ -562,6 +604,13 @@
                 </div>
                 <div id="calendarDaysGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px;">
                   <!-- Days generated dynamically -->
+                </div>
+                <!-- Legend Key for Fertility color coding -->
+                <div style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:8px; margin-top:12px; font-size:10.5px; color:var(--text-muted); border-top:1.5px solid #ececf1; padding-top:8px;">
+                  <div style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:var(--brand-pink); display:inline-block;"></span> Period</div>
+                  <div style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#d4edda; display:inline-block;"></span> Follicular</div>
+                  <div style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#c3e6cb; display:inline-block;"></span> Fertile</div>
+                  <div style="display:flex; align-items:center; gap:4px;"><span style="width:10px; height:10px; border-radius:50%; background:#28a745; display:inline-block; border: 1px solid white; box-shadow:0 0 2px rgba(0,0,0,0.3);"></span> Ovulation</div>
                 </div>
               </div>
 
@@ -630,7 +679,7 @@
                 <div class="pain-labels">
                   <span>None</span>
                   <span>Mild</span>
-                  <span>Bad</span>
+                  <span>Severe</span>
                 </div>
                 <input type="range" min="1" max="3" value="1" class="pain-slider" id="painLevelSlider" />
               </div>
@@ -714,12 +763,15 @@
               <div class="symptom-chip-toggle" data-symptom="cravings" onclick="toggleSymptomChip(this)">Cravings</div>
               <div class="symptom-chip-toggle" data-symptom="anxiety" onclick="toggleSymptomChip(this)">Anxiety</div>
               <div class="symptom-chip-toggle" data-symptom="brain_fog" onclick="toggleSymptomChip(this)">Brain Fog</div>
+              <div class="symptom-chip-toggle" data-symptom="hirsutism" onclick="toggleSymptomChip(this)">Hirsutism</div>
+              <div class="symptom-chip-toggle" data-symptom="weight_gain" onclick="toggleSymptomChip(this)">Weight Gain</div>
+              <div class="symptom-chip-toggle" data-symptom="pelvic_pain" onclick="toggleSymptomChip(this)">Pelvic Pain</div>
             </div>
           </div>
 
           <!-- Severity Selection -->
           <div class="symptoms-section-card">
-            <h4 class="symptoms-section-label">How bad?</h4>
+            <h4 class="symptoms-section-label">Severity Level</h4>
             <div class="severity-container" id="severityGroup">
               <div class="severity-card" onclick="selectSeverityCard(this, 'Mild')">Mild</div>
               <div class="severity-card selected" onclick="selectSeverityCard(this, 'Moderate')">Moderate</div>
@@ -938,7 +990,9 @@
       </div>
       <div class="footer-right">
         <a href="#" onclick="openFooterInfoModal('privacy'); event.preventDefault();" class="footer-link">Privacy Policy</a>
-        <a href="#" onclick="openFooterInfoModal('terms'); event.preventDefault();" class="footer-link">Terms of Service</a>
+        <a href="#" onclick="openFooterInfoModal('terms'); event.preventDefault();" class="footer-link">Terms of Use</a>
+        <a href="#" onclick="openFooterInfoModal('grievance'); event.preventDefault();" class="footer-link">Grievance Redressal</a>
+        <a href="#" onclick="openFooterInfoModal('consent'); event.preventDefault();" class="footer-link">Data Consent</a>
         <a href="#" onclick="openFooterInfoModal('contact'); event.preventDefault();" class="footer-link">Contact Support</a>
         <button class="footer-chat-btn" onclick="switchView('chat');" aria-label="Open Chat">
           <svg viewBox="0 0 24 24">
@@ -1041,12 +1095,20 @@
       </div>
     </div>
 
-    <!-- Modal 5: Lab Results -->
+    <!-- Modal 5: Lab Results (PDF Upload) -->
     <div id="modal-lab" class="modal-content hidden">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
-      <h3 class="modal-title">🔬 Blood Work & Lab Log</h3>
+      <h3 class="modal-title">🔬 Upload PDF Report & Lab Log</h3>
       <div class="modal-body">
-        <p style="margin-bottom: 12px;">Store critical hormone markers to track your progress and share with doctors.</p>
+        <p style="margin-bottom: 14px; font-size: 13px; color: var(--text-sub);">Upload a laboratory PDF report to automatically parse parameters, or enter them manually.</p>
+        
+        <!-- PDF File Upload Picker -->
+        <div style="background: rgba(230, 92, 120, 0.05); border: 1.5px dashed var(--brand-pink); border-radius: var(--radius-md); padding: 14px; text-align: center; margin-bottom: 16px; position: relative;">
+          <input type="file" id="labPdfUpload" accept=".pdf" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="handleLabPdfUpload(event)" />
+          <span style="font-size: 24px; display: block; margin-bottom: 4px;">📄</span>
+          <span id="pdfUploadStatus" style="font-size: 12.5px; font-weight:600; color: var(--brand-pink);">Click to upload lab PDF report</span>
+        </div>
+
         <div class="form-row">
           <div class="form-group col">
             <label class="form-label">HbA1c (%)</label>
@@ -1065,6 +1127,147 @@
       <div class="modal-footer">
         <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
         <button class="btn-primary" onclick="submitLabLog()">Save Results</button>
+      </div>
+    </div>
+
+    <!-- Modal: Doctors List -->
+    <div id="modal-doctors" class="modal-content hidden" style="max-width: 500px;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">🩺 Consult a PCOS Specialist</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px; font-size: 13.5px; color: var(--text-sub);">Below is a list of top gynecologists and endocrinologists in Hyderabad specializing in PCOS care.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 14px; max-height: 300px; overflow-y: auto; padding-right: 4px;">
+          <!-- Doctor 1 -->
+          <div style="background: #f9f9fb; border: 1.5px solid #ececf1; border-radius: var(--radius-md); padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <div>
+              <h4 style="margin: 0 0 2px 0; font-size: 14px; font-weight: 700; color: var(--text-main);">Dr. Preeti Reddy</h4>
+              <p style="margin: 0 0 4px 0; font-size: 12px; color: #2E7D32; font-weight: 600;">Gynecologist & PCOS Specialist</p>
+              <p style="margin: 0; font-size: 11.5px; color: var(--text-muted);">Apollo Hospitals, Jubilee Hills, Hyderabad</p>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-sub);">Experience: 14+ Years</p>
+            </div>
+            <button class="btn-primary" onclick="showToast('📞 Connecting to Dr. Preeti Reddy\'s clinic...', 'success')" style="font-size: 12px; padding: 6px 12px; background: #2E7D32; border:none; border-radius:18px;">Consult</button>
+          </div>
+
+          <!-- Doctor 2 -->
+          <div style="background: #f9f9fb; border: 1.5px solid #ececf1; border-radius: var(--radius-md); padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <div>
+              <h4 style="margin: 0 0 2px 0; font-size: 14px; font-weight: 700; color: var(--text-main);">Dr. Anitha Rao</h4>
+              <p style="margin: 0 0 4px 0; font-size: 12px; color: #2E7D32; font-weight: 600;">Reproductive Endocrinologist</p>
+              <p style="margin: 0; font-size: 11.5px; color: var(--text-muted);">Yashoda Hospitals, Somajiguda, Hyderabad</p>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-sub);">Experience: 12+ Years</p>
+            </div>
+            <button class="btn-primary" onclick="showToast('📞 Connecting to Dr. Anitha Rao\'s clinic...', 'success')" style="font-size: 12px; padding: 6px 12px; background: #2E7D32; border:none; border-radius:18px;">Consult</button>
+          </div>
+
+          <!-- Doctor 3 -->
+          <div style="background: #f9f9fb; border: 1.5px solid #ececf1; border-radius: var(--radius-md); padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <div>
+              <h4 style="margin: 0 0 2px 0; font-size: 14px; font-weight: 700; color: var(--text-main);">Dr. Srinivas G.</h4>
+              <p style="margin: 0 0 4px 0; font-size: 12px; color: #2E7D32; font-weight: 600;">Senior Endocrinologist</p>
+              <p style="margin: 0; font-size: 11.5px; color: var(--text-muted);">Care Hospitals, Banjara Hills, Hyderabad</p>
+              <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-sub);">Experience: 18+ Years</p>
+            </div>
+            <button class="btn-primary" onclick="showToast('📞 Connecting to Dr. Srinivas G.\'s clinic...', 'success')" style="font-size: 12px; padding: 6px 12px; background: #2E7D32; border:none; border-radius:18px;">Consult</button>
+          </div>
+        </div>
+
+        <!-- Secondary voice call helper trigger inside modal -->
+        <div style="margin-top: 18px; border-top: 1.5px dashed #ececf1; padding-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+          <div>
+            <h4 style="margin:0; font-size:13px; font-weight:600; color:var(--text-main);">Need voice assistance?</h4>
+            <p style="margin:0; font-size:11px; color:var(--text-muted);">Talk to our digital health guide instantly.</p>
+          </div>
+          <button class="btn-secondary" onclick="toggleVoiceAssistantWidget(); closeActiveModal();" style="font-size: 12px; padding: 6px 12px;">📞 Start Call</button>
+        </div>
+      </div>
+      <div class="modal-footer" style="margin-top: 16px;">
+        <button class="btn-secondary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
+      </div>
+    </div>
+
+    <!-- Modal: Diet & Workout Plans -->
+    <div id="modal-plans" class="modal-content hidden" style="max-width: 500px;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">🥗 Diet & Workout Guidelines</h3>
+      <div class="modal-body">
+        <!-- Tab layout inside modal -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1.5px solid #ececf1; padding-bottom: 8px;">
+          <button class="tab-btn active" onclick="switchPlansTab('diet')" id="tabBtnDiet" style="flex:1; border:none; padding:8px; font-weight:600; border-radius:var(--radius-sm); cursor:pointer; background: var(--brand-pink); color: white;">Diet Plans</button>
+          <button class="tab-btn" onclick="switchPlansTab('workout')" id="tabBtnWorkout" style="flex:1; border:none; padding:8px; font-weight:600; border-radius:var(--radius-sm); cursor:pointer; background: #ececf1; color: var(--text-sub);">Exercise & Poses</button>
+          <button class="tab-btn" onclick="switchPlansTab('lifestyle')" id="tabBtnLifestyle" style="flex:1; border:none; padding:8px; font-weight:600; border-radius:var(--radius-sm); cursor:pointer; background: #ececf1; color: var(--text-sub);">Lifestyle</button>
+        </div>
+        
+        <!-- Tab: Diet -->
+        <div id="plansTabDiet" class="plans-tab-content">
+          <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Choose a cycle phase for low GI and anti-inflammatory food recommendations:</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+            <button class="btn-secondary" onclick="fetchPlan('diet', 'menstrual')" style="font-size:12px; padding:6px 10px;">💧 Menstrual Phase</button>
+            <button class="btn-secondary" onclick="fetchPlan('diet', 'follicular')" style="font-size:12px; padding:6px 10px;">🌱 Follicular Phase</button>
+            <button class="btn-secondary" onclick="fetchPlan('diet', 'ovulation')" style="font-size:12px; padding:6px 10px;">✨ Ovulation Phase</button>
+            <button class="btn-secondary" onclick="fetchPlan('diet', 'luteal')" style="font-size:12px; padding:6px 10px;">🍂 Luteal Phase</button>
+          </div>
+          <div id="plansDietResult" style="background:#f9f9fb; border:1px solid #ececf1; border-radius:var(--radius-sm); padding:12px; font-size:12.5px; max-height:150px; overflow-y:auto; line-height:1.5; color: var(--text-sub);">
+            Select a phase to view diet recommendations.
+          </div>
+        </div>
+
+        <!-- Tab: Workout -->
+        <div id="plansTabWorkout" class="plans-tab-content hidden">
+          <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">Sync your exercises and yoga poses with your cycle to regulate cortisol:</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+            <button class="btn-secondary" onclick="fetchPlan('workout', 'menstrual')" style="font-size:12px; padding:6px 10px;">💧 Menstrual Exercises</button>
+            <button class="btn-secondary" onclick="fetchPlan('workout', 'follicular')" style="font-size:12px; padding:6px 10px;">🌱 Follicular Exercises</button>
+            <button class="btn-secondary" onclick="fetchPlan('workout', 'ovulation')" style="font-size:12px; padding:6px 10px;">✨ Ovulation Exercises</button>
+            <button class="btn-secondary" onclick="fetchPlan('workout', 'luteal')" style="font-size:12px; padding:6px 10px;">🍂 Luteal Exercises</button>
+          </div>
+          <div id="plansWorkoutResult" style="background:#f9f9fb; border:1px solid #ececf1; border-radius:var(--radius-sm); padding:12px; font-size:12.5px; max-height:150px; overflow-y:auto; line-height:1.5; color: var(--text-sub);">
+            Select a phase to view exercise recommendations.
+          </div>
+        </div>
+
+        <!-- Tab: Lifestyle -->
+        <div id="plansTabLifestyle" class="plans-tab-content hidden">
+          <div style="background:#f9f9fb; border:1px solid #ececf1; border-radius:var(--radius-sm); padding:14px; font-size:12.5px; line-height:1.6; display:flex; flex-direction:column; gap:10px; color: var(--text-sub);">
+            <p>💧 <strong>Water Intake:</strong> Aim for 2.0 to 2.5 Liters of water daily to support kidney function and hormonal flush.</p>
+            <p>😴 <strong>Sleep Quality:</strong> Sleep at least 7.5 to 8 hours to manage insulin resistance and lower stress (cortisol).</p>
+            <p>🍵 <strong>Spearmint & Green Tea:</strong> Drink 1–2 cups of Spearmint tea to naturally reduce free testosterone and improve hair loss/acne symptoms.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="margin-top: 16px;">
+        <button class="btn-secondary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
+      </div>
+    </div>
+
+    <!-- Modal: Mood Tracker -->
+    <div id="modal-mood" class="modal-content hidden" style="max-width: 440px;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">😊 Daily Mood Tracker</h3>
+      <div class="modal-body">
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-sub);">How are you feeling today? Select your current dominant mood:</p>
+        
+        <div id="moodChipsGroup" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+          <button type="button" class="chip" onclick="selectMoodChip(this, 'Happy')">😊 Happy</button>
+          <button type="button" class="chip" onclick="selectMoodChip(this, 'Calm')">🧘 Calm</button>
+          <button type="button" class="chip" onclick="selectMoodChip(this, 'Stressed')">😫 Stressed</button>
+          <button type="button" class="chip" onclick="selectMoodChip(this, 'Irritated')">😠 Irritated</button>
+          <button type="button" class="chip" onclick="selectMoodChip(this, 'Anxious')">😰 Anxious</button>
+          <button type="button" class="chip" onclick="selectMoodChip(this, 'Sad')">😢 Sad</button>
+          <button type="button" class="chip" onclick="selectMoodChip(this, 'Tired')">😴 Tired</button>
+        </div>
+
+        <!-- Recent Mood Trend List -->
+        <div id="moodTrendContainer" style="margin-top: 12px;">
+          <h4 style="font-size:12.5px; margin: 0 0 6px 0; color: var(--text-main); font-weight:700;">Mood History</h4>
+          <div id="moodHistoryList" style="background:#f9f9fb; border:1px solid #ececf1; border-radius:var(--radius-sm); padding:10px; font-size:12px; max-height:120px; overflow-y:auto; line-height:1.5; color: var(--text-sub);">
+            No mood entries logged yet.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitMoodLog()">Log Mood</button>
       </div>
     </div>
 
@@ -1177,8 +1380,8 @@
           </div>
           <form id="loginForm" onsubmit="handleExistingLogin(event)">
             <div class="form-group">
-              <label for="loginUsernameInput" class="form-label">Username</label>
-              <input type="text" id="loginUsernameInput" class="form-input" placeholder="Enter your username" required />
+              <label for="loginUsernameInput" class="form-label">Username or Email</label>
+              <input type="text" id="loginUsernameInput" class="form-input" placeholder="Enter username or email" required />
             </div>
             <div class="form-group">
               <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1241,13 +1444,10 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" style="display:none;">
               <label for="newUserLangInput" class="form-label">Preferred Language</label>
               <select id="newUserLangInput" class="form-input">
-                <option value="en">English</option>
-                <option value="es">Español</option>
-                <option value="hi">Hindi</option>
-                <option value="ar">Arabic</option>
+                <option value="en" selected>English</option>
               </select>
             </div>
 

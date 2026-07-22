@@ -3006,3 +3006,46 @@ button.chip.selected {
 }
 
 
+/* Product Updates Added Styles */
+.chip {
+  background: #FFFFFF;
+  border: 1px solid var(--border-strong);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all var(--duration) var(--ease);
+}
+
+.chip:hover {
+  background: #FFF0F2;
+  border-color: rgba(230, 92, 120, 0.3);
+  color: var(--brand-pink);
+}
+
+.chip.selected {
+  background: var(--brand-pink) !important;
+  border-color: var(--brand-pink) !important;
+  color: #FFFFFF !important;
+  font-weight: 600;
+  box-shadow: 0 4px 10px rgba(230, 92, 120, 0.2);
+}
+
+.tab-btn {
+  transition: all var(--duration) var(--ease);
+}
+
+.tab-btn:hover {
+  background: var(--brand-pink-light) !important;
+  color: var(--brand-pink) !important;
+}
+
+/* Custom indicator styles for predictions / timeline phases */
+.calendar-day.phase-menstrual {
+  background: #FFF0F2 !important;
+  border: 1px solid rgba(230, 92, 120, 0.15);
+}
+
+
