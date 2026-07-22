@@ -4293,14 +4293,31 @@ async function handleLabPdfUpload(event) {
       const summaryContainer = document.getElementById('labReportSummaryContainer');
       
       if (summaryText && summaryContainer) {
-        // Format bulleted summary string for clean HTML viewing
-        let formattedSummary = data.summary || "No specific items requiring immediate attention were identified.";
-        formattedSummary = formattedSummary.replace(/\n/g, '<br>');
-        summaryText.innerHTML = formattedSummary;
+        let htmlSummary = '';
+        if (data.summary) {
+          // split on bullet markers
+          const points = data.summary.split(/[•\*\-]/).map(p => p.trim()).filter(p => p.length > 0);
+          if (points.length > 0) {
+            htmlSummary = '<ul style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 14.5px; line-height: 1.6; color: var(--text-main);">';
+            points.forEach(pt => {
+              // Convert markdown bold **text** to HTML <strong>text</strong>
+              const cleanedPt = pt.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+              htmlSummary += `<li style="margin-bottom: 4px;">${cleanedPt}</li>`;
+            });
+            htmlSummary += '</ul>';
+          } else {
+            htmlSummary = `<div style="font-size:14.5px; line-height:1.6; color: var(--text-main);">${data.summary}</div>`;
+          }
+        } else {
+          htmlSummary = '<div style="font-size:14.5px; line-height:1.6; color: var(--text-main);">No specific items requiring immediate attention were identified.</div>';
+        }
+        
+        summaryText.innerHTML = htmlSummary;
         summaryContainer.classList.remove('hidden');
       }
 
-      statusLabel.textContent = `✅ Successfully analyzed "${file.name}"!`;
+      // Reset upload box label back to default prompt
+      statusLabel.textContent = `Click to select and upload report PDF`;
       showToast('🔬 PDF Diagnostics Report analyzed successfully!', 'success');
       
       // Save details to state logs
