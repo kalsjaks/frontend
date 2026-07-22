@@ -4187,13 +4187,13 @@ async function fetchPlan(type, phase) {
       const data = await response.json();
       if (type === 'diet') {
         const p = data.diet_plan || {};
-        let text = `🥦 **Focus:** \${p.focus || phase}<br><br>`;
-        if (p.foods_to_eat) text += `📌 **Foods to Include:**<br>• \${p.foods_to_eat.join('<br>• ')}<br><br>`;
-        if (p.foods_to_avoid) text += `⚠️ **Foods to Avoid:**<br>• \${p.foods_to_avoid.join('<br>• ')}<br><br>`;
-        if (p.supplements) text += `💊 **Supplements:** \${p.supplements.join(', ')}`;
+        let text = `🥦 **Focus:** ${p.focus || phase}<br><br>`;
+        if (p.foods_to_eat) text += `📌 **Foods to Include:**<br>• ${p.foods_to_eat.join('<br>• ')}<br><br>`;
+        if (p.foods_to_avoid) text += `⚠️ **Foods to Avoid:**<br>• ${p.foods_to_avoid.join('<br>• ')}<br><br>`;
+        if (p.supplements) text += `💊 **Supplements:** ${p.supplements.join(', ')}`;
         
         if (data.symptom_specific_adjustments && data.symptom_specific_adjustments.length > 0) {
-          text += `<br><br>💡 **Adjustments:**<br>• \${data.symptom_specific_adjustments.join('<br>• ')}`;
+          text += `<br><br>💡 **Adjustments:**<br>• ${data.symptom_specific_adjustments.join('<br>• ')}`;
         }
         resultDiv.innerHTML = text;
       } else {
@@ -4201,13 +4201,13 @@ async function fetchPlan(type, phase) {
         let text = `🏋️ **Phase-Synced Exercise Routine:**<br><br>`;
         if (Array.isArray(workouts)) {
           workouts.forEach(w => {
-            text += `• **\${w.name}** (\${w.duration || '20m'}, Intensity: \${w.intensity}) — *\${w.benefit}*<br>`;
+            text += `• **${w.name}** (${w.duration || '20m'}, Intensity: ${w.intensity}) — *${w.benefit}*<br>`;
           });
         } else if (workouts.type) {
-          text += `• **\${workouts.type}** — *\${workouts.description || ''}*<br>`;
+          text += `• **${workouts.type}** — *${workouts.description || ''}*<br>`;
         }
         if (data.bmi_note) {
-          text += `<br>📋 **BMI Guidance:** \${data.bmi_note}`;
+          text += `<br>📋 **BMI Guidance:** ${data.bmi_note}`;
         }
         resultDiv.innerHTML = text;
       }
