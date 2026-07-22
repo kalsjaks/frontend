@@ -2095,17 +2095,17 @@ function runLocalChatbotFallback(question, documents = []) {
 
   // Common keywords matched locally
   if (q === 'hi' || q === 'hello' || q === 'hey' || q === 'hola' || q === 'yo' || q.includes('who are you')) {
-    answer = `Hello! 👋 I'm **Bloom**, your personalized **BloomWell PCOS/PMOS** assistant.\n\n` +
+    answer = `Hello! 👋 I'm **Bloom**, your personalized **BloomWell PCOS** assistant.\n\n` +
              `I'm currently running in **Local Offline Mode** (due to a temporary server connection issue).\n\n` +
              `However, I can still help you! Ask me about:\n` +
-             `- 🌿 **PCOS/PMOS Symptoms** (e.g., sugar cravings, acne, fatigue, period pain)\n` +
-             `- 🥗 **PCOS/PMOS Diet & Supplements** (e.g., low GI diet, Inositol, spearmint tea)\n` +
+             `- 🌿 **PCOS Symptoms** (e.g., sugar cravings, acne, fatigue, period pain)\n` +
+             `- 🥗 **PCOS Diet & Supplements** (e.g., low GI diet, Inositol, spearmint tea)\n` +
              `- 🏋️ **Cycle-Synced Exercises** (e.g., resistance training, slow-paced cardio)\n` +
              `- 📊 **Your Health Report** (e.g., how to analyze logs)`;
   }
   else if (q.includes('diet') || q.includes('food') || q.includes('eat') || q.includes('nutrition') || q.includes('sugar') || q.includes('cravings') || q.includes('supplement') || q.includes('inositol')) {
-    answer = `🥗 **PCOS/PMOS Nutrition & Diet Guidelines (Local Offline):**\n\n` +
-             `Managing PCOS/PMOS involves supporting insulin sensitivity and reducing inflammation:\n\n` +
+    answer = `🥗 **PCOS Nutrition & Diet Guidelines (Local Offline):**\n\n` +
+             `Managing PCOS involves supporting insulin sensitivity and reducing inflammation:\n\n` +
              `1. **Low Glycemic Index (GI) Foods:** Focus on complex carbs like quinoa, oats, brown rice, and non-starchy vegetables. Avoid refined sugars and white flour to prevent insulin spikes.\n` +
              `2. **High Protein & Healthy Fats:** Pair carbs with lean proteins (tofu, chicken, fish) and healthy fats (avocado, nuts, olive oil) to stabilize blood sugar.\n` +
              `3. **Anti-inflammatory Diet:** Incorporate berries, leafy greens, fatty fish, and turmeric to lower systemic inflammation.\n` +
@@ -2123,7 +2123,7 @@ function runLocalChatbotFallback(question, documents = []) {
              `4. **Luteal Phase (Days 16-28):** Progesterone dominant. Shift from high-intensity to strength training, slow weighted workouts, or hiking. In the late luteal phase, dial down to low-intensity steady-state (LISS) cardio to prevent cortisol spikes.`;
   }
   else if (q.includes('symptom') || q.includes('acne') || q.includes('hair') || q.includes('fatigue') || q.includes('weight') || q.includes('period') || q.includes('cramp') || q.includes('pain') || q.includes('mood') || q.includes('clot')) {
-    answer = `🌿 **PCOS/PMOS Symptom Management (Local Offline):**\n\n` +
+    answer = `🌿 **PCOS Symptom Management (Local Offline):**\n\n` +
              `Here is a breakdown of common symptoms and how to address them:\n\n` +
              `1. **Sugar Cravings & Weight:** Cravings are often caused by insulin resistance. Avoid skipping meals, eat protein-rich breakfasts, and consider Inositol.\n` +
              `2. **Hormonal Acne & Hair Loss:** Driven by high androgen (male hormone) levels. Spearmint tea and zinc supplements can help block androgens naturally.\n` +

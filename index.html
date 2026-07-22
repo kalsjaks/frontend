@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BloomWell PCOS/PMOS — Premium PCOS/PMOS Wellness Platform</title>
-  <meta name="description" content="Manage your PCOS/PMOS symptoms, log periods, track medications, and ask AI health questions using BloomWell PCOS/PMOS." />
+  <title>BloomWell PCOS — Premium PCOS Wellness Platform</title>
+  <meta name="description" content="Manage your PCOS symptoms, log periods, track medications, and ask AI health questions using BloomWell PCOS." />
 
   <!-- Open Graph / Facebook Link Sharing Preview -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.femcarepcos.com/" />
-  <meta property="og:title" content="BloomWell PCOS/PMOS — Premium PCOS/PMOS Wellness Platform" />
-  <meta property="og:description" content="Manage your PCOS/PMOS symptoms, log periods, track medications, and get evidence-based insights using BloomWell PCOS/PMOS." />
+  <meta property="og:title" content="BloomWell PCOS — Premium PCOS Wellness Platform" />
+  <meta property="og:description" content="Manage your PCOS symptoms, log periods, track medications, and get evidence-based insights using BloomWell PCOS." />
   <meta property="og:image" content="https://www.femcarepcos.com/dashboard_hero_sharing.jpg" />
 
   <!-- Twitter Card Link Sharing Preview -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://www.femcarepcos.com/" />
-  <meta property="twitter:title" content="BloomWell PCOS/PMOS — Premium PCOS/PMOS Wellness Platform" />
-  <meta property="twitter:description" content="Manage your PCOS/PMOS symptoms, log periods, track medications, and get evidence-based insights using BloomWell PCOS/PMOS." />
+  <meta property="twitter:title" content="BloomWell PCOS — Premium PCOS Wellness Platform" />
+  <meta property="twitter:description" content="Manage your PCOS symptoms, log periods, track medications, and get evidence-based insights using BloomWell PCOS." />
   <meta property="twitter:image" content="https://www.femcarepcos.com/dashboard_hero_sharing.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -44,7 +44,7 @@
     <header class="app-header">
       <div class="header-brand" onclick="switchView('home')" style="cursor: pointer;" title="Go to Home Dashboard">
         <span class="brand-logo">🌸</span>
-        <span class="brand-name">BloomWell PCOS/PMOS</span>
+        <span class="brand-name">BloomWell PCOS</span>
       </div>
       <div class="header-actions">
         <!-- Logged Out actions -->
@@ -374,11 +374,11 @@
             <div style="display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden;">
               <span class="suggestions-label">Try asking:</span>
               <div class="suggestions-scroll">
-                <button class="suggestion-chip" onclick="useSuggestion(this)">What causes PCOS/PMOS?</button>
-                <button class="suggestion-chip" onclick="useSuggestion(this)">How does insulin resistance relate to PCOS/PMOS?</button>
-                <button class="suggestion-chip" onclick="useSuggestion(this)">What foods should I avoid with PCOS/PMOS?</button>
-                <button class="suggestion-chip" onclick="useSuggestion(this)">Can PCOS/PMOS be reversed naturally?</button>
-                <button class="suggestion-chip" onclick="useSuggestion(this)">Best exercises for PCOS/PMOS?</button>
+                <button class="suggestion-chip" onclick="useSuggestion(this)">What causes PCOS?</button>
+                <button class="suggestion-chip" onclick="useSuggestion(this)">How does insulin resistance relate to PCOS?</button>
+                <button class="suggestion-chip" onclick="useSuggestion(this)">What foods should I avoid with PCOS?</button>
+                <button class="suggestion-chip" onclick="useSuggestion(this)">Can PCOS be reversed naturally?</button>
+                <button class="suggestion-chip" onclick="useSuggestion(this)">Best exercises for PCOS?</button>
               </div>
             </div>
           </div>
@@ -393,7 +393,7 @@
                   placeholder="Ask a question about PCOS..."
                   rows="1"
                   maxlength="1000"
-                  aria-label="Your PCOS/PMOS question"
+                  aria-label="Your PCOS question"
                 ></textarea>
                 <button class="send-button" id="sendBtn" onclick="sendQuestion()" aria-label="Send question">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -454,11 +454,11 @@
             </div>
 
             <div class="form-group">
-              <label for="profilePcosInput" class="form-label">PCOS/PMOS Classification</label>
+              <label for="profilePcosInput" class="form-label">PCOS Classification</label>
               <select id="profilePcosInput" class="form-input">
-                <option value="Insulin Resistant">Insulin Resistant PCOS/PMOS</option>
-                <option value="Inflammatory">Inflammatory PCOS/PMOS</option>
-                <option value="Adrenal">Adrenal PCOS/PMOS (Post-pill)</option>
+                <option value="Insulin Resistant">Insulin Resistant PCOS</option>
+                <option value="Inflammatory">Inflammatory PCOS</option>
+                <option value="Adrenal">Adrenal PCOS (Post-pill)</option>
                 <option value="Thyroid-induced">Thyroid-induced / Metabolic</option>
                 <option value="Not Sure">Not Sure / General Support</option>
               </select>
@@ -511,7 +511,7 @@
           <div class="settings-danger-zone">
             <h3 class="danger-title">Account Actions</h3>
             <p class="danger-text">Logging out will clear your local sessions and personalized information.</p>
-            <button onclick="handleLogout()" class="settings-btn-logout">Logout from BloomWell PCOS/PMOS</button>
+            <button onclick="handleLogout()" class="settings-btn-logout">Logout from BloomWell PCOS</button>
           </div>
         </div>
       </div>
@@ -567,7 +567,7 @@
 
               <div class="dost-tip-box">
                 <p class="dost-tip-text">
-                  "Bloom Tip: Tracking the exact start and end helps identify ovulation windows for PCOS/PMOS management."
+                  "Bloom Tip: Tracking the exact start and end helps identify ovulation windows for PCOS management."
                 </p>
               </div>
             </div>
@@ -788,7 +788,7 @@
                 <div id="snapName" style="font-size:15px; font-weight:750; color:var(--text-main); margin-top:2px;">Lakshmi</div>
               </div>
               <div>
-                <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">PCOS/PMOS Type</span>
+                <span style="font-size:11.5px; color:var(--text-muted); font-weight:600; text-transform:uppercase;">PCOS Type</span>
                 <div id="snapPcos" style="font-size:15px; font-weight:750; color:var(--text-main); margin-top:2px;">Yes</div>
               </div>
               <div>
@@ -894,7 +894,7 @@
               🔍 Clinical AI Health Assessment
             </h3>
             <p style="font-size:13.5px; color:var(--text-sub); margin-bottom:18px;">
-              Evaluate your logged symptoms, periods history, and vitals to identify if your PCOS/PMOS symptoms warrant a medical consultation or if lifestyle adjustments are sufficient.
+              Evaluate your logged symptoms, periods history, and vitals to identify if your PCOS symptoms warrant a medical consultation or if lifestyle adjustments are sufficient.
             </p>
             <button class="period-save-btn" id="analyzeHealthBtn" style="background:#8C2D3B; width: auto; min-width: 200px;" onclick="generateAIHealthCondition()">
               Analyze My Health Condition
@@ -960,7 +960,7 @@
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
       <h3 class="modal-title">🌸 Log Menstrual Period</h3>
       <div class="modal-body">
-        <p style="margin-bottom: 12px;">Keeping track of your flow helps Sahaya identify PCOS/PMOS patterns and hormone spikes.</p>
+        <p style="margin-bottom: 12px;">Keeping track of your flow helps Sahaya identify PCOS patterns and hormone spikes.</p>
         <div class="form-group">
           <label class="form-label">When did your last period start?</label>
           <input type="date" id="periodStartDate" class="form-input" />
@@ -1123,7 +1123,7 @@
             <span class="user-display-name" style="font-weight:700; color:var(--brand-green);">Lakshmi</span>
           </div>
           <div style="background:var(--bg-app); padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:600; font-size:13px;">PCOS/PMOS Classification:</span>
+            <span style="font-weight:600; font-size:13px;">PCOS Classification:</span>
             <span id="summaryPcosType" style="font-weight:700;">Not Sure</span>
           </div>
           <div style="background:var(--bg-app); padding:12px; border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
@@ -1198,7 +1198,7 @@
         <!-- C. SETUP SCREEN (New User Setup Wizard) -->
         <div id="authSetupScreen" class="auth-sub-screen hidden">
           <div class="auth-form-header">
-            <h1 class="auth-form-title">Welcome to PCOS/PMOS Care</h1>
+            <h1 class="auth-form-title">Welcome to PCOS Care</h1>
             <p class="auth-form-subtitle">Let's set up your profile in 2 minutes.</p>
           </div>
           <form id="setupForm" onsubmit="handleNewUserSetup(event)" autocomplete="off">
@@ -1223,7 +1223,7 @@
             </div>
 
             <div class="form-group">
-              <label class="form-label">Do you have PCOS/PMOS?</label>
+              <label class="form-label">Do you have PCOS?</label>
               <div class="chip-group single-select" id="pcosStatusGroup">
                 <button type="button" class="chip selected" onclick="selectChip(this, 'pcosStatusGroup')">Yes</button>
                 <button type="button" class="chip" onclick="selectChip(this, 'pcosStatusGroup')">Suspected</button>
@@ -1304,9 +1304,9 @@
     <!-- Modal: About Us -->
     <div id="modal-about" class="modal-content hidden" style="max-width: 500px; padding: 28px 32px;">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
-      <h3 class="modal-title">🌸 About BloomWell PCOS/PMOS</h3>
+      <h3 class="modal-title">🌸 About BloomWell PCOS</h3>
       <div class="modal-body" style="line-height: 1.6; color: var(--text-sub); display: flex; flex-direction: column; gap: 16px; font-size: 14.5px;">
-        <p><strong>BloomWell PCOS/PMOS</strong> is a premium wellness companion built to provide empathetic, cycle-synced support for women navigating PCOS and PMOS journeys.</p>
+        <p><strong>BloomWell PCOS</strong> is a premium wellness companion built to provide empathetic, cycle-synced support for women navigating PCOS journeys.</p>
         
         <p>Our platform combines simple everyday tracking tools with evidence-based intelligence to make managing your symptoms intuitive and stress-free:</p>
         
