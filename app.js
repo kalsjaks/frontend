@@ -4111,19 +4111,61 @@ function switchPlansTab(tab) {
   });
 }
 
-// Local static fallback maps for offline mode or fallback
+// Local static fallback maps for offline mode or fallback (Highly detailed clinical profiles)
 const LOCAL_DIET_PLANS = {
-  menstrual: "🍲 **Menstrual Phase Diet:** Focus on iron-rich foods (leafy greens, lean meats, beans) to replenish loss. Drink warm ginger tea for cramps and avoid cold/raw foods.",
-  follicular: "🥗 **Follicular Phase Diet:** Incorporate light, fresh foods. Focus on steamed broccoli, sprouts, fermented foods, and healthy fats like pumpkin seeds to support follicle development.",
-  ovulation: "✨ **Ovulation Phase Diet:** Focus on anti-inflammatory berries, quinoa, avocado, and cruciferous vegetables. Keep hydration high to flush excess estrogen.",
-  luteal: "🍂 **Luteal Phase Diet:** Eat magnesium-rich foods (dark chocolate, spinach, bananas) to reduce PMS and cravings. Prioritize complex carbs (sweet potato, oats) to sustain energy."
+  menstrual: `🍲 **Menstrual Phase Diet (Focus: Iron & Anti-Inflammatory Support)**<br><br>` +
+             `During menstruation, estrogen and progesterone are low. Focus on replenishing mineral reserves, reducing cramp-inducing prostaglandin, and maintaining gentle digestion:<br>` +
+             `• 🥬 **Foods to Eat:** Iron-rich dark leafy greens (spinach, kale), beetroot, grass-fed lean beef, lentils, kidney beans. Pair with Vitamin C (citrus, bell peppers) to boost absorption.<br>` +
+             `• 🍵 **Anti-Inflammatory Beverages:** Drink hot ginger, red raspberry leaf, or chamomile teas to calm muscle contractions.<br>` +
+             `• 🍫 **Cravings Control:** Select 70%+ dark chocolate (provides essential magnesium for uterine relaxation) and pumpkin/flax seeds.<br>` +
+             `• ⚠️ **Avoid:** Excess sodium (prevents bloating), cold beverages, dairy, and refined sugar (triggers systemic inflammation).<br>` +
+             `• 💊 **Supplements:** Iron (as glycinate), Magnesium (300-400mg), Vitamin C, Omega-3 fatty acids.`,
+             
+  follicular: `🥗 **Follicular Phase Diet (Focus: Estrogen Metabolism & Healthy Maturation)**<br><br>` +
+              `Estrogen is rising to mature follicles. Focus on supportive light proteins, seed cycling, and gut/liver detoxification to filter excess hormones:<br>` +
+              `• 🥦 **Foods to Eat:** Cruciferous vegetables (broccoli, cabbage, cauliflower, Brussels sprouts) containing Indole-3-Carbinol for healthy estrogen clearance.<br>` +
+              `• 🌱 **Seed Cycling:** 1–2 tbsp of raw pumpkin and flax seeds daily (provides phytoestrogens and zinc to regulate follicle growth).<br>` +
+              `• 🍣 **Gut & Hormonal Health:** Organic sprouted grains, lentils, wild-caught salmon, trout, avocado, and probiotic-rich foods (Greek yogurt, sauerkraut, kefir).<br>` +
+              `• ⚠️ **Avoid:** Simple/refined white carbohydrates, excessive alcohol (impairs liver detoxification pathways), and processed meats.<br>` +
+              `• 💊 **Supplements:** Vitamin B-Complex, Zinc (15-30mg), high-quality Probiotics.`,
+              
+  ovulation: `✨ **Ovulation Phase Diet (Focus: Peak Energy, Anti-Oxidants & Libido)**<br><br>` +
+             `Luteinizing hormone (LH) and estrogen peak. Energy is high. Focus on cell health, high fiber for estrogen excretion, and light but nutrient-dense foods:<br>` +
+             `• 🍇 **Foods to Eat:** Antioxidant-rich berries (blackberries, blueberries, raspberries), citrus fruits, quinoa, amaranth, wild salmon, and pasture-raised eggs (choline for follicular fluid).<br>` +
+             `• 🥜 **Healthy Fats & Seeds:** Pumpkin seeds, sesame seeds, almonds, walnuts, and extra virgin olive oil.<br>` +
+             `• 🥑 **Fiber-Rich Plates:** Chia seeds, flaxseeds, and dark leafy salads to bind and eliminate metabolised estrogens via bowels.<br>` +
+             `• ⚠️ **Avoid:** Inflammatory refined oils, excessive caffeine, and heavy dairy which can cause hormonal congestion.<br>` +
+             `• 💊 **Supplements:** CoQ10 (supports egg quality), Vitamin D3/K2, Zinc.`,
+             
+  luteal: `🍂 **Luteal Phase Diet (Focus: Progesterone Production, Mood & Blood Sugar Stability)**<br><br>` +
+          `Progesterone rises to build uterine lining. Metabolism speeds up, meaning appetite increases. Focus on complex slow-burning carbs to prevent glucose spikes and support serotonin:<br>` +
+          `• 🍠 **Foods to Eat:** Complex starchy carbohydrates (sweet potatoes, butternut squash, carrots, brown rice, oats) to prevent sugar crashes.<br>` +
+          `• 🍌 **PMS Prevention:** Bananas, turkey, chickpeas (rich in Vitamin B6 which helps make progesterone and dopamine).<br>` +
+          `• 🌰 **Seed Cycling:** Switch to 1–2 tbsp of sunflower and sesame seeds daily (provides lignans and selenium for progesterone support).<br>` +
+          `• ⚠️ **Avoid:** Caffeine (worsens breast tenderness and anxiety), simple sugars (causes mood swings and acne flare-ups).<br>` +
+          `• 💊 **Supplements:** Magnesium glycinate (promotes calm and sleep), Vitamin B6 (50mg), Evening Primrose Oil.`
 };
 
 const LOCAL_WORKOUT_PLANS = {
-  menstrual: "🧘 **Menstrual Exercises:** Limit intensity. Perform gentle restorative yoga (Balasana/Child's Pose, Supta Baddha Konasana) and light walking.",
-  follicular: "🏃 **Follicular Exercises:** Energy is rising. Good time for weight training, brisk jogging, Pilates, and light HIIT.",
-  ovulation: "⚡ **Ovulation Exercises:** Peak energy phase. Engage in high-intensity workouts, heavy strength training, or challenging cardiovascular runs.",
-  luteal: "🚶 **Luteal Exercises:** Transition to low-intensity strength training, steady state cardio, or hiking. Switch to yin yoga in the late luteal phase."
+  menstrual: `🧘 **Menstrual Phase Exercises (Focus: Restoration & Gentle Flow)**<br><br>` +
+             `Listen to your body. Intense exercise raises cortisol, which can disrupt cycle regulation during bleeding:<br>` +
+             `• **Recommended Activities:** Slow walking (20-30 min), light yoga stretches (Balasana/Child's Pose, Supta Baddha Konasana/Bound Angle, Viparita Karani/Legs-Up-The-Wall).<br>` +
+             `• **Intensity:** Very Low. Avoid inversions, intense abdominal strain, or hot yoga.`,
+             
+  follicular: `🏃 **Follicular Phase Exercises (Focus: Strength Building & Cardio)**<br><br>` +
+              `Estrogen is rising, which improves energy, muscle repair, and pain tolerance:<br>` +
+              `• **Recommended Activities:** Resistance training (light weights/progressive overload), pilates, dance cardio, medium-intensity runs or cycling.<br>` +
+              `• **Intensity:** Moderate to High. Great time to challenge muscles and build lean mass.`,
+              
+  ovulation: `⚡ **Ovulation Phase Exercises (Focus: High Intensity & Peak Strength)**<br><br>` +
+             `Estrogen and testosterone are at their maximum, providing peak athletic stamina:<br>` +
+             `• **Recommended Activities:** High-Intensity Interval Training (HIIT), heavy weightlifting sessions, spin classes, or group bootcamps.<br>` +
+             `• **Intensity:** High. Make sure to warm up properly as high estrogen can make ligaments slightly looser/prone to injury.`,
+             
+  luteal: `🚶 **Luteal Phase Exercises (Focus: Fat Burning & Active Recovery)**<br><br>` +
+          `Progesterone is elevated, raising body temperature and heart rate. Focus on slow-burn cardio and nervous system regulation:<br>` +
+          `• **Recommended Activities:** Pilates, strength training with higher reps/lower weights, swimming, and yin yoga/mindful breathing in the late luteal phase.<br>` +
+          `• **Intensity:** Moderate transitioning to Low. Avoid pushing to exhaustion to prevent adrenal fatigue.`
 };
 
 async function fetchPlan(type, phase) {
@@ -4145,16 +4187,29 @@ async function fetchPlan(type, phase) {
       const data = await response.json();
       if (type === 'diet') {
         const p = data.diet_plan || {};
-        let text = `🥦 **Focus:** ${p.focus || phase}\n\n`;
-        if (p.foods) text += `📌 **Foods:** ${p.foods.join(', ')}\n\n`;
-        if (p.avoid) text += `⚠️ **Avoid:** ${p.avoid.join(', ')}`;
-        resultDiv.innerHTML = text.replace(/\n/g, '<br>');
+        let text = `🥦 **Focus:** \${p.focus || phase}<br><br>`;
+        if (p.foods_to_eat) text += `📌 **Foods to Include:**<br>• \${p.foods_to_eat.join('<br>• ')}<br><br>`;
+        if (p.foods_to_avoid) text += `⚠️ **Foods to Avoid:**<br>• \${p.foods_to_avoid.join('<br>• ')}<br><br>`;
+        if (p.supplements) text += `💊 **Supplements:** \${p.supplements.join(', ')}`;
+        
+        if (data.symptom_specific_adjustments && data.symptom_specific_adjustments.length > 0) {
+          text += `<br><br>💡 **Adjustments:**<br>• \${data.symptom_specific_adjustments.join('<br>• ')}`;
+        }
+        resultDiv.innerHTML = text;
       } else {
-        const p = data.workouts || {};
-        let text = `🏋️ **Activity:** ${p.type || phase}\n\n`;
-        if (p.description) text += `📝 **Detail:** ${p.description}\n\n`;
-        if (p.poses) text += `🧘 **Yoga Poses:** ${p.poses.join(', ')}`;
-        resultDiv.innerHTML = text.replace(/\n/g, '<br>');
+        const workouts = data.workouts || [];
+        let text = `🏋️ **Phase-Synced Exercise Routine:**<br><br>`;
+        if (Array.isArray(workouts)) {
+          workouts.forEach(w => {
+            text += `• **\${w.name}** (\${w.duration || '20m'}, Intensity: \${w.intensity}) — *\${w.benefit}*<br>`;
+          });
+        } else if (workouts.type) {
+          text += `• **\${workouts.type}** — *\${workouts.description || ''}*<br>`;
+        }
+        if (data.bmi_note) {
+          text += `<br>📋 **BMI Guidance:** \${data.bmi_note}`;
+        }
+        resultDiv.innerHTML = text;
       }
     } else {
       throw new Error("Backend failed");
@@ -4162,7 +4217,7 @@ async function fetchPlan(type, phase) {
   } catch (e) {
     console.warn("Using local offline fallback for plans:", e);
     const planText = type === 'diet' ? LOCAL_DIET_PLANS[phase] : LOCAL_WORKOUT_PLANS[phase];
-    resultDiv.innerHTML = planText.replace(/\n/g, '<br>');
+    resultDiv.innerHTML = planText;
   }
 }
 
