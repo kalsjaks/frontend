@@ -526,7 +526,7 @@ function toggleChatVoiceInput() {
     chatSpeechRecognition = new SpeechRecognition();
     chatSpeechRecognition.continuous = false;
     chatSpeechRecognition.interimResults = false;
-    chatSpeechRecognition.lang = langSelect ? langSelect.value : 'en-US';
+    chatSpeechRecognition.lang = selectedChatLanguage || (langSelect ? langSelect.value : 'en-US');
 
     chatSpeechRecognition.onstart = () => {
       isChatListening = true;
@@ -864,6 +864,25 @@ function toggleApiKeyPlaceholder() {
   }
 }
 
+}
+
+// ── Chat Reset Helper ─────────────────────────────────────────
+function resetChat() {
+  const messagesArea = document.getElementById('messagesArea');
+  if (messagesArea) {
+    messagesArea.innerHTML = `
+      <div class="message-row bot-row">
+        <div class="message-avatar">🌸</div>
+        <div class="message-bubble bot-bubble">
+          <div class="message-text">Hello! I am your PCOS Dost. What questions do you have about managing PCOS?</div>
+        </div>
+      </div>
+    `;
+  }
+  const questionInput = document.getElementById('questionInput');
+  if (questionInput) questionInput.value = '';
+}
+
 // ── View Switching (Router) ───────────────────────────────────
 function switchView(viewName, isBack = false) {
   // Navigation history tracking
@@ -899,6 +918,9 @@ function switchView(viewName, isBack = false) {
     const tab = document.getElementById('tab-chat');
     if (tab) tab.classList.add('active');
     
+    // Always refresh Ask Bloom with clean state and no saved history when starting fresh
+    resetChat();
+
     // Reset suggestions bar visibility so the custom language selector is visible
     suggestionsHidden = false;
     if (suggestionsBar) {
@@ -2452,7 +2474,7 @@ async function sendQuestion() {
   // Show typing indicator
   const typingId = appendTypingIndicator();
 
-  const selectedLang = document.getElementById('speechLanguageSelect')?.value || 'en-US';
+  const selectedLang = selectedChatLanguage || document.getElementById('speechLanguageSelect')?.value || 'en-US';
   const langCode = selectedLang.split('-')[0].toLowerCase();
 
   // 1. Translate query to English if non-English
@@ -2792,7 +2814,7 @@ function appendBotMessage(data) {
   const row = document.createElement('div');
   row.className = 'message-row bot-row';
   
-  const selectedLang = document.getElementById('speechLanguageSelect')?.value || 'en-US';
+  const selectedLang = selectedChatLanguage || document.getElementById('speechLanguageSelect')?.value || 'en-US';
   const cleanText = cleanMarkdownForTTS(answer);
 
   row.innerHTML = `
@@ -4107,6 +4129,8 @@ function toggleVoiceAssistantWidget() {
 }
 
 // ── Custom Language Dropdown Logic (Redesigned Chat Interface) ──────────────────
+let selectedChatLanguage = 'en-US';
+
 function toggleCustomDropdown(event) {
   event.stopPropagation();
   const menu = document.getElementById('customDropdownMenu');
@@ -4118,7 +4142,9 @@ function toggleCustomDropdown(event) {
 function selectCustomLanguage(langCode, displayName, event) {
   if (event) event.stopPropagation();
 
-  // Update hidden native select
+  selectedChatLanguage = langCode;
+
+  // Update hidden native select if present
   const nativeSelect = document.getElementById('speechLanguageSelect');
   if (nativeSelect) {
     nativeSelect.value = langCode;
