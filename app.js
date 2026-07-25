@@ -48,6 +48,7 @@ let state = {
     lab: 'Log your blood work',
     meds: 'Manage your daily dose'
   },
+  localPeriodLogs: [],
   vitalsData: {
     water: 2.0,
     sleep: 7.5,
@@ -143,7 +144,9 @@ async function syncUserLogs(userId) {
     const { data: periods } = await sb.from('period_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1);
     if (periods && periods.length > 0) {
       const p = periods[0];
-      state.logs.period = `Last log: ${p.start_date} (Flow: ${p.flow_intensity})`;
+      const sF = formatDDMonYYYY(p.start_date);
+      const eF = p.end_date ? formatDDMonYYYY(p.end_date) : null;
+      state.logs.period = eF ? `Last log: ${sF} to ${eF} (Flow: ${p.flow_intensity})` : `Last log: ${sF} (Flow: ${p.flow_intensity})`;
     } else {
       state.logs.period = 'Last log: 28 days ago';
     }
@@ -327,6 +330,32 @@ async function initApp() {
   updateUIFromState();
 }
 
+function formatDDMonYYYY(dateInput) {
+  if (!dateInput) return '-';
+  let d;
+  if (dateInput instanceof Date) {
+    d = dateInput;
+  } else if (typeof dateInput === 'string') {
+    const parts = dateInput.split('T')[0].split('-');
+    if (parts.length === 3) {
+      d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    } else {
+      d = new Date(dateInput);
+    }
+  } else {
+    d = new Date(dateInput);
+  }
+
+  if (!d || isNaN(d.getTime())) return '-';
+
+  const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = monthNamesShort[d.getMonth()];
+  const year = d.getFullYear();
+
+  return `${day}-${month}-${year}`;
+}
+
 function renderCalendar() {
   const monthYearEl = document.getElementById('calendarMonthYear');
   const gridEl = document.getElementById('calendarDaysGrid');
@@ -352,14 +381,6 @@ function renderCalendar() {
     gridEl.appendChild(emptyCell);
   }
 
-  // Get latest period start date
-  let lastPeriodStart = null;
-  if (selectedPeriodDates.size > 0) {
-    const sorted = Array.from(selectedPeriodDates).sort();
-    lastPeriodStart = new Date(sorted[0]);
-  }
-  const cycleLength = state.user.cycleLength || 28;
-
   for (let day = 1; day <= lastDay; day++) {
     const dayCell = document.createElement('div');
     dayCell.className = 'calendar-day';
@@ -367,41 +388,9 @@ function renderCalendar() {
 
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     
-    // Check if cell is a logged period date
+    // Check if cell is a selected period date
     if (selectedPeriodDates.has(dateStr)) {
       dayCell.classList.add('selected');
-    } else if (lastPeriodStart) {
-      // Calculate cycle phase relative to last period start
-      const cellDate = new Date(year, month, day);
-      const diffTime = cellDate - lastPeriodStart;
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays >= 0) {
-        const cycleDay = (diffDays % cycleLength) + 1;
-        
-        if (cycleDay >= 6 && cycleDay <= 9) {
-          // Follicular phase (light green)
-          dayCell.style.background = '#d4edda';
-          dayCell.style.color = '#155724';
-        } else if (cycleDay >= 10 && cycleDay <= 16) {
-          // Fertile Window / Ovulation
-          if (cycleDay === 14) {
-            // Ovulation Day
-            dayCell.style.background = '#28a745';
-            dayCell.style.color = '#ffffff';
-            dayCell.style.fontWeight = 'bold';
-            dayCell.style.border = '1px solid #1e7e34';
-            const dot = document.createElement('span');
-            dot.textContent = ' •';
-            dot.style.color = '#fff';
-            dayCell.appendChild(dot);
-          } else {
-            // Fertile Window
-            dayCell.style.background = '#c3e6cb';
-            dayCell.style.color = '#155724';
-          }
-        }
-      }
     }
 
     dayCell.onclick = () => {
@@ -424,25 +413,93 @@ function nextMonth() {
   renderCalendar();
 }
 
-function handleCalendarDateClick(dateStr) {
-  if (selectedPeriodDates.size === 0) {
-    const baseDate = new Date(dateStr);
-    for (let i = 0; i < 5; i++) {
-      const tempDate = new Date(baseDate);
-      tempDate.setDate(baseDate.getDate() + i);
-      
-      const y = tempDate.getFullYear();
-      const m = String(tempDate.getMonth() + 1).padStart(2, '0');
-      const d = String(tempDate.getDate()).padStart(2, '0');
-      selectedPeriodDates.add(`${y}-${m}-${d}`);
-    }
-  } else {
-    if (selectedPeriodDates.has(dateStr)) {
-      selectedPeriodDates.delete(dateStr);
+function updateSelectedPeriodDatesFromInputs(startStr, endStr) {
+  selectedPeriodDates.clear();
+  if (startStr && endStr) {
+    let d = new Date(startStr);
+    const endD = new Date(endStr);
+    if (d <= endD) {
+      while (d <= endD) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        selectedPeriodDates.add(`${y}-${m}-${day}`);
+        d.setDate(d.getDate() + 1);
+      }
     } else {
+      selectedPeriodDates.add(startStr);
+    }
+  } else if (startStr) {
+    selectedPeriodDates.add(startStr);
+  }
+}
+
+function validatePeriodDates(start, end) {
+  if (!start) {
+    showToast('⚠️ Please select Start Date.', 'error');
+    return false;
+  }
+  if (!end) {
+    showToast('⚠️ Please select End Date', 'error');
+    return false;
+  }
+
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+
+  if (startDate > today) {
+    showToast('⚠️ Start Date cannot be in the future.', 'error');
+    return false;
+  }
+
+  if (endDate > today) {
+    showToast('⚠️ End Date cannot be in the future.', 'error');
+    return false;
+  }
+
+  if (startDate > endDate) {
+    showToast('⚠️ Invalid Sequence: Start Date cannot be later than End Date. End Date must be after Start Date.', 'error');
+    return false;
+  }
+
+  return true;
+}
+
+let cycleRangeStart = null;
+let cycleRangeEnd = null;
+
+function handleCalendarDateClick(dateStr) {
+  if (!cycleRangeStart || (cycleRangeStart && cycleRangeEnd)) {
+    // Click 1: Select Start Date
+    cycleRangeStart = dateStr;
+    cycleRangeEnd = null;
+    selectedPeriodDates.clear();
+    selectedPeriodDates.add(dateStr);
+  } else if (cycleRangeStart && !cycleRangeEnd) {
+    // Click 2: Select End Date
+    if (dateStr >= cycleRangeStart) {
+      cycleRangeEnd = dateStr;
+      selectedPeriodDates.clear();
+      let d = new Date(cycleRangeStart);
+      const endD = new Date(cycleRangeEnd);
+      while (d <= endD) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        selectedPeriodDates.add(`${y}-${m}-${day}`);
+        d.setDate(d.getDate() + 1);
+      }
+    } else {
+      // Clicked date is earlier than cycleRangeStart, set as new Start Date
+      cycleRangeStart = dateStr;
+      cycleRangeEnd = null;
+      selectedPeriodDates.clear();
       selectedPeriodDates.add(dateStr);
     }
   }
+
   renderCalendar();
 }
 
@@ -865,6 +922,8 @@ function switchView(viewName, isBack = false) {
     
     // Clear calendar state and render
     selectedPeriodDates.clear();
+    cycleRangeStart = null;
+    cycleRangeEnd = null;
     currentCalendarDate = new Date();
     renderCalendar();
 
@@ -1402,15 +1461,30 @@ function closeModalOnOverlay(e) {
 
 // Submit logs
 async function submitPeriodLog() {
-  const start = document.getElementById('periodStartDate').value;
+  const start = document.getElementById('periodStartDate').value || new Date().toISOString().split('T')[0];
+  const endInput = document.getElementById('periodEndDate');
+  const end = endInput && endInput.value ? endInput.value : start;
   const flow = document.getElementById('periodFlow').value;
 
-  if (!start) {
-    showToast('⚠️ Please select a period start date.', 'error');
-    return;
+  const sF = formatDDMonYYYY(start);
+  const eF = formatDDMonYYYY(end);
+  state.logs.period = `Last log: ${sF} to ${eF} (Flow: ${flow})`;
+
+  if (!state.localPeriodLogs) state.localPeriodLogs = [];
+  const logObj = {
+    id: Date.now(),
+    start_date: start,
+    end_date: end,
+    flow_intensity: flow,
+    created_at: new Date().toISOString()
+  };
+  const existingIdx = state.localPeriodLogs.findIndex(l => l.start_date === start);
+  if (existingIdx >= 0) {
+    state.localPeriodLogs[existingIdx] = logObj;
+  } else {
+    state.localPeriodLogs.unshift(logObj);
   }
 
-  state.logs.period = `Last log: ${start} (Flow: ${flow})`;
   saveState();
   updateUIFromState();
   closeActiveModal();
@@ -1419,6 +1493,7 @@ async function submitPeriodLog() {
     const { error } = await sb.from('period_logs').insert({
       user_id: state.user.id,
       start_date: start,
+      end_date: end,
       flow_intensity: flow
     });
     if (error) console.error('Failed to log period to Supabase:', error);
@@ -2885,14 +2960,9 @@ function selectSeverityCard(cardEl, val) {
 }
 
 async function submitFullPeriodLog() {
-  if (selectedPeriodDates.size === 0) {
-    showToast('⚠️ Please select at least one period date on the calendar.', 'error');
-    return;
-  }
-
   const sortedDates = Array.from(selectedPeriodDates).sort();
-  const start = sortedDates[0];
-  const end = sortedDates[sortedDates.length - 1];
+  const start = cycleRangeStart || (sortedDates.length > 0 ? sortedDates[0] : new Date().toISOString().split('T')[0]);
+  const end = cycleRangeEnd || (sortedDates.length > 1 ? sortedDates[sortedDates.length - 1] : start);
 
   // Read tracker inputs for Age, Height, Weight
   const trackerAge = parseInt(document.getElementById('trackerAgeInput').value) || state.user.age;
@@ -2932,7 +3002,29 @@ async function submitFullPeriodLog() {
   const notes = document.getElementById('periodNotesInput').value.trim();
 
   // Save to local state
-  state.logs.period = `Last log: ${start} (Flow: ${flow})`;
+  const formattedStart = formatDDMonYYYY(start);
+  const formattedEnd = formatDDMonYYYY(end);
+  state.logs.period = `Last log: ${formattedStart} to ${formattedEnd} (Flow: ${flow})`;
+
+  if (!state.localPeriodLogs) state.localPeriodLogs = [];
+  const fullLogObj = {
+    id: Date.now(),
+    start_date: start,
+    end_date: end,
+    flow_intensity: flow,
+    pain_level: pain,
+    any_clots: clots === 'Yes',
+    cycle_status: status,
+    additional_notes: notes,
+    created_at: new Date().toISOString()
+  };
+  const existingIdx = state.localPeriodLogs.findIndex(l => l.start_date === start);
+  if (existingIdx >= 0) {
+    state.localPeriodLogs[existingIdx] = fullLogObj;
+  } else {
+    state.localPeriodLogs.unshift(fullLogObj);
+  }
+
   saveState();
   updateUIFromState();
 
@@ -2990,14 +3082,11 @@ async function submitFullPeriodLog() {
     showToast('🌸 Period log saved locally.', 'success');
   }
 
-  // Clear cache and inputs and switch back
+  // Clear cache and notes input, update forecast, and stay in Period Tracker view
   cachedPeriods = [];
   cachedVitals = [];
-  cachedSymptoms = [];
-  document.getElementById('periodStartInput').value = '';
-  document.getElementById('periodEndInput').value = '';
   document.getElementById('periodNotesInput').value = '';
-  switchView('home');
+  updateForecast();
 }
 
 async function openPeriodHistoryModal() {
@@ -3007,28 +3096,41 @@ async function openPeriodHistoryModal() {
 
   container.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">⌛ Loading history...</div>';
 
-  if (!state.user.id) {
-    container.innerHTML = '<div style="text-align:center;padding:12px;color:#C62828;">❌ You must be logged in to view history.</div>';
+  let logs = [];
+  if (state.localPeriodLogs && state.localPeriodLogs.length > 0) {
+    logs = [...state.localPeriodLogs];
+  }
+
+  if (state.user.id) {
+    try {
+      const { data: dbLogs, error } = await sb
+        .from('period_logs')
+        .select('*')
+        .eq('user_id', state.user.id)
+        .order('start_date', { ascending: false });
+
+      if (!error && dbLogs && dbLogs.length > 0) {
+        const map = new Map();
+        [...dbLogs, ...logs].forEach(l => {
+          if (l.start_date && !map.has(l.start_date)) {
+            map.set(l.start_date, l);
+          }
+        });
+        logs = Array.from(map.values()).sort((a, b) => new Date(b.start_date) - new Date(a.start_date));
+      }
+    } catch (err) {
+      console.warn("Could not fetch remote period logs:", err);
+    }
+  }
+
+  if (!logs || logs.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">📅 No cycle logs recorded yet.</div>';
     return;
   }
 
-  try {
-    const { data: logs, error } = await sb
-      .from('period_logs')
-      .select('*')
-      .eq('user_id', state.user.id)
-      .order('start_date', { ascending: false });
-
-    if (error) throw error;
-
-    if (!logs || logs.length === 0) {
-      container.innerHTML = '<div style="text-align:center;padding:12px;color:var(--text-muted);">📅 No cycle logs recorded yet.</div>';
-      return;
-    }
-
     container.innerHTML = logs.map(log => {
-      const start = log.start_date;
-      const end = log.end_date || 'Ongoing';
+      const startFormatted = formatDDMonYYYY(log.start_date);
+      const endFormatted = log.end_date ? formatDDMonYYYY(log.end_date) : 'Ongoing';
       const flow = log.flow_intensity || 'Medium';
       const pain = log.pain_level || 'None';
       const clots = log.any_clots ? 'Yes' : 'No';
@@ -3038,7 +3140,7 @@ async function openPeriodHistoryModal() {
       return `
         <div style="background:var(--bg-app); border:1px solid var(--border-strong); border-radius:var(--radius-md); padding:16px; text-align:left; margin-bottom: 8px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <strong style="color:var(--brand-pink); font-size:14px;">📅 ${start} to ${end}</strong>
+            <strong style="color:var(--brand-pink); font-size:14px;">📅 ${startFormatted} to ${endFormatted}</strong>
             <span style="background:var(--brand-green-light); color:var(--brand-green); font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px;">${status}</span>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:12.5px; color:var(--text-sub);">
@@ -3050,11 +3152,6 @@ async function openPeriodHistoryModal() {
         </div>
       `;
     }).join('');
-
-  } catch (err) {
-    console.error("Failed to load period history:", err);
-    container.innerHTML = `<div style="text-align:center;padding:12px;color:#C62828;">❌ Error: ${err.message}</div>`;
-  }
 }
 
 async function submitFullSymptomsLog() {
@@ -4387,7 +4484,7 @@ function updateForecast() {
   predictCycleEl.textContent = `${cycleLength} days`;
   
   let lastPeriodStart = null;
-  if (selectedPeriodDates.size > 0) {
+  if (selectedPeriodDates.size > 1) {
     const sorted = Array.from(selectedPeriodDates).sort();
     lastPeriodStart = new Date(sorted[0]);
   }
@@ -4395,38 +4492,30 @@ function updateForecast() {
   if (!lastPeriodStart) {
     predictNextEl.textContent = "Log a period to predict";
     predictWindowEl.textContent = "-";
-    predictFutureEl.innerHTML = "No logs available. Log your dates above.";
+    predictFutureEl.innerHTML = "No logs available. Select Start & End dates above to log.";
     return;
   }
   
   // Calculate next period
   const nextPeriod = new Date(lastPeriodStart);
   nextPeriod.setDate(lastPeriodStart.getDate() + cycleLength);
+  const nextPeriodStrFormatted = formatDDMonYYYY(nextPeriod);
   
-  const y = nextPeriod.getFullYear();
-  const m = String(nextPeriod.getMonth() + 1).padStart(2, '0');
-  const d = String(nextPeriod.getDate()).padStart(2, '0');
-  const nextPeriodStr = `${y}-${m}-${d}`;
-  
-  predictNextEl.textContent = nextPeriodStr;
+  predictNextEl.textContent = nextPeriodStrFormatted;
   
   const windowEnd = new Date(nextPeriod);
   windowEnd.setDate(nextPeriod.getDate() + 4);
-  const ye = windowEnd.getFullYear();
-  const me = String(windowEnd.getMonth() + 1).padStart(2, '0');
-  const de = String(windowEnd.getDate()).padStart(2, '0');
+  const windowEndFormatted = formatDDMonYYYY(windowEnd);
   
-  predictWindowEl.textContent = `${nextPeriodStr} to ${ye}-${me}-${de}`;
+  predictWindowEl.textContent = `${nextPeriodStrFormatted} to ${windowEndFormatted}`;
   
   // Next 3 cycles
   let futureHtml = '';
   for (let i = 1; i <= 3; i++) {
     const futDate = new Date(lastPeriodStart);
     futDate.setDate(lastPeriodStart.getDate() + (i * cycleLength));
-    const fy = futDate.getFullYear();
-    const fm = String(futDate.getMonth() + 1).padStart(2, '0');
-    const fd = String(futDate.getDate()).padStart(2, '0');
-    futureHtml += `<div>• Cycle ${i + 1}: starting <strong>${fy}-${fm}-${fd}</strong></div>`;
+    const futDateFormatted = formatDDMonYYYY(futDate);
+    futureHtml += `<div>• Cycle ${i + 1}: starting <strong>${futDateFormatted}</strong></div>`;
   }
   predictFutureEl.innerHTML = futureHtml;
 }
