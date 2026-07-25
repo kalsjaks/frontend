@@ -586,17 +586,20 @@ function saveState() {
   localStorage.setItem('bloomwell_state', JSON.stringify(state));
 }
 
+function handleLogout() {
+  state.user.isLoggedIn = false;
+  saveState();
+  updateUIFromState();
+  if (typeof showToast === 'function') {
+    showToast('Logged out successfully', 'info');
+  }
+}
+
 function updateUIFromState() {
-  // Toggle guest vs. logged-in header buttons
-  const isLoggedOut = !state.user.isLoggedIn;
+  // Ensure header navigation links (About Us, Guest User, Sign In, Sign Up) stay visible
   const headerActionsLoggedOut = document.getElementById('headerActionsLoggedOut');
   const headerActionsLoggedIn  = document.getElementById('headerActionsLoggedIn');
-  if (isLoggedOut) {
-    if (headerActionsLoggedOut) headerActionsLoggedOut.classList.remove('hidden');
-  } else {
-    if (headerActionsLoggedOut) headerActionsLoggedOut.classList.add('hidden');
-  }
-  // Keep the profile avatar settings dropdown permanently visible in the header
+  if (headerActionsLoggedOut) headerActionsLoggedOut.classList.remove('hidden');
   if (headerActionsLoggedIn) headerActionsLoggedIn.classList.remove('hidden');
 
   // Update name greetings
