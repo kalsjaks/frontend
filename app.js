@@ -864,8 +864,6 @@ function toggleApiKeyPlaceholder() {
   }
 }
 
-}
-
 // ── Chat Reset Helper ─────────────────────────────────────────
 function resetChat() {
   const messagesArea = document.getElementById('messagesArea');
