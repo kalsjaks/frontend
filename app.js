@@ -1010,8 +1010,28 @@ function resetChat() {
   if (questionInput) questionInput.value = '';
 }
 
+// ── Auth Protection Helper ────────────────────────────────────
+function requireAuth(actionFn) {
+  if (!state.user || !state.user.isLoggedIn || !state.user.id) {
+    showToast('🔒 Please sign in or create an account to access this feature.', 'info');
+    openAuthModal('existing');
+    return false;
+  }
+  if (typeof actionFn === 'function') {
+    actionFn();
+  }
+  return true;
+}
+
 // ── View Switching (Router) ───────────────────────────────────
 function switchView(viewName, isBack = false) {
+  // Check auth requirement for non-home views
+  if (viewName !== 'home' && (!state.user || !state.user.isLoggedIn || !state.user.id)) {
+    showToast('🔒 Please sign in or create an account to access this feature.', 'info');
+    openAuthModal('existing');
+    return;
+  }
+
   // Navigation history tracking
   if (!isBack) {
     if (viewHistory.length === 0 || viewHistory[viewHistory.length - 1] !== viewName) {
@@ -1438,18 +1458,34 @@ async function handleSaveProfile(e) {
 }
 
 // ── Interactive Logging Modals ────────────────────────────────
-function openLogPeriodModal() { openModal('modal-period'); }
+function openLogPeriodModal() { 
+  if (!requireAuth()) return;
+  openModal('modal-period'); 
+}
 function openVitalsModal() { 
+  if (!requireAuth()) return;
   const dateEl = document.getElementById('vitalDate');
   if (dateEl && !dateEl.value) {
     dateEl.value = new Date().toISOString().split('T')[0];
   }
   openModal('modal-vitals'); 
 }
-function openSymptomsModal() { openModal('modal-symptoms'); }
-function openLabResultsModal() { openModal('modal-lab'); }
-function openMedicationsModal() { openModal('modal-meds'); }
-function openHealthSummaryModal() { openModal('modal-summary'); }
+function openSymptomsModal() { 
+  if (!requireAuth()) return;
+  openModal('modal-symptoms'); 
+}
+function openLabResultsModal() { 
+  if (!requireAuth()) return;
+  openModal('modal-lab'); 
+}
+function openMedicationsModal() { 
+  if (!requireAuth()) return;
+  openModal('modal-meds'); 
+}
+function openHealthSummaryModal() { 
+  if (!requireAuth()) return;
+  openModal('modal-summary'); 
+}
 function openAuthModal(mode) {
   showAuthSubScreen(mode);
   openModal('modal-auth');
@@ -4323,11 +4359,13 @@ document.addEventListener('click', (event) => {
 
 // 1. Doctors Modal
 function openDoctorsModal() {
+  if (!requireAuth()) return;
   openModal('modal-doctors');
 }
 
 // 2. Plans Modal & Tabs
 function openPlansModal() {
+  if (!requireAuth()) return;
   openModal('modal-plans');
   switchPlansTab('diet');
 }
