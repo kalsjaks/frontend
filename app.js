@@ -4717,71 +4717,10 @@ async function handleLabPdfUpload(event) {
   const file = fileInput.files[0];
   if (!file) return;
 
+  state.pendingLabFile = { name: file.name, size: file.size, file: file };
   const statusLabel = document.getElementById('pdfUploadStatus');
   if (statusLabel) {
-    statusLabel.textContent = `⏳ Analyzing "${file.name}" using Bloom AI...`;
-  }
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-  try {
-    const response = await fetch(`${BACKEND_API_URL}/api/parse-report`, {
-      method: 'POST',
-      body: formData
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const vals = data.values || {};
-
-      // Fill form inputs automatically
-      if (vals.lh !== null && vals.lh !== undefined) document.getElementById('labInputLH').value = vals.lh;
-      if (vals.fsh !== null && vals.fsh !== undefined) document.getElementById('labInputFSH').value = vals.fsh;
-      if (vals.testosterone !== null && vals.testosterone !== undefined) document.getElementById('labInputTestosterone').value = vals.testosterone;
-      if (vals.fasting_insulin !== null && vals.fasting_insulin !== undefined) document.getElementById('labInputInsulin').value = vals.fasting_insulin;
-      if (vals.vitamin_d !== null && vals.vitamin_d !== undefined) document.getElementById('labInputVitD').value = vals.vitamin_d;
-      if (vals.vitamin_b12 !== null && vals.vitamin_b12 !== undefined) document.getElementById('labInputVitB12').value = vals.vitamin_b12;
-
-      // Update AI summary and file badge
-      const dateStr = data.report_date || new Date().toISOString().split('T')[0];
-      const fileInfoEl = document.getElementById('bloomAiFileInfo');
-      if (fileInfoEl) {
-        fileInfoEl.innerHTML = `<span style="background: #f3e8ff; color: #6b21a8; padding: 4px 10px; border-radius: 12px; font-weight: 600;">File: ${file.name} (${dateStr})</span>`;
-      }
-
-      const summaryTextEl = document.getElementById('labReportSummaryText');
-      if (summaryTextEl) {
-        summaryTextEl.innerHTML = `<p style="margin: 0; color: #334155;">${data.summary || "Diagnostic metrics extracted successfully."}</p>`;
-      }
-
-      // Render findings
-      if (data.findings && data.findings.length > 0) {
-        renderHormonalIndicators(data.findings);
-      } else {
-        updateIndicatorsFromInputs();
-      }
-
-      if (statusLabel) {
-        statusLabel.textContent = `✅ Processed "${file.name}"`;
-      }
-      showToast('🔬 PDF Diagnostics Report analyzed successfully!', 'success');
-
-      state.logs.lab = `Report scanned on ${new Date().toLocaleDateString()}`;
-      saveState();
-      updateUIFromState();
-    } else {
-      const err = await response.json();
-      throw new Error(err.detail || "Upload failed");
-    }
-  } catch (e) {
-    console.error("PDF parse failed:", e);
-    if (statusLabel) {
-      statusLabel.textContent = `❌ Upload failed: ${e.message}`;
-    }
-    showToast(`❌ PDF parsing failed: ${e.message}`, 'error');
-  } finally {
-    fileInput.value = '';
+    statusLabel.innerHTML = `<span style="background:#f3e8ff; color:#6b21a8; padding:4px 12px; border-radius:12px; font-weight:700; display:inline-block;">📄 Selected: "${file.name}"</span>`;
   }
 }
 
@@ -4789,37 +4728,36 @@ async function saveLabResultsForm() {
   const testDate = document.getElementById('labTestDate')?.value || new Date().toISOString().split('T')[0];
   const labName = document.getElementById('labName')?.value || 'Self Logged';
 
-  const lh = document.getElementById('labInputLH')?.value;
-  const fsh = document.getElementById('labInputFSH')?.value;
-  const test = document.getElementById('labInputTestosterone')?.value;
-  const ins = document.getElementById('labInputInsulin')?.value;
-  const vitd = document.getElementById('labInputVitD')?.value;
-  const b12 = document.getElementById('labInputVitB12')?.value;
+  const lh = document.getElementById('labInputLH')?.value || null;
+  const fsh = document.getElementById('labInputFSH')?.value || null;
+  const test = document.getElementById('labInputTestosterone')?.value || null;
+  const ins = document.getElementById('labInputInsulin')?.value || null;
+  const vitd = document.getElementById('labInputVitD')?.value || null;
+  const b12 = document.getElementById('labInputVitB12')?.value || null;
 
-  const logData = {
-    testDate,
-    labName,
-    metrics: { lh, fsh, testosterone: test, fasting_insulin: ins, vitamin_d: vitd, vitamin_b12: b12 },
-    timestamp: new Date().toISOString()
+  const fileName = state.pendingLabFile ? state.pendingLabFile.name : 'Manual Entry';
+
+  const newLog = {
+    id: 'lab_' + Date.now(),
+    date: testDate,
+    labName: labName,
+    fileName: fileName,
+    values: { lh, fsh, testosterone: test, fasting_insulin: ins, vitamin_d: vitd, vitamin_b12: b12 },
+    created_at: new Date().toISOString()
   };
+
+  if (!state.labHistory) state.labHistory = [];
+  state.labHistory.unshift(newLog);
 
   state.logs.lab = `Lab results saved for ${testDate} (${labName})`;
   saveState();
   updateUIFromState();
-
-  if (state.user.id) {
-    try {
-      await sb.from('wellness_logs').insert({
-        username: state.user.name,
-        log_type: 'lab_report_manual',
-        details: logData
-      });
-    } catch (err) {
-      console.warn("Could not save to remote DB:", err);
-    }
-  }
+  updateIndicatorsFromInputs();
 
   showToast('✅ Lab results saved successfully!', 'success');
+  state.pendingLabFile = null;
+  const statusLabel = document.getElementById('pdfUploadStatus');
+  if (statusLabel) statusLabel.innerHTML = '';
   closeActiveModal();
 }
 
