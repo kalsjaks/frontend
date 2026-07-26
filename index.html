@@ -57,6 +57,7 @@
 
         <!-- Logged In actions -->
         <div id="headerActionsLoggedIn" style="display: flex; align-items: center; gap: 16px;">
+          <button onclick="openCommunityMembersModal()" class="nav-btn" style="color: #7E22CE; font-weight: 700;">💖 Community Members</button>
           <button class="icon-btn" id="notifBtn" onclick="triggerNotification()" aria-label="Notifications">
             <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
@@ -166,9 +167,28 @@
             
             <div class="banners-container" style="display: flex; gap: 16px; width: 100%; flex-wrap: wrap; align-items: stretch;">
 
+              <!-- Registered Community Members Banner Card (Trust Feature) -->
+              <div class="ask-bloom-banner community-card-banner" onclick="openCommunityMembersModal()" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(126, 34, 206, 0.25); background: linear-gradient(135deg, #F3E8FF 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(126, 34, 206, 0.08); padding: 20px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+                <div class="ask-bloom-banner-left">
+                  <h3 class="ask-bloom-banner-title" style="color: #7E22CE; font-size: 16px; font-weight: 700;">💖 Registered Community Members</h3>
+                  <p class="ask-bloom-banner-desc" style="max-width: 95%; font-size: 12.5px; color: var(--text-sub);">Join 10,000+ women taking charge of their PCOS journey with Lakshmi, Kalyani, Archana & more.</p>
+                  
+                  <div style="display: flex; align-items: center; gap: 4px; margin-top: 4px;">
+                    <div style="display: flex; align-items: center;">
+                      <div style="width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #E87C8A, #7E22CE); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border: 2px solid white;">L</div>
+                      <div style="width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #2E7D32, #7E22CE); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border: 2px solid white; margin-left: -8px;">K</div>
+                      <div style="width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #7E22CE, #E87C8A); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border: 2px solid white; margin-left: -8px;">A</div>
+                      <div style="width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #E87C8A, #2E7D32); color: white; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; border: 2px solid white; margin-left: -8px;">P</div>
+                    </div>
+                    <span style="font-size: 11.5px; font-weight: 700; color: #7E22CE; margin-left: 6px;">+ 10,000 Members</span>
+                  </div>
 
-
-              <!-- Book Consultation with Doctor Banner -->
+                  <button class="ask-bloom-banner-btn" style="background: #7E22CE; margin-top: 10px;" onclick="event.stopPropagation(); openCommunityMembersModal();">View All Members</button>
+                </div>
+                <div class="ask-bloom-banner-right" style="right: 12px; bottom: -10px;">
+                  <span class="ask-bloom-banner-avatar" style="font-size: 56px;">👩‍🦱</span>
+                </div>
+              </div>
               <div class="ask-bloom-banner book-doctor-banner" onclick="openDoctorsModal()" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(46, 125, 50, 0.2); background: linear-gradient(135deg, #E8F5E9 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(46, 125, 50, 0.06); padding: 20px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
                 <div class="ask-bloom-banner-left">
                   <h3 class="ask-bloom-banner-title" style="color: #2E7D32; font-size: 16px; font-weight: 700;">Consult a PCOS Specialist</h3>
