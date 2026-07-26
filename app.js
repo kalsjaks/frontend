@@ -5211,10 +5211,32 @@ function switchPlansTab(tabName) {
   });
 }
 
+const LOCAL_LIFESTYLE_PLANS = {
+  menstrual: `🛌 **Menstrual Phase Lifestyle (Focus: Rest, Warmth & Low Cortisol)**<br><br>` +
+             `• **Sleep:** Aim for 8.5–9 hours of sleep to support body restoration and pain management.<br>` +
+             `• **Comfort:** Apply a warm heating pad to lower abdomen for 15 minutes to soothe cramping.<br>` +
+             `• **Hydration:** Drink 2.5L warm water or electrolyte-rich herbal tea (ginger, spearmint) to reduce bloating.`,
+  follicular: `🌱 **Follicular Phase Lifestyle (Focus: Energy, Goal Setting & Habit Formation)**<br><br>` +
+              `• **Circadian Rhythm:** Get 10–15 minutes of direct morning sunlight to balance melatonin and estrogen.<br>` +
+              `• **New Routines:** Estrogen increases mental sharpness—ideal time to plan new habits and projects.<br>` +
+              `• **Skin Care:** Use gentle exfoliating cleansers as sebum production starts to increase.`,
+  ovulation: `✨ **Ovulation Phase Lifestyle (Focus: High Stamina, Social Engagement & Vitality)**<br><br>` +
+             `• **Social Connection:** Peak confidence and energy—ideal phase for networking and social events.<br>` +
+             `• **Body Temperature:** Drink cool water and stay hydrated as basal body temperature slightly increases.<br>` +
+             `• **Sun & Vitamin D:** Engage in outdoor activities to support healthy ovulation cycles.`,
+  luteal: `🍂 **Luteal Phase Lifestyle (Focus: Stress Relief, Magnesium & PMS Prevention)**<br><br>` +
+          `• **Nervous System Care:** Take warm Epsom salt baths (absorbs magnesium) to calm muscles and mood.<br>` +
+          `• **Caffeine Timing:** Avoid coffee after 12 PM to prevent PMS anxiety and insomnia.<br>` +
+          `• **Evening Routine:** Practice 10 minutes of box breathing or journal writing before bed.`
+};
+
 async function fetchPlan(type, phase) {
-  const targetId = type === 'diet' ? 'plansDietResult' : 'plansWorkoutResult';
+  const targetId = type === 'diet' ? 'plansDietResult' : (type === 'lifestyle' ? 'plansLifestyleResult' : 'plansWorkoutResult');
   const targetEl = document.getElementById(targetId);
-  
+  if (!targetEl) return;
+
+  const phaseKey = (phase || 'menstrual').toLowerCase();
+
   // Aggregate ALL logged symptoms from user state
   const aggregatedSymptoms = new Set(Array.from(selectedSymptomsSet || []));
   
@@ -5234,46 +5256,48 @@ async function fetchPlan(type, phase) {
 
   const symptomsList = Array.from(aggregatedSymptoms);
 
-  if (targetEl) {
-    targetEl.innerHTML = `⏳ Fetching personalized RAG guidelines for <strong>${phase} phase</strong> (considering ${symptomsList.length} logged symptoms)...`;
-  }
-
   try {
     const response = await fetch(`${BACKEND_API_URL}/api/tools/recommendations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         user_id: state.user.id || '123',
-        phase: phase.charAt(0).toUpperCase() + phase.slice(1),
+        phase: phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1),
         symptoms: symptomsList
       })
     });
 
     if (response.ok) {
       const data = await response.json();
-      const list = type === 'diet' ? data.diet : data.workout;
-      let html = `<div style="font-weight:700; font-size:14px; margin-bottom:8px; color:var(--brand-pink);">🌸 ${phase.toUpperCase()} PHASE — ${type.toUpperCase()} GUIDELINES</div>`;
-      html += '<ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px;">';
-      list.forEach(item => {
-        html += `<li>${item}</li>`;
-      });
-      html += '</ul>';
-      if (data.rag_insights) {
-        html += `<div style="margin-top:12px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:12px; color:var(--text-muted);">ℹ️ <em>${data.rag_insights}</em></div>`;
+      const list = type === 'diet' ? data.diet : (type === 'lifestyle' ? data.lifestyle : data.workout);
+      if (list && Array.isArray(list) && list.length > 0) {
+        let html = `<div style="font-weight:700; font-size:14px; margin-bottom:8px; color:var(--brand-pink);">🌸 ${phase.toUpperCase()} PHASE — ${type.toUpperCase()} GUIDELINES</div>`;
+        html += '<ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px;">';
+        list.forEach(item => {
+          html += `<li>${item}</li>`;
+        });
+        html += '</ul>';
+        if (data.rag_insights) {
+          html += `<div style="margin-top:12px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:12px; color:var(--text-muted);">ℹ️ <em>${data.rag_insights}</em></div>`;
+        }
+        targetEl.innerHTML = html;
+        return;
       }
-      if (targetEl) targetEl.innerHTML = html;
     }
   } catch (err) {
-    console.error('Plan generation notice:', err);
-    if (targetEl) {
-      targetEl.innerHTML = `<div style="font-weight:700; font-size:14px; margin-bottom:8px; color:var(--brand-pink);">🌸 ${phase.toUpperCase()} PHASE — ${type.toUpperCase()} GUIDELINES</div>
-        <ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px;">
-          <li>High-protein & low-GI meal sequencing aligned with ${phase} phase.</li>
-          <li>Spearmint tea twice daily for anti-androgen support.</li>
-          <li>Restorative exercises tailored to logged symptoms.</li>
-        </ul>
-        <div style="margin-top:12px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:12px; color:var(--text-muted);">ℹ️ Grounded in internal BloomWell PCOS clinical knowledge base.</div>`;
-    }
+    console.warn('Backend plan notice, using phase clinical database:', err);
   }
+
+  // Phase-Specific Clinical Database Fallback
+  let fallbackText = '';
+  if (type === 'diet') {
+    fallbackText = LOCAL_DIET_PLANS[phaseKey] || LOCAL_DIET_PLANS['menstrual'];
+  } else if (type === 'lifestyle') {
+    fallbackText = LOCAL_LIFESTYLE_PLANS[phaseKey] || LOCAL_LIFESTYLE_PLANS['menstrual'];
+  } else {
+    fallbackText = LOCAL_WORKOUT_PLANS[phaseKey] || LOCAL_WORKOUT_PLANS['menstrual'];
+  }
+
+  targetEl.innerHTML = fallbackText;
 }
 
