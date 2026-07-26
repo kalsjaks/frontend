@@ -101,6 +101,7 @@ window.addEventListener('DOMContentLoaded', () => {
   checkBackendHealth();
   setupInputAutoResize();
   setupKeyboardShortcuts();
+  loadCommunityTickerNames();
 
   // Rotate hero prompt text and subtext dynamically
   const heroPrompts = [
@@ -125,6 +126,32 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }, 4000);
 });
+
+// ── Community Top Scrolling Ticker ─────────────────────────────
+async function loadCommunityTickerNames() {
+  const tickerEl = document.getElementById('topTickerText');
+  if (!tickerEl) return;
+
+  const defaultNames = ['Lakshmi', 'Kalyani', 'Archana', 'Priya', 'Sneha', 'Ananya', 'Swati', 'Deepthi', 'Harini', 'Kavya', 'Meera', 'Divya', 'Radhika', 'Sunita', 'Pooja', 'Bhavana', 'Aishwarya', 'Niharika'];
+
+  try {
+    let names = [...defaultNames];
+    if (typeof sb !== 'undefined' && sb) {
+      const { data } = await sb.from('profiles').select('name').limit(50);
+      if (data && data.length > 0) {
+        const fetchedNames = data.map(p => p.name).filter(n => n && n.trim().length > 0);
+        if (fetchedNames.length > 0) {
+          names = Array.from(new Set([...fetchedNames, ...defaultNames]));
+        }
+      }
+    }
+
+    const formattedList = names.join('  •  ');
+    tickerEl.innerHTML = `🌸 BloomWell PCOS is empowering health & wellness for ${formattedList}  •  🌸 BloomWell PCOS is empowering health & wellness for ${formattedList}`;
+  } catch (err) {
+    console.warn("Notice loading community ticker names:", err);
+  }
+}
 
 // ── Supabase Log Syncing ──────────────────────────────────────
 async function syncUserLogs(userId) {
