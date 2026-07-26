@@ -132,7 +132,7 @@ function openCommunityMembersModal() {
   openModal('modal-community');
 }
 
-async function renderCommunityMembers() {
+function renderCommunityMembers() {
   const container = document.getElementById('communityMembersGrid');
   if (!container) return;
 
@@ -152,74 +152,77 @@ async function renderCommunityMembers() {
     { name: 'Radhika', role: '🌸 Active Tracker', location: 'Jaipur' },
     { name: 'Sunita', role: '✨ Mindful Living', location: 'Lucknow' },
     { name: 'Pooja', role: '🌿 PCOS Warrior', location: 'Chandigarh' },
-    { name: 'Bhavana', role: '🌸 Cycle Synced', location: 'Hyderabad' }
+    { name: 'Bhavana', role: '🌸 Cycle Synced', location: 'Hyderabad' },
+    { name: 'Aishwarya', role: '✨ Active Tracker', location: 'Bengaluru' },
+    { name: 'Niharika', role: '🌿 Mindful Living', location: 'Hyderabad' }
   ];
 
-  let members = [...defaultMembers];
-
-  try {
-    if (typeof sb !== 'undefined' && sb) {
-      const { data } = await sb.from('profiles').select('name, created_at').order('created_at', { ascending: false }).limit(40);
-      if (data && data.length > 0) {
-        const fetched = data.map((p, idx) => {
-          const roles = ['🌸 PCOS Warrior', '✨ Cycle Synced', '🌿 Active Tracker', '🌸 Wellness Advocate'];
-          return {
-            name: p.name || 'Member',
-            role: roles[idx % roles.length],
-            location: 'Registered Member'
-          };
-        }).filter(m => m.name && m.name.trim().length > 0);
-
-        if (fetched.length > 0) {
-          const nameSet = new Set();
-          const combined = [];
-          [...fetched, ...defaultMembers].forEach(m => {
-            if (!nameSet.has(m.name.toLowerCase())) {
-              nameSet.add(m.name.toLowerCase());
-              combined.push(m);
-            }
-          });
-          members = combined;
-        }
-      }
-    }
-  } catch (err) {
-    console.warn("Notice loading community member profiles:", err);
-  }
-
-  let html = '';
-  const gradients = [
-    'linear-gradient(135deg, #E87C8A 0%, #7E22CE 100%)',
-    'linear-gradient(135deg, #2E7D32 0%, #7E22CE 100%)',
-    'linear-gradient(135deg, #7E22CE 0%, #E87C8A 100%)',
-    'linear-gradient(135deg, #E87C8A 0%, #2E7D32 100%)'
-  ];
-
-  members.forEach((m, i) => {
-    const initial = (m.name || 'M').charAt(0).toUpperCase();
-    const grad = gradients[i % gradients.length];
-    html += `
-      <div class="community-member-card">
-        <div class="member-avatar-circle" style="background: ${grad};">
-          ${initial}
-        </div>
-        <div style="min-width: 0;">
-          <div style="font-weight: 700; font-size: 14px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-            ${m.name}
+  const buildHTML = (memberList) => {
+    const gradients = [
+      'linear-gradient(135deg, #E87C8A 0%, #7E22CE 100%)',
+      'linear-gradient(135deg, #2E7D32 0%, #7E22CE 100%)',
+      'linear-gradient(135deg, #7E22CE 0%, #E87C8A 100%)',
+      'linear-gradient(135deg, #E87C8A 0%, #2E7D32 100%)'
+    ];
+    return memberList.map((m, i) => {
+      const initial = (m.name || 'M').charAt(0).toUpperCase();
+      const grad = gradients[i % gradients.length];
+      return `
+        <div class="community-member-card" style="background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+          <div class="member-avatar-circle" style="background: ${grad}; width: 38px; height: 38px; border-radius: 50%; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 750; font-size: 14px; flex-shrink: 0;">
+            ${initial}
           </div>
-          <div style="font-size: 11.5px; color: var(--brand-pink); font-weight: 600; margin-top: 1px;">
-            ${m.role}
+          <div style="min-width: 0;">
+            <div style="font-weight: 750; font-size: 14.5px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${m.name}
+            </div>
+            <div style="font-size: 11.5px; color: var(--brand-pink); font-weight: 600; margin-top: 2px;">
+              ${m.role}
+            </div>
           </div>
         </div>
-      </div>
-    `;
-  });
+      `;
+    }).join('');
+  };
 
-  container.innerHTML = html;
-
+  // 1. Render default members INSTANTLY (0ms delay)
+  container.innerHTML = buildHTML(defaultMembers);
   const countBadge = document.getElementById('communityMemberCountBadge');
   if (countBadge) {
-    countBadge.innerHTML = `✨ ${members.length * 480 + 9200}+ Registered Members & Growing`;
+    countBadge.innerHTML = `✨ 10,000+ Registered Members & Growing`;
+  }
+
+  // 2. Asynchronously merge live Supabase profiles if available
+  if (typeof sb !== 'undefined' && sb) {
+    sb.from('profiles').select('name, created_at').order('created_at', { ascending: false }).limit(40)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const fetched = data.map((p, idx) => {
+            const roles = ['🌸 PCOS Warrior', '✨ Cycle Synced', '🌿 Active Tracker', '🌸 Wellness Advocate'];
+            return {
+              name: p.name || 'Member',
+              role: roles[idx % roles.length],
+              location: 'Registered Member'
+            };
+          }).filter(m => m.name && m.name.trim().length > 0);
+
+          if (fetched.length > 0) {
+            const nameSet = new Set();
+            const combined = [];
+            [...fetched, ...defaultMembers].forEach(m => {
+              if (!nameSet.has(m.name.toLowerCase())) {
+                nameSet.add(m.name.toLowerCase());
+                combined.push(m);
+              }
+            });
+            container.innerHTML = buildHTML(combined);
+            if (countBadge) {
+              countBadge.innerHTML = `✨ ${combined.length * 480 + 9200}+ Registered Members & Growing`;
+            }
+          }
+        }
+      })
+      .catch(err => console.warn("Notice loading community member profiles:", err));
   }
 }
 
