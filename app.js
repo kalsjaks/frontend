@@ -101,7 +101,6 @@ window.addEventListener('DOMContentLoaded', () => {
   checkBackendHealth();
   setupInputAutoResize();
   setupKeyboardShortcuts();
-  loadCommunityTickerNames();
 
   // Rotate hero prompt text and subtext dynamically
   const heroPrompts = [
@@ -127,29 +126,100 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 4000);
 });
 
-// ── Community Top Scrolling Ticker ─────────────────────────────
-async function loadCommunityTickerNames() {
-  const tickerEl = document.getElementById('topTickerText');
-  if (!tickerEl) return;
+// ── Community Members Modal Logic ─────────────────────────────
+function openCommunityMembersModal() {
+  renderCommunityMembers();
+  openModal('modal-community');
+}
 
-  const defaultNames = ['Lakshmi', 'Kalyani', 'Archana', 'Priya', 'Sneha', 'Ananya', 'Swati', 'Deepthi', 'Harini', 'Kavya', 'Meera', 'Divya', 'Radhika', 'Sunita', 'Pooja', 'Bhavana', 'Aishwarya', 'Niharika'];
+async function renderCommunityMembers() {
+  const container = document.getElementById('communityMembersGrid');
+  if (!container) return;
+
+  const defaultMembers = [
+    { name: 'Lakshmi', role: '🌸 PCOS Warrior', location: 'Hyderabad' },
+    { name: 'Kalyani', role: '✨ Cycle Synced', location: 'Bengaluru' },
+    { name: 'Archana', role: '🌿 Nutrition Focus', location: 'Chennai' },
+    { name: 'Priya', role: '🌸 PCOS Warrior', location: 'Mumbai' },
+    { name: 'Sneha', role: '✨ Active Tracker', location: 'Delhi' },
+    { name: 'Ananya', role: '🌿 Mindful Living', location: 'Pune' },
+    { name: 'Swati', role: '🌸 Hormonal Health', location: 'Kolkata' },
+    { name: 'Deepthi', role: '✨ Cycle Synced', location: 'Hyderabad' },
+    { name: 'Harini', role: '🌿 Active Tracker', location: 'Vijayawada' },
+    { name: 'Kavya', role: '🌸 PCOS Warrior', location: 'Visakhapatnam' },
+    { name: 'Meera', role: '✨ Wellness Advocate', location: 'Kochi' },
+    { name: 'Divya', role: '🌿 Cycle Synced', location: 'Ahmedabad' },
+    { name: 'Radhika', role: '🌸 Active Tracker', location: 'Jaipur' },
+    { name: 'Sunita', role: '✨ Mindful Living', location: 'Lucknow' },
+    { name: 'Pooja', role: '🌿 PCOS Warrior', location: 'Chandigarh' },
+    { name: 'Bhavana', role: '🌸 Cycle Synced', location: 'Hyderabad' }
+  ];
+
+  let members = [...defaultMembers];
 
   try {
-    let names = [...defaultNames];
     if (typeof sb !== 'undefined' && sb) {
-      const { data } = await sb.from('profiles').select('name').limit(50);
+      const { data } = await sb.from('profiles').select('name, created_at').order('created_at', { ascending: false }).limit(40);
       if (data && data.length > 0) {
-        const fetchedNames = data.map(p => p.name).filter(n => n && n.trim().length > 0);
-        if (fetchedNames.length > 0) {
-          names = Array.from(new Set([...fetchedNames, ...defaultNames]));
+        const fetched = data.map((p, idx) => {
+          const roles = ['🌸 PCOS Warrior', '✨ Cycle Synced', '🌿 Active Tracker', '🌸 Wellness Advocate'];
+          return {
+            name: p.name || 'Member',
+            role: roles[idx % roles.length],
+            location: 'Registered Member'
+          };
+        }).filter(m => m.name && m.name.trim().length > 0);
+
+        if (fetched.length > 0) {
+          const nameSet = new Set();
+          const combined = [];
+          [...fetched, ...defaultMembers].forEach(m => {
+            if (!nameSet.has(m.name.toLowerCase())) {
+              nameSet.add(m.name.toLowerCase());
+              combined.push(m);
+            }
+          });
+          members = combined;
         }
       }
     }
-
-    const formattedList = names.join('  •  ');
-    tickerEl.innerHTML = `🌸 BloomWell PCOS is empowering health & wellness for ${formattedList}  •  🌸 BloomWell PCOS is empowering health & wellness for ${formattedList}`;
   } catch (err) {
-    console.warn("Notice loading community ticker names:", err);
+    console.warn("Notice loading community member profiles:", err);
+  }
+
+  let html = '';
+  const gradients = [
+    'linear-gradient(135deg, #E87C8A 0%, #7E22CE 100%)',
+    'linear-gradient(135deg, #2E7D32 0%, #7E22CE 100%)',
+    'linear-gradient(135deg, #7E22CE 0%, #E87C8A 100%)',
+    'linear-gradient(135deg, #E87C8A 0%, #2E7D32 100%)'
+  ];
+
+  members.forEach((m, i) => {
+    const initial = (m.name || 'M').charAt(0).toUpperCase();
+    const grad = gradients[i % gradients.length];
+    html += `
+      <div class="community-member-card">
+        <div class="member-avatar-circle" style="background: ${grad};">
+          ${initial}
+        </div>
+        <div style="min-width: 0;">
+          <div style="font-weight: 700; font-size: 14px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${m.name}
+          </div>
+          <div style="font-size: 11.5px; color: var(--brand-pink); font-weight: 600; margin-top: 1px;">
+            ${m.role}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  const countBadge = document.getElementById('communityMemberCountBadge');
+  if (countBadge) {
+    countBadge.innerHTML = `✨ ${members.length * 480 + 9200}+ Registered Members & Growing`;
   }
 }
 

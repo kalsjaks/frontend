@@ -57,65 +57,36 @@ body {
   overflow-x: hidden;
 }
 
-/* ── TOP COMMUNITY TICKER BAR ── */
-.top-ticker-wrapper {
-  background: linear-gradient(90deg, #7E22CE 0%, #E87C8A 50%, #2E7D32 100%);
-  color: #FFFFFF;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 0;
-  overflow: hidden;
-  position: relative;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  z-index: 102;
+/* ── COMMUNITY MEMBERS MODAL STYLING ── */
+.community-member-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
   display: flex;
   align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
 
-.ticker-badge {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+.community-member-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(126, 34, 206, 0.08);
+}
+
+.member-avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   color: #FFFFFF;
-  padding: 3px 12px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  margin-left: 16px;
-  margin-right: 14px;
-  flex-shrink: 0;
-  z-index: 5;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}
-
-.top-ticker-track {
   display: flex;
-  overflow: hidden;
-  width: 100%;
-  position: relative;
-}
-
-.top-ticker-content {
-  display: inline-block;
-  white-space: nowrap;
-  animation: tickerMarquee 40s linear infinite;
-  padding-left: 100%;
-  letter-spacing: 0.3px;
-}
-
-.top-ticker-wrapper:hover .top-ticker-content {
-  animation-play-state: paused;
-}
-
-@keyframes tickerMarquee {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-100%, 0, 0);
-  }
+  align-items: center;
+  justify-content: center;
+  font-weight: 750;
+  font-size: 14px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* ── Utilities ──────────────────────────────────────────────── */
