@@ -58,7 +58,18 @@ body {
 }
 
 /* ── Utilities ──────────────────────────────────────────────── */
-.hidden { display: none !important; }
+.hidden { display: none !important; pointer-events: none !important; }
+
+.feature-grid-card, .dash-card, .compact-stack-card, .ask-bloom-banner {
+  cursor: pointer !important;
+  position: relative;
+  z-index: 5;
+}
+
+.feature-grid-card *, .dash-card * {
+  pointer-events: none;
+}
+
 
 /* ── 1. SPLIT-SCREEN AUTHENTICATION (Desktop Webapp style) ── */
 .auth-container {
