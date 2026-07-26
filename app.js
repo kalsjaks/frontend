@@ -607,6 +607,9 @@ function loadState() {
       if (!state.vitalsData) {
         state.vitalsData = { water: 2.0, sleep: 7.5, temp: 36.6 };
       }
+      if (!state.vitalsHistory) {
+        state.vitalsHistory = [];
+      }
       if (!state.symptomsData) {
         state.symptomsData = { acne: false, fatigue: true, hairThinning: false, cravings: true, bloating: false, moodSwings: false, hirsutism: false, weightGain: false, pelvicPain: false };
       }
@@ -1339,7 +1342,13 @@ async function handleSaveProfile(e) {
 
 // ── Interactive Logging Modals ────────────────────────────────
 function openLogPeriodModal() { openModal('modal-period'); }
-function openVitalsModal() { openModal('modal-vitals'); }
+function openVitalsModal() { 
+  const dateEl = document.getElementById('vitalDate');
+  if (dateEl && !dateEl.value) {
+    dateEl.value = new Date().toISOString().split('T')[0];
+  }
+  openModal('modal-vitals'); 
+}
 function openSymptomsModal() { openModal('modal-symptoms'); }
 function openLabResultsModal() { openModal('modal-lab'); }
 function openMedicationsModal() { openModal('modal-meds'); }
@@ -1481,6 +1490,7 @@ async function submitPeriodLog() {
 }
 
 async function submitVitalsLog() {
+  const dateVal = document.getElementById('vitalDate')?.value || new Date().toISOString().split('T')[0];
   const water = parseFloat(document.getElementById('vitalWater').value) || 2.0;
   const sleep = parseFloat(document.getElementById('vitalSleep').value) || 7.5;
   const temp = parseFloat(document.getElementById('vitalTemp').value) || 36.6;
@@ -1489,7 +1499,36 @@ async function submitVitalsLog() {
   state.vitalsData.sleep = sleep;
   state.vitalsData.temp = temp;
   
-  state.logs.vitals = `Sleep: ${sleep.toFixed(1)}h | Water: ${water.toFixed(1)}L`;
+  state.logs.vitals = `Log (${dateVal}): Sleep ${sleep.toFixed(1)}h | Water ${water.toFixed(1)}L | BBT ${temp.toFixed(1)}°C`;
+
+  const timestamp = new Date(dateVal + 'T12:00:00Z').toISOString();
+
+  // Maintain state.vitalsHistory for date-wise tracking
+  if (!state.vitalsHistory) state.vitalsHistory = [];
+  const existingIdx = state.vitalsHistory.findIndex(v => (v.created_at || v.date || '').startsWith(dateVal));
+  const newRecord = {
+    id: 'v_' + Date.now(),
+    user_id: state.user?.id || 'guest',
+    water_liters: water,
+    sleep_hours: sleep,
+    temp_celsius: temp,
+    created_at: timestamp,
+    date: dateVal
+  };
+
+  if (existingIdx >= 0) {
+    state.vitalsHistory[existingIdx] = newRecord;
+  } else {
+    state.vitalsHistory.unshift(newRecord);
+  }
+
+  // Update in-memory cachedVitals
+  const cacheIdx = cachedVitals.findIndex(v => (v.created_at || v.date || '').startsWith(dateVal));
+  if (cacheIdx >= 0) {
+    cachedVitals[cacheIdx] = newRecord;
+  } else {
+    cachedVitals.unshift(newRecord);
+  }
 
   saveState();
   updateUIFromState();
@@ -1500,12 +1539,14 @@ async function submitVitalsLog() {
       user_id: state.user.id,
       water_liters: water,
       sleep_hours: sleep,
-      temp_celsius: temp
+      temp_celsius: temp,
+      created_at: timestamp
     });
     if (error) console.error('Failed to log vitals to Supabase:', error);
   }
 
-  showToast('🩺 Daily vitals updated successfully.', 'success');
+  await loadSelectedMonthStats();
+  showToast(`🩺 Daily vitals for ${dateVal} saved successfully.`, 'success');
 }
 
 async function submitSymptomsLog() {
@@ -3521,7 +3562,7 @@ async function initSummaryPage() {
 }
 
 async function loadSelectedMonthStats() {
-  const filter = document.getElementById('summaryMonthSelect').value;
+  const filter = document.getElementById('summaryMonthSelect')?.value || 'all';
 
   document.getElementById('statSleep').textContent = '...';
   document.getElementById('statWater').textContent = '...';
@@ -3529,89 +3570,64 @@ async function loadSelectedMonthStats() {
   document.getElementById('statRegularity').textContent = '...';
   document.getElementById('statSymptoms').textContent = '...';
 
-  // If guest mode / local usage, pull stats from local state directly
-  if (!state.user.id) {
-    console.log("Guest mode stats loading from local state...");
-    if (state.vitalsData) {
-      document.getElementById('statSleep').textContent = state.vitalsData.sleep ? `${parseFloat(state.vitalsData.sleep).toFixed(1)} hours` : 'No logs';
-      document.getElementById('statWater').textContent = state.vitalsData.water ? `${parseFloat(state.vitalsData.water).toFixed(1)} L` : 'No logs';
-    } else {
-      document.getElementById('statSleep').textContent = 'No logs';
-      document.getElementById('statWater').textContent = 'No logs';
-    }
-
-    // Pain and regularity from logs
-    if (state.logs?.period && !state.logs.period.includes('Last log: 28 days ago')) {
-      document.getElementById('statPain').textContent = 'Mild'; // guest default
-      document.getElementById('statRegularity').textContent = 'Regular';
-    } else {
-      document.getElementById('statPain').textContent = 'No logs';
-      document.getElementById('statRegularity').textContent = 'No logs';
-    }
-
-    // Symptoms from local state
-    if (state.symptomsData) {
-      let active = [];
-      if (state.symptomsData.acne) active.push('Acne');
-      if (state.symptomsData.fatigue) active.push('Fatigue');
-      if (state.symptomsData.hairThinning) active.push('Hair loss');
-      if (state.symptomsData.cravings) active.push('Cravings');
-      if (state.symptomsData.bloating) active.push('Bloating');
-      if (state.symptomsData.moodSwings) active.push('Mood swings');
-      
-      document.getElementById('statSymptoms').textContent = active.length > 0 ? active.slice(0, 2).join(', ') : 'None logged';
-    } else {
-      document.getElementById('statSymptoms').textContent = 'No logs';
-    }
-
-    runLocalRuleBasedHealthAssessment(
-      state.vitalsData?.sleep || 7.5,
-      state.vitalsData?.water || 2.0,
-      {},
-      [],
-      [],
-      []
-    );
-    return;
-  }
-
   try {
-    if (cachedVitals.length === 0 && cachedPeriods.length === 0 && cachedSymptoms.length === 0) {
+    if (state.user.id && cachedVitals.length === 0 && cachedPeriods.length === 0 && cachedSymptoms.length === 0) {
       const [vRes, pRes, sRes] = await Promise.all([
-        sb.from('vitals_logs').select('*').eq('user_id', state.user.id),
-        sb.from('period_logs').select('*').eq('user_id', state.user.id),
-        sb.from('symptoms_logs').select('*').eq('user_id', state.user.id)
+        sb.from('vitals_logs').select('*').eq('user_id', state.user.id).order('created_at', { ascending: false }),
+        sb.from('period_logs').select('*').eq('user_id', state.user.id).order('created_at', { ascending: false }),
+        sb.from('symptoms_logs').select('*').eq('user_id', state.user.id).order('created_at', { ascending: false })
       ]);
       cachedVitals = vRes.data || [];
       cachedPeriods = pRes.data || [];
       cachedSymptoms = sRes.data || [];
     }
 
-    let filteredVitals = cachedVitals;
+    // Combine cachedVitals with local vitalsHistory
+    let allVitals = [...cachedVitals];
+    if (state.vitalsHistory && state.vitalsHistory.length > 0) {
+      state.vitalsHistory.forEach(localV => {
+        const localDate = (localV.created_at || localV.date || '').split('T')[0];
+        if (!allVitals.some(v => (v.created_at || v.date || '').split('T')[0] === localDate)) {
+          allVitals.push(localV);
+        }
+      });
+    }
+
+    // Fallback if no logs exist yet but vitalsData was updated
+    if (allVitals.length === 0 && state.vitalsData && (state.vitalsData.sleep || state.vitalsData.water)) {
+      allVitals.push({
+        water_liters: state.vitalsData.water || 2.0,
+        sleep_hours: state.vitalsData.sleep || 7.5,
+        temp_celsius: state.vitalsData.temp || 36.6,
+        created_at: new Date().toISOString()
+      });
+    }
+
+    let filteredVitals = allVitals;
     let filteredPeriods = cachedPeriods;
     let filteredSymptoms = cachedSymptoms;
 
     if (filter !== 'all') {
       const [year, month] = filter.split('-').map(Number);
       const filterByDate = (item, dateField) => {
-        if (!item || !item[dateField]) return false;
-        const parts = item[dateField].split(/[-T]/);
+        if (!item) return false;
+        const val = item[dateField] || item.date || item.created_at;
+        if (!val) return false;
+        const parts = val.split(/[-T]/);
         if (parts.length >= 2) {
           return parseInt(parts[0]) === year && parseInt(parts[1]) === month;
         }
         return false;
       };
-      filteredVitals = cachedVitals.filter(v => filterByDate(v, 'created_at'));
+      filteredVitals = allVitals.filter(v => filterByDate(v, 'created_at'));
       filteredPeriods = cachedPeriods.filter(p => filterByDate(p, 'start_date'));
       filteredSymptoms = cachedSymptoms.filter(s => filterByDate(s, 'created_at'));
     }
 
     // Averages Sleep & Hydration
-    let avgSleep = 7.5;
-    let avgWater = 2.0;
     if (filteredVitals.length > 0) {
-      avgSleep = filteredVitals.reduce((sum, v) => sum + parseFloat(v.sleep_hours || 0), 0) / filteredVitals.length;
-      avgWater = filteredVitals.reduce((sum, v) => sum + parseFloat(v.water_liters || 0), 0) / filteredVitals.length;
+      const avgSleep = filteredVitals.reduce((sum, v) => sum + parseFloat(v.sleep_hours || 0), 0) / filteredVitals.length;
+      const avgWater = filteredVitals.reduce((sum, v) => sum + parseFloat(v.water_liters || 0), 0) / filteredVitals.length;
       document.getElementById('statSleep').textContent = `${avgSleep.toFixed(1)} hours`;
       document.getElementById('statWater').textContent = `${avgWater.toFixed(1)} L`;
     } else {
@@ -3620,7 +3636,6 @@ async function loadSelectedMonthStats() {
     }
 
     // Avg pain & cycle regularity
-    let symptomCounts = {};
     if (filteredPeriods.length > 0) {
       const painMap = { 'None': 1, 'Mild': 2, 'Bad': 3 };
       const painReverseMap = { 1: 'None', 2: 'Mild', 3: 'Bad' };
@@ -3642,6 +3657,9 @@ async function loadSelectedMonthStats() {
 
       const regPercent = Math.round((regularCount / filteredPeriods.length) * 100);
       document.getElementById('statRegularity').textContent = `${regPercent}% Regular (${filteredPeriods.length} log${filteredPeriods.length > 1 ? 's' : ''})`;
+    } else if (state.logs?.period && !state.logs.period.includes('Last log: 28 days ago')) {
+      document.getElementById('statPain').textContent = 'Mild';
+      document.getElementById('statRegularity').textContent = 'Regular';
     } else {
       document.getElementById('statPain').textContent = 'No logs';
       document.getElementById('statRegularity').textContent = 'No logs';
@@ -3673,13 +3691,90 @@ async function loadSelectedMonthStats() {
       } else {
         document.getElementById('statSymptoms').textContent = 'None logged';
       }
+    } else if (state.symptomsData) {
+      let active = [];
+      if (state.symptomsData.acne) active.push('Acne');
+      if (state.symptomsData.fatigue) active.push('Fatigue');
+      if (state.symptomsData.hairThinning) active.push('Hair loss');
+      if (state.symptomsData.cravings) active.push('Cravings');
+      if (state.symptomsData.bloating) active.push('Bloating');
+      if (state.symptomsData.moodSwings) active.push('Mood swings');
+      document.getElementById('statSymptoms').textContent = active.length > 0 ? active.slice(0, 2).join(', ') : 'None logged';
     } else {
       document.getElementById('statSymptoms').textContent = 'No logs';
     }
 
+    renderVitalsHistoryTable(allVitals);
+
   } catch (err) {
     console.error("Error in loadSelectedMonthStats:", err);
   }
+}
+
+function renderVitalsHistoryTable(vitalsList) {
+  const container = document.getElementById('vitalsHistoryTableContainer');
+  if (!container) return;
+
+  const list = vitalsList || (cachedVitals.length > 0 ? cachedVitals : (state.vitalsHistory || []));
+
+  if (!list || list.length === 0) {
+    container.innerHTML = `<p style="font-size: 13.5px; color: var(--text-sub); font-style: italic;">No vitals logged yet. Click "+ Log New Vitals" to start tracking daily metrics.</p>`;
+    return;
+  }
+
+  const sorted = [...list].sort((a, b) => {
+    const dA = new Date(a.created_at || a.date || 0);
+    const dB = new Date(b.created_at || b.date || 0);
+    return dB - dA;
+  });
+
+  let html = `
+    <table style="width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted);">
+          <th style="padding: 10px 12px; font-weight: 700;">Date</th>
+          <th style="padding: 10px 12px; font-weight: 700;">Water (L)</th>
+          <th style="padding: 10px 12px; font-weight: 700;">Sleep (hrs)</th>
+          <th style="padding: 10px 12px; font-weight: 700;">BBT (°C)</th>
+          <th style="padding: 10px 12px; font-weight: 700; text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  sorted.forEach(item => {
+    const rawDate = item.created_at || item.date || new Date().toISOString();
+    const dateFormatted = formatDDMonYYYY(rawDate);
+    const dateStr = rawDate.split('T')[0];
+    const water = item.water_liters ? parseFloat(item.water_liters).toFixed(1) : '--';
+    const sleep = item.sleep_hours ? parseFloat(item.sleep_hours).toFixed(1) : '--';
+    const temp = item.temp_celsius ? parseFloat(item.temp_celsius).toFixed(1) : '--';
+
+    html += `
+      <tr style="border-bottom: 1px solid var(--border);">
+        <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">📅 ${dateFormatted}</td>
+        <td style="padding: 10px 12px; color: var(--text-main);">💧 ${water} L</td>
+        <td style="padding: 10px 12px; color: var(--text-main);">🌙 ${sleep} hrs</td>
+        <td style="padding: 10px 12px; color: var(--text-main);">🌡️ ${temp} °C</td>
+        <td style="padding: 10px 12px; text-align: right;">
+          <button style="background: none; border: none; color: var(--brand-pink); cursor: pointer; font-size: 12.5px; font-weight: 600;" onclick="deleteVitalEntry('${dateStr}')">Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function deleteVitalEntry(dateStr) {
+  if (state.vitalsHistory) {
+    state.vitalsHistory = state.vitalsHistory.filter(v => !(v.created_at || v.date || '').startsWith(dateStr));
+  }
+  cachedVitals = cachedVitals.filter(v => !(v.created_at || v.date || '').startsWith(dateStr));
+  saveState();
+  loadSelectedMonthStats();
+  showToast('Deleted vitals entry for ' + dateStr, 'success');
 }
 
 function runLocalRuleBasedHealthAssessment(avgSleep, avgWater, symptomCounts, sortedSymps, cachedPeriods, cachedSymptoms) {
@@ -3939,6 +4034,8 @@ Patient Profile:
 - PCOS Classification: ${state.user.pcosType || 'Insulin Resistant'}
 - Top symptoms: ${topSymptomsList}
 - Active Medications: ${medsText}
+- Date-Wise Logged Vitals (Last 6 Months):
+${(cachedVitals.length > 0 ? cachedVitals : (state.vitalsHistory || [])).slice(0, 10).map(v => `- Date: ${(v.created_at || v.date || '').split('T')[0]} | Sleep: ${v.sleep_hours || '--'}h | Water: ${v.water_liters || '--'}L | BBT: ${v.temp_celsius || '--'}°C`).join('\n') || '- Avg Sleep: ' + avgSleep.toFixed(1) + 'h | Avg Water: ' + avgWater.toFixed(1) + 'L'}
 - Logged Periods:
 ${periodsText || '- Start: ' + new Date().toISOString().split('T')[0] + ' | Flow: Medium | Pain: Mild | Status: Regular'}
 

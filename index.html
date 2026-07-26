@@ -961,6 +961,18 @@
                 <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Frequent Symptoms</span>
                 <div id="statSymptoms" style="font-size:13.5px; font-weight:750; color:var(--text-main); margin-top:4px;">--</div>
               </div>
+          </div>
+
+          <!-- 4b. Date-Wise Vitals History Card -->
+          <div class="period-card" style="padding: 24px 32px; text-align: left; margin-top: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+              <h3 class="period-card-title" style="margin-bottom: 0; font-size:16px; color:#8C2D3B;">
+                🩺 Logged Vitals History (Date-Wise)
+              </h3>
+              <button class="btn-secondary" style="padding: 6px 14px; font-size: 12.5px; border-radius: var(--radius-sm);" onclick="openVitalsModal()">+ Log New Vitals</button>
+            </div>
+            <div id="vitalsHistoryTableContainer" style="overflow-x: auto;">
+              <p style="font-size: 13.5px; color: var(--text-sub); font-style: italic;">No vitals logged yet. Click "+ Log New Vitals" to add daily metrics.</p>
             </div>
           </div>
 
@@ -1071,6 +1083,10 @@
       <h3 class="modal-title">🩺 Daily Vitals Log</h3>
       <div class="modal-body">
         <p style="margin-bottom: 12px;">Log vital bio-markers to track insulin resistance and metabolic rates.</p>
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label">Log Date <span style="color: var(--brand-pink);">*</span></label>
+          <input type="date" id="vitalDate" class="form-input" />
+        </div>
         <div class="form-row">
           <div class="form-group col">
             <label class="form-label">Water (liters)</label>
