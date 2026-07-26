@@ -1799,6 +1799,69 @@ body {
   .views-container {
     padding: 24px 16px;
   }
+}
+
+/* ── BloomWell Developer Handbook CSS Extensions ── */
+.symptom-chip {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.symptom-chip:hover {
+  background: #e2e8f0;
+}
+
+.symptom-chip.selected {
+  background: var(--brand-pink);
+  color: #ffffff;
+  border-color: var(--brand-pink);
+  box-shadow: 0 2px 8px rgba(230, 92, 120, 0.3);
+  font-weight: 600;
+}
+
+.severity-btn {
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.severity-btn.active {
+  background: var(--brand-pink) !important;
+  color: white !important;
+  border-color: var(--brand-pink) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(230, 92, 120, 0.25);
+}
+
+.mic-recording {
+  animation: pulseMic 1.2s infinite ease-in-out;
+  background: #ef4444 !important;
+  color: white !important;
+  border-color: #ef4444 !important;
+}
+
+@keyframes pulseMic {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.history-table th, .history-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.history-table tr:hover {
+  background: #f8fafc;
+}
+
+@media (max-width: 600px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
   }
@@ -3047,5 +3110,58 @@ button.chip.selected {
   background: #FFF0F2 !important;
   border: 1px solid rgba(230, 92, 120, 0.15);
 }
+
+/* Mood Tracker Custom Styling (v1.0 Handbook) */
+.mood-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.mood-btn {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.mood-btn:hover {
+  border-color: #A78BFA;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(167, 139, 250, 0.15);
+}
+
+.mood-btn.selected {
+  background: #F5F3FF !important;
+  border-color: #7C3AED !important;
+  color: #5B21B6 !important;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.18) !important;
+  transform: translateY(-1px);
+}
+
+.mood-btn-other {
+  border: 1.5px dashed #C4B5FD;
+  background: #FAF5FF;
+}
+
+.mood-btn-other:hover {
+  background: #F3E8FF;
+  border-color: #8B5CF6;
+}
+
 
 

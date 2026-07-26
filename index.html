@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=47" />
+  <link rel="stylesheet" href="style.css?v=49" />
 </head>
 <body>
 
@@ -800,6 +800,28 @@
             </button>
           </div>
 
+          <!-- Logged Symptoms History Section (Handbook v1.0 Screen2) -->
+          <div class="symptoms-section-card" style="margin-top: 24px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+              <span style="font-size:20px;">🕒</span>
+              <h3 style="font-size:18px; font-weight:800; color:#7c3aed; margin:0;">Logged Symptoms History</h3>
+            </div>
+
+            <!-- Scrollable list of symptom log cards -->
+            <div id="loggedSymptomsHistoryContainer" style="display:flex; flex-direction:column; gap:12px; max-height:280px; overflow-y:auto; padding-right:4px;">
+              <!-- Populated dynamically by JS -->
+            </div>
+          </div>
+
+          <!-- COACH TIP Card (Handbook v1.0 Screen2) -->
+          <div style="background:#f5f0ff; border-radius:14px; padding:18px 20px; margin-top:20px; display:flex; align-items:flex-start; gap:14px;">
+            <div style="width:36px; height:36px; border-radius:50%; background:#e0d3ff; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;">✨</div>
+            <div>
+              <h4 style="font-size:14px; font-weight:800; color:#6d28d9; margin:0 0 4px 0; letter-spacing:0.5px;">COACH TIP</h4>
+              <p style="font-size:13px; color:#4c1d95; margin:0; line-height:1.5;">Tracking consistent symptoms helps identify potential hormonal triggers. Try logging for a few consecutive days!</p>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -1070,63 +1092,266 @@
       </div>
     </div>
 
-    <!-- Modal 3: Symptoms Log -->
-    <div id="modal-symptoms" class="modal-content hidden">
+    <!-- Modal 3: Symptoms Log (Multi Selection + Voice + History) -->
+    <div id="modal-symptoms" class="modal-content hidden" style="max-width: 520px;">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
-      <h3 class="modal-title">📝 Symptoms Checklist</h3>
+      <h3 class="modal-title">📝 Daily Symptom Tracker</h3>
       <div class="modal-body">
-        <p style="margin-bottom: 12px;">Logging daily symptoms identifies hormonal imbalances and syncs your lifestyle.</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
-          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="sympAcne" style="accent-color:var(--brand-pink);" /> Acne / oily skin
-          </label>
-          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="sympFatigue" style="accent-color:var(--brand-pink);" checked /> Fatigue / low energy
-          </label>
-          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="sympHair" style="accent-color:var(--brand-pink);" /> Hair thinning
-          </label>
-          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="sympCravings" style="accent-color:var(--brand-pink);" checked /> Sugar cravings
-          </label>
-          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="sympBloating" style="accent-color:var(--brand-pink);" /> Bloating
-          </label>
-          <label style="display:flex; align-items:center; gap:6px; font-size:13px; font-weight:500;">
-            <input type="checkbox" id="sympMood" style="accent-color:var(--brand-pink);" /> Mood swings
-          </label>
+        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-sub);">Select your active symptoms today or tap the mic button to log by voice:</p>
+        
+        <!-- Multi-select Symptom Chips -->
+        <label class="form-label" style="font-weight: 600; margin-bottom: 6px; display: block;">Select Symptoms:</label>
+        <div id="symptomChipsContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px;">
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Fatigue')">😴 Fatigue</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Mood Swings')">😠 Mood Swings</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Headache')">🤕 Headache</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Acne')">✨ Acne</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Hair Thinning')">💇 Hair Thinning</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Cravings')">🍩 Sugar Cravings</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Bloating')">🎈 Bloating</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Cramps')">⚡ Cramps</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Anxiety')">😰 Anxiety</button>
+          <button type="button" class="chip symptom-chip" onclick="toggleSymptomChip(this, 'Brain Fog')">🌫️ Brain Fog</button>
+        </div>
+
+        <!-- Severity Picker -->
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label">Severity Level</label>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="severity-btn" onclick="selectSeverity('Mild', this)" style="flex:1; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-app); cursor:pointer;">Mild</button>
+            <button type="button" class="severity-btn active" onclick="selectSeverity('Moderate', this)" style="flex:1; padding:8px; border:1px solid var(--brand-pink); border-radius:var(--radius-md); background:var(--brand-pink); color:white; font-weight:600; cursor:pointer;">Moderate</button>
+            <button type="button" class="severity-btn" onclick="selectSeverity('Severe', this)" style="flex:1; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-app); cursor:pointer;">Severe</button>
+          </div>
+        </div>
+
+        <!-- Voice Input & Notes -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">Additional Notes & Voice Recording</label>
+            <button type="button" id="voiceRecordBtn" onclick="toggleVoiceSymptomRecording()" style="background: rgba(230, 92, 120, 0.1); color: var(--brand-pink); border: 1px solid var(--brand-pink); border-radius: 16px; padding: 4px 12px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+              <span id="voiceMicIcon">🎙️</span> <span id="voiceMicText">Voice Log</span>
+            </button>
+          </div>
+          <textarea id="symptomNotesInput" class="form-input" rows="3" placeholder="Describe how you feel today or click Voice Log to speak..." style="resize: vertical; font-size: 13px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; gap: 10px;">
+        <button class="btn-secondary" onclick="openSymptomHistoryModal()" style="font-size: 12.5px;">📋 View Past Logs</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
+          <button class="btn-primary" onclick="submitSymptomsLog()">Save Log</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Symptom History Modal/Table -->
+    <div id="modal-symptoms-history" class="modal-content hidden" style="max-width: 600px;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">📋 Past Symptom Logs</h3>
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px;">Historical view of your logged symptoms, severity, and dates.</p>
+        <div id="symptomsHistoryTableContainer">
+          <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left;">
+            <thead>
+              <tr style="background: #f9f9fb; border-bottom: 1.5px solid #ececf1;">
+                <th style="padding: 8px 12px;">Date</th>
+                <th style="padding: 8px 12px;">Symptoms</th>
+                <th style="padding: 8px 12px;">Severity</th>
+                <th style="padding: 8px 12px;">Notes</th>
+              </tr>
+            </thead>
+            <tbody id="symptomsHistoryTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
-        <button class="btn-primary" onclick="submitSymptomsLog()">Log Selected</button>
+        <button class="btn-primary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
       </div>
     </div>
 
-    <!-- Modal 5: Lab Results (PDF Upload & AI Summary) -->
-    <div id="modal-lab" class="modal-content hidden" style="max-width: 500px;">
+    <!-- Modal 5: Log & Analyze Reports (PDF & Image Parsing + Lab Management) -->
+    <div id="modal-lab" class="modal-content hidden" style="max-width: 1040px; width: 94vw; padding: 24px; border-radius: 24px; max-height: 90vh; overflow-y: auto;">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
-      <h3 class="modal-title">🔬 Upload PDF Diagnostics Report</h3>
-      <div class="modal-body">
-        <p style="margin-bottom: 16px; font-size: 13px; color: var(--text-sub);">Upload your diagnostic report in PDF format. Our AI will automatically parse the values and compile a summary of areas needing attention (such as low hemoglobin, thyroid imbalances, or glucose anomalies).</p>
+      
+      <!-- Top Banner Header -->
+      <div style="background: #f3e8ff; border-radius: 16px; padding: 20px 24px; margin-bottom: 24px;">
+        <h2 style="margin: 0 0 6px 0; font-size: 24px; font-weight: 800; color: #581c87;">Log & Analyze Reports</h2>
+        <p style="margin: 0; font-size: 13.5px; color: #6b21a8; line-height: 1.5;">
+          Upload blood work reports (PDF) or enter test values manually. Our AI Coach translates the parameters to help guide your PCOS targets.
+        </p>
+      </div>
+
+      <!-- Main 2-Column Grid -->
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start;">
         
-        <!-- PDF File Upload Picker -->
-        <div style="background: rgba(230, 92, 120, 0.05); border: 1.5px dashed var(--brand-pink); border-radius: var(--radius-md); padding: 20px 14px; text-align: center; margin-bottom: 16px; position: relative;">
-          <input type="file" id="labPdfUpload" accept=".pdf" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="handleLabPdfUpload(event)" />
-          <span style="font-size: 32px; display: block; margin-bottom: 6px;">📄</span>
-          <span id="pdfUploadStatus" style="font-size: 13px; font-weight:600; color: var(--brand-pink);">Click to select and upload report PDF</span>
+        <!-- LEFT COLUMN: Inputs & Upload Dropzone -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          
+          <!-- Test Details Block -->
+          <div>
+            <h4 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 700; color: #1e293b;">Test Details</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              
+              <!-- Test Date field -->
+              <div>
+                <fieldset style="border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 4px 12px; margin: 0; background: #fff;">
+                  <legend style="font-size: 11px; font-weight: 600; color: #64748b; padding: 0 4px;">Test Date</legend>
+                  <input type="date" id="labTestDate" style="width: 100%; border: none; outline: none; background: transparent; font-size: 13.5px; padding: 4px 0; color: #0f172a;" />
+                </fieldset>
+              </div>
+              
+              <!-- Lab Name field -->
+              <div>
+                <fieldset style="border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 4px 12px; margin: 0; background: #fff;">
+                  <legend style="font-size: 11px; font-weight: 600; color: #64748b; padding: 0 4px;">Lab Name (Optional)</legend>
+                  <input type="text" id="labName" placeholder="e.g. Bloom Labs" style="width: 100%; border: none; outline: none; background: transparent; font-size: 13.5px; padding: 4px 0; color: #0f172a;" />
+                </fieldset>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Upload Lab Report Dropzone Box -->
+          <div style="border: 2px dashed #c084fc; background: #faf5ff; border-radius: 16px; padding: 24px 16px; text-align: center; position: relative; transition: all 0.2s ease;">
+            <input type="file" id="labPdfUpload" accept=".pdf,.png,.jpg,.jpeg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;" onchange="handleLabPdfUpload(event)" />
+            
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: #e9d5ff; color: #7e22ce; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-size: 20px;">
+              ☁️
+            </div>
+            <h4 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: #1e293b;">Upload Lab Report</h4>
+            <p style="margin: 0 0 14px 0; font-size: 12px; color: #64748b;">
+              PDF or JPG/PNG (Up to 10MB). Bloom AI will process and extract metrics automatically.
+            </p>
+            <button type="button" style="background: #7e22ce; color: #ffffff; border: none; border-radius: 20px; padding: 10px 28px; font-size: 13.5px; font-weight: 700; cursor: pointer; pointer-events: none; box-shadow: 0 4px 12px rgba(126, 34, 206, 0.25);">
+              Select Files
+            </button>
+            <div id="pdfUploadStatus" style="margin-top: 10px; font-size: 12.5px; font-weight: 600; color: #7e22ce;"></div>
+          </div>
+
+          <!-- Common PCOS Tests Grid -->
+          <div>
+            <h4 style="margin: 0 0 12px 0; font-size: 15px; font-weight: 700; color: #1e293b;">Common PCOS Tests</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              
+              <!-- LH -->
+              <fieldset style="border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 4px 12px; margin: 0; background: #fff;">
+                <legend style="font-size: 11px; font-weight: 600; color: #64748b; padding: 0 4px;">LH (Luteinizing Hormone) (mIU/mL)</legend>
+                <input type="number" step="0.1" id="labInputLH" placeholder="Enter value" oninput="updateIndicatorsFromInputs()" style="width: 100%; border: none; outline: none; background: transparent; font-size: 13.5px; padding: 4px 0; color: #0f172a;" />
+              </fieldset>
+
+              <!-- FSH -->
+              <fieldset style="border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 4px 12px; margin: 0; background: #fff;">
+                <legend style="font-size: 11px; font-weight: 600; color: #64748b; padding: 0 4px;">FSH (Follicle Stimulating Hormone) (mIU/mL)</legend>
+                <input type="number" step="0.1" id="labInputFSH" placeholder="Enter value" oninput="updateIndicatorsFromInputs()" style="width: 100%; border: none; outline: none; background: transparent; font-size: 13.5px; padding: 4px 0; color: #0f172a;" />
+              </fieldset>
+
+              <!-- Testosterone -->
+              <fieldset style="border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 4px 12px; margin: 0; background: #fff;">
+                <legend style="font-size: 11px; font-weight: 600; color: #64748b; padding: 0 4px;">Testosterone (Total) (ng/dL)</legend>
+                <input type="number" step="0.1" id="labInputTestosterone" placeholder="Enter value" oninput="updateIndicatorsFromInputs()" style="width: 100%; border: none; outline: none; background: transparent; font-size: 13.5px; padding: 4px 0; color: #0f172a;" />
+              </fieldset>
+
+              <!-- Fasting Insulin -->
+              <fieldset style="border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 4px 12px; margin: 0; background: #fff;">
+                <legend style="font-size: 11px; font-weight: 600; color: #64748b; padding: 0 4px;">Fasting Insulin (µIU/mL)</legend>
+                <input type="number" step="0.1" id="labInputInsulin" placeholder="Enter value" oninput="updateIndicatorsFromInputs()" style="width: 100%; border: none; outline: none; background: transparent; font-size: 13.5px; padding: 4px 0; color: #0f172a;" />
+              </fieldset>
+
+              <!-- Vitamin D -->
+              <fieldset style="border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 4px 12px; margin: 0; background: #fff;">
+                <legend style="font-size: 11px; font-weight: 600; color: #64748b; padding: 0 4px;">Vitamin D (ng/mL)</legend>
+                <input type="number" step="0.1" id="labInputVitD" placeholder="Enter value" oninput="updateIndicatorsFromInputs()" style="width: 100%; border: none; outline: none; background: transparent; font-size: 13.5px; padding: 4px 0; color: #0f172a;" />
+              </fieldset>
+
+              <!-- B12 -->
+              <fieldset style="border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 4px 12px; margin: 0; background: #fff;">
+                <legend style="font-size: 11px; font-weight: 600; color: #64748b; padding: 0 4px;">B12 (pg/mL)</legend>
+                <input type="number" step="0.1" id="labInputVitB12" placeholder="Enter value" oninput="updateIndicatorsFromInputs()" style="width: 100%; border: none; outline: none; background: transparent; font-size: 13.5px; padding: 4px 0; color: #0f172a;" />
+              </fieldset>
+
+            </div>
+          </div>
+
+          <!-- Save Results Button -->
+          <button onclick="saveLabResultsForm()" style="width: 100%; background: #6b21a8; color: #ffffff; border: none; border-radius: 12px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s ease;">
+            Save Results
+          </button>
         </div>
 
-        <!-- AI Summary Output Area -->
-        <div id="labReportSummaryContainer" class="hidden" style="background: #f9f9fb; border: 1.5px solid #ececf1; border-radius: var(--radius-md); padding: 18px; margin-top: 14px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
-          <h4 style="margin: 0 0 12px 0; color: #1e293b; font-weight: 700; font-size: 16px; border: none; padding: 0;">Report Summary</h4>
-          <div id="labReportSummaryText" style="font-size: 13.5px; line-height: 1.6; color: var(--text-main); max-height: 380px; overflow-y: auto;"></div>
+        <!-- RIGHT COLUMN: Hormonal Indicators & AI Analysis -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          
+          <!-- Hormonal Indicators Container -->
+          <div style="background: #ffffff; border: 1.5px solid #f3e8ff; border-radius: 16px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+              <h4 style="margin: 0; font-size: 16px; font-weight: 700; color: #6b21a8; display: flex; align-items: center; gap: 8px;">
+                <span>💡</span> Hormonal Indicators
+              </h4>
+              <button onclick="openLabHistoryModal()" style="background: none; border: none; color: #7e22ce; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline;">
+                View Past Reports
+              </button>
+            </div>
+
+            <!-- List of Dynamic Indicators -->
+            <div id="hormonalIndicatorsList" style="display: flex; flex-direction: column; gap: 10px; max-height: 360px; overflow-y: auto; padding-right: 4px;">
+              <!-- Dynamically populated or default indicator cards -->
+            </div>
+          </div>
+
+          <!-- Bloom AI Analysis Box -->
+          <div style="background: #ffffff; border: 1.5px solid #f3e8ff; border-radius: 16px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+            <h4 style="margin: 0 0 10px 0; font-size: 16px; font-weight: 700; color: #6b21a8; display: flex; align-items: center; gap: 8px;">
+              <span>✨</span> Bloom AI Analysis
+            </h4>
+            <div id="bloomAiFileInfo" style="font-size: 12px; color: #64748b; margin-bottom: 8px; font-style: italic;">
+              <!-- e.g. File: thyroid_results.pdf (2026-07-26) -->
+            </div>
+            <div id="labReportSummaryText" style="font-size: 13px; line-height: 1.5; color: #334155;">
+              Upload a lab PDF report or enter values on the left to view AI clinical findings and insights.
+            </div>
+          </div>
+
         </div>
-      </div>
-      <div class="modal-footer" style="margin-top: 16px;">
-        <button class="btn-secondary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
+
       </div>
     </div>
+
+    <!-- Modal: Lab Report History Modal -->
+    <div id="modal-lab-history" class="modal-content hidden" style="max-width: 600px;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <h3 class="modal-title">📊 Past Diagnostic Reports</h3>
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+        <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px;">Saved lab reports and extracted medical parameters.</p>
+        <div id="labHistoryList" style="display: flex; flex-direction: column; gap: 12px;">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
+      </div>
+    </div>
+
+    <!-- Modal: Welcome Modal (Auto Login Signup) -->
+    <div id="modal-welcome" class="modal-content hidden" style="max-width: 480px; text-align: center;">
+      <button class="modal-close" onclick="closeActiveModal()">&times;</button>
+      <span style="font-size: 48px; display: block; margin-bottom: 8px;">🌸</span>
+      <h3 class="modal-title" style="margin-bottom: 8px;">Welcome to BloomWell PCOS!</h3>
+      <p style="font-size: 14px; color: var(--text-sub); line-height: 1.5; margin-bottom: 20px;">
+        You're automatically logged in! Here are quick start tips for your journey:
+      </p>
+      <div style="text-align: left; background: #f9f9fb; border: 1px solid #ececf1; border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px; font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
+        <div>📝 <strong>Log Symptoms:</strong> Multi-select chips & voice notes to track daily changes.</div>
+        <div>🔬 <strong>Upload Lab PDFs:</strong> Instant AI extraction & diagnostic summary cards.</div>
+        <div>🥗 <strong>Diet & Workout Plans:</strong> Phase-synced meals, yoga poses & insulin support.</div>
+        <div>💬 <strong>Ask Bloom AI:</strong> Multilingual RAG assistant for evidence-based answers.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" onclick="closeActiveModal()" style="width: 100%;">Get Started Now</button>
+      </div>
+    </div>
+
 
     <!-- Modal: Doctors List -->
     <div id="modal-doctors" class="modal-content hidden" style="max-width: 500px;">
@@ -1239,33 +1464,86 @@
     </div>
 
     <!-- Modal: Mood Tracker -->
-    <div id="modal-mood" class="modal-content hidden" style="max-width: 440px;">
+    <div id="modal-mood" class="modal-content hidden" style="max-width: 500px; padding: 24px;">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
-      <h3 class="modal-title">😊 Daily Mood Tracker</h3>
-      <div class="modal-body">
-        <p style="margin-bottom: 12px; font-size: 13.5px; color: var(--text-sub);">How are you feeling today? Select your current dominant mood:</p>
-        
-        <div id="moodChipsGroup" style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
-          <button type="button" class="chip" onclick="selectMoodChip(this, 'Happy')">😊 Happy</button>
-          <button type="button" class="chip" onclick="selectMoodChip(this, 'Calm')">🧘 Calm</button>
-          <button type="button" class="chip" onclick="selectMoodChip(this, 'Stressed')">😫 Stressed</button>
-          <button type="button" class="chip" onclick="selectMoodChip(this, 'Irritated')">😠 Irritated</button>
-          <button type="button" class="chip" onclick="selectMoodChip(this, 'Anxious')">😰 Anxious</button>
-          <button type="button" class="chip" onclick="selectMoodChip(this, 'Sad')">😢 Sad</button>
-          <button type="button" class="chip" onclick="selectMoodChip(this, 'Tired')">😴 Tired</button>
+      <h3 style="font-size:22px; font-weight:800; color:#5b21b6; margin-bottom:4px;">How are you feeling?</h3>
+      <p style="font-size:13.5px; color:#6b7280; margin-bottom:18px;">Tracking your mood helps identify PCOS hormonal patterns.</p>
+      
+      <div class="modal-body" style="padding:0;">
+        <!-- Mood Grid Buttons -->
+        <div class="mood-grid" id="moodGridGroup">
+          <button type="button" class="mood-btn selected" onclick="selectMoodTile(this, 'Happy', '😊')">
+            <span style="font-size:26px;">😊</span>
+            <span>Happy</span>
+          </button>
+          <button type="button" class="mood-btn" onclick="selectMoodTile(this, 'Calm', '🧘')">
+            <span style="font-size:26px;">🧘</span>
+            <span>Calm</span>
+          </button>
+          <button type="button" class="mood-btn" onclick="selectMoodTile(this, 'Tired', '😴')">
+            <span style="font-size:26px;">😴</span>
+            <span>Tired</span>
+          </button>
+          <button type="button" class="mood-btn" onclick="selectMoodTile(this, 'Anxious', '😰')">
+            <span style="font-size:26px;">😰</span>
+            <span>Anxious</span>
+          </button>
+          <button type="button" class="mood-btn" onclick="selectMoodTile(this, 'Stressed', '😫')">
+            <span style="font-size:26px;">😫</span>
+            <span>Stressed</span>
+          </button>
+          <button type="button" class="mood-btn" onclick="selectMoodTile(this, 'Irritated', '😠')">
+            <span style="font-size:26px;">😠</span>
+            <span>Irritated</span>
+          </button>
+          <button type="button" class="mood-btn" onclick="selectMoodTile(this, 'Sad', '😢')">
+            <span style="font-size:26px;">😢</span>
+            <span>Sad</span>
+          </button>
+          <button type="button" class="mood-btn mood-btn-other" onclick="selectMoodTile(this, 'Other', '➕')">
+            <span style="font-size:22px; color:#8b5cf6;">+</span>
+            <span style="color:#8b5cf6;">Other</span>
+          </button>
         </div>
 
-        <!-- Recent Mood Trend List -->
-        <div id="moodTrendContainer" style="margin-top: 12px;">
-          <h4 style="font-size:12.5px; margin: 0 0 6px 0; color: var(--text-main); font-weight:700;">Mood History</h4>
-          <div id="moodHistoryList" style="background:#f9f9fb; border:1px solid #ececf1; border-radius:var(--radius-sm); padding:10px; font-size:12px; max-height:120px; overflow-y:auto; line-height:1.5; color: var(--text-sub);">
-            No mood entries logged yet.
+        <!-- Add Context Card -->
+        <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:14px; padding:18px; margin-bottom:18px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+          <h4 style="font-size:15px; font-weight:700; color:#1f2937; margin:0 0 4px 0;">Add Context</h4>
+          <p style="font-size:12.5px; color:#6b7280; margin:0 0 10px 0;">Writing down your triggers helps our AI Coach provide better advice.</p>
+          <textarea id="moodContextInput" class="notes-textarea" style="width:100%; height:75px; padding:10px 12px; border-radius:10px; border:1px solid #d1d5db; resize:none; margin-bottom:12px; font-size:13px;" placeholder="Explain how you feel or what triggered this mood..."></textarea>
+          <button type="button" onclick="submitMoodLog()" style="width:100%; padding:12px; background:#a78bfa; color:#ffffff; font-weight:700; font-size:14.5px; border:none; border-radius:24px; cursor:pointer; transition:all 0.2s;">Save Log</button>
+        </div>
+
+        <!-- Weekly Trends Card -->
+        <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:14px; padding:18px; margin-bottom:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h4 style="font-size:15px; font-weight:700; color:#1f2937; margin:0;">Weekly Trends</h4>
+            <span style="font-size:10.5px; font-weight:700; color:#7c3aed; letter-spacing:0.5px;">LAST 7 DAYS</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; height:75px; padding:0 6px; margin-bottom:10px;" id="weeklyMoodBars">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:28px; height:15px; background:#ede9fe; border-radius:4px;"></div><span style="font-size:11px; font-weight:700; color:#4b5563;">M</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:28px; height:15px; background:#ede9fe; border-radius:4px;"></div><span style="font-size:11px; font-weight:700; color:#4b5563;">T</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:28px; height:15px; background:#ede9fe; border-radius:4px;"></div><span style="font-size:11px; font-weight:700; color:#4b5563;">W</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:28px; height:15px; background:#ede9fe; border-radius:4px;"></div><span style="font-size:11px; font-weight:700; color:#4b5563;">T</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:28px; height:15px; background:#ede9fe; border-radius:4px;"></div><span style="font-size:11px; font-weight:700; color:#4b5563;">F</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:28px; height:60px; background:#67e8f9; border-radius:4px;"></div><span style="font-size:11px; font-weight:700; color:#4b5563;">S</span></div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><div style="width:28px; height:15px; background:#ede9fe; border-radius:4px;"></div><span style="font-size:11px; font-weight:700; color:#4b5563;">S</span></div>
+          </div>
+          <p style="font-size:12px; color:#6b7280; margin:0; line-height:1.4;">📈 Mood logs show correlations with sleep, period phase, and exercise targets.</p>
+        </div>
+
+        <!-- Mood History Logs Card -->
+        <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:14px; padding:14px 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleMoodHistoryCollapsible()">
+            <h4 style="font-size:15px; font-weight:700; color:#7c3aed; margin:0; display:flex; align-items:center; gap:6px;">
+              <span>🕒</span> Mood History Logs
+            </h4>
+            <span id="moodHistoryToggleArrow" style="color:#7c3aed; font-size:12px;">▼</span>
+          </div>
+          <div id="moodHistoryListContainer" style="margin-top:10px; display:flex; flex-direction:column; gap:8px; max-height:180px; overflow-y:auto;">
+            <!-- Rendered by JS -->
           </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" onclick="closeActiveModal()">Cancel</button>
-        <button class="btn-primary" onclick="submitMoodLog()">Log Mood</button>
       </div>
     </div>
 
@@ -1566,7 +1844,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=50"></script>
+  <script src="app.js?v=56"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
