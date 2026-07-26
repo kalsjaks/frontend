@@ -3829,34 +3829,44 @@ ${periodsText || 'None logged.'}
 Lab Results:
 - HbA1c: ${state.labData.hba1c || 'N/A'}%
 - TSH: ${state.labData.tsh || 'N/A'} mIU/L
-    let symptomCounts = {};
-    filteredSymptoms.forEach(s => {
-      if (s.acne) symptomCounts['Acne'] = (symptomCounts['Acne'] || 0) + 1;
-      if (s.fatigue) symptomCounts['Fatigue'] = (symptomCounts['Fatigue'] || 0) + 1;
-      if (s.hair_thinning) symptomCounts['Hair loss'] = (symptomCounts['Hair loss'] || 0) + 1;
-      if (s.cravings) symptomCounts['Cravings'] = (symptomCounts['Cravings'] || 0) + 1;
-      if (s.bloating) symptomCounts['Bloating'] = (symptomCounts['Bloating'] || 0) + 1;
-      if (s.mood_swings) symptomCounts['Mood swings'] = (symptomCounts['Mood swings'] || 0) + 1;
-    });
 
-    const sortedSymps = Object.entries(symptomCounts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
-    if (sortedSymps.length > 0) {
-      document.getElementById('statSymptoms').textContent = sortedSymps.slice(0, 2).join(', ');
-    } else if (state.symptomsData) {
-      let active = [];
-      if (state.symptomsData.acne) active.push('Acne');
-      if (state.symptomsData.fatigue) active.push('Fatigue');
-      if (state.symptomsData.hairThinning) active.push('Hair loss');
-      if (state.symptomsData.cravings) active.push('Cravings');
-      if (state.symptomsData.bloating) active.push('Bloating');
-      if (state.symptomsData.moodSwings) active.push('Mood swings');
-      document.getElementById('statSymptoms').textContent = active.length > 0 ? active.slice(0, 2).join(', ') : 'Fatigue, Cramps';
-    } else {
-      document.getElementById('statSymptoms').textContent = 'Fatigue, Cramps';
+TASK:
+Provide a concise personalized health evaluation for this patient based on their logged vitals, symptoms, and medications. Include actionable next steps for symptom management.
+`;
+
+    let answer;
+    try {
+      const response = await fetch(`${BACKEND_API_URL}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          question: prompt,
+          user_context: ''
+        })
+      });
+
+      if (response.ok) {
+        const resJson = await response.json();
+        answer = resJson.answer;
+      } else {
+        throw new Error("Backend API returned non-OK status");
+      }
+    } catch (netErr) {
+      console.warn("Backend API not reachable for health condition, falling back to client-side generateAnswer...", netErr);
+      answer = await generateAnswer(prompt, '', '');
     }
 
+    resultDiv.innerHTML = formatAnswer(answer);
+    resultDiv.scrollIntoView({ behavior: 'smooth' });
+
   } catch (err) {
-    console.error("Error in loadSelectedMonthStats:", err);
+    console.error("Error in generateAIHealthCondition:", err);
+    resultDiv.innerHTML = '<div style="color:var(--brand-pink);padding:12px;">Failed to generate assessment. Please try again.</div>';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Analyze My Health Condition';
   }
 }
 
