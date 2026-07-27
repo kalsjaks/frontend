@@ -5227,93 +5227,257 @@ function switchPlansTab(tabName) {
   });
 }
 
-const LOCAL_LIFESTYLE_PLANS = {
-  menstrual: `🛌 **Menstrual Phase Lifestyle (Focus: Rest, Warmth & Low Cortisol)**<br><br>` +
-             `• **Sleep:** Aim for 8.5–9 hours of sleep to support body restoration and pain management.<br>` +
-             `• **Comfort:** Apply a warm heating pad to lower abdomen for 15 minutes to soothe cramping.<br>` +
-             `• **Hydration:** Drink 2.5L warm water or electrolyte-rich herbal tea (ginger, spearmint) to reduce bloating.`,
-  follicular: `🌱 **Follicular Phase Lifestyle (Focus: Energy, Goal Setting & Habit Formation)**<br><br>` +
-              `• **Circadian Rhythm:** Get 10–15 minutes of direct morning sunlight to balance melatonin and estrogen.<br>` +
-              `• **New Routines:** Estrogen increases mental sharpness—ideal time to plan new habits and projects.<br>` +
-              `• **Skin Care:** Use gentle exfoliating cleansers as sebum production starts to increase.`,
-  ovulation: `✨ **Ovulation Phase Lifestyle (Focus: High Stamina, Social Engagement & Vitality)**<br><br>` +
-             `• **Social Connection:** Peak confidence and energy—ideal phase for networking and social events.<br>` +
-             `• **Body Temperature:** Drink cool water and stay hydrated as basal body temperature slightly increases.<br>` +
-             `• **Sun & Vitamin D:** Engage in outdoor activities to support healthy ovulation cycles.`,
-  luteal: `🍂 **Luteal Phase Lifestyle (Focus: Stress Relief, Magnesium & PMS Prevention)**<br><br>` +
-          `• **Nervous System Care:** Take warm Epsom salt baths (absorbs magnesium) to calm muscles and mood.<br>` +
-          `• **Caffeine Timing:** Avoid coffee after 12 PM to prevent PMS anxiety and insomnia.<br>` +
-          `• **Evening Routine:** Practice 10 minutes of box breathing or journal writing before bed.`
+const STRUCTURED_DIET_PLANS = {
+  menstrual: {
+    category: "🩸 MENSTRUAL PHASE DIET",
+    title: "Focus: Iron Replenishment, Anti-Inflammation & Pelvic Comfort",
+    overview: "Blood loss reduces iron reserves while prostaglandins cause uterine contractions. Focus on warm, anti-inflammatory, iron-rich foods that ease cramps and restore energy.",
+    rows: [
+      { icon: "🩸", iconBg: "#ffe4e6", iconColor: "#e11d48", title: "Iron-Rich Replenishment", desc: "Warm cooked lentils, black beans, spinach, and high-protein bone broth." },
+      { icon: "☕", iconBg: "#fef3c7", iconColor: "#b45309", title: "Anti-Inflammatory Teas", desc: "Spearmint & ginger tea twice daily to lower androgen spikes and ease uterine cramping." },
+      { icon: "🍫", iconBg: "#f3e8ff", iconColor: "#7e22ce", title: "Magnesium Boost", desc: "70%+ dark chocolate, pumpkin seeds, and avocado to prevent muscle spasms." }
+    ],
+    tip: "Pair non-heme iron sources with Vitamin C (citrus, bell peppers) to boost absorption by up to 300%."
+  },
+  follicular: {
+    category: "🌱 FOLLICULAR PHASE DIET",
+    title: "Focus: Estrogen Metabolism & Healthy Follicle Maturation",
+    overview: "Estrogen is rising to mature follicles. Focus on supportive light proteins, seed cycling, and gut/liver detoxification to filter excess hormones.",
+    rows: [
+      { icon: "🥦", iconBg: "#dcfce7", iconColor: "#15803d", title: "Cruciferous Clearance", desc: "Broccoli, cabbage, sprouts, and arugula containing Indole-3-Carbinol for healthy estrogen clearance." },
+      { icon: "🌱", iconBg: "#fef3c7", iconColor: "#b45309", title: "Seed Cycling (Phase 1)", desc: "1 tbsp freshly ground flaxseeds + 1 tbsp raw pumpkin seeds daily for follicular support." },
+      { icon: "🍣", iconBg: "#e0f2fe", iconColor: "#0284c7", title: "Lean Proteins & Gut Health", desc: "Wild-caught salmon, pasture-raised eggs, sprouted grains, and probiotic kefir or kimchi." }
+    ],
+    tip: "Include fresh berries and high-fiber foods to bind and metabolize rising estrogen smoothly."
+  },
+  ovulation: {
+    category: "✨ OVULATION PHASE DIET",
+    title: "Focus: Peak Energy, Egg Quality & Anti-Oxidant Protection",
+    overview: "Luteinizing hormone (LH) and estrogen peak during egg release. Energy is high. Focus on antioxidant-dense foods, zinc, and fiber to flush excess hormones.",
+    rows: [
+      { icon: "🫐", iconBg: "#f3e8ff", iconColor: "#7e22ce", title: "Antioxidant Superfoods", desc: "Blackberries, raspberries, blueberries, and pomegranates to reduce follicular oxidative stress." },
+      { icon: "🌰", iconBg: "#fef3c7", iconColor: "#b45309", title: "Zinc & Egg Quality Support", desc: "Brazil nuts (1-2 daily), pumpkin seeds, and pasture-raised eggs rich in choline." },
+      { icon: "🥑", iconBg: "#dcfce7", iconColor: "#15803d", title: "Fiber & Essential Fats", desc: "Extra virgin olive oil, chia seeds, and leafy greens to eliminate metabolised estrogen." }
+    ],
+    tip: "Avoid refined oils and high-GI simple sugars during peak ovulation hormone surges."
+  },
+  luteal: {
+    category: "🍂 LUTEAL PHASE DIET",
+    title: "Focus: Progesterone Production, Mood & Blood Sugar Stability",
+    overview: "Progesterone rises to build uterine lining. Metabolism speeds up, meaning appetite increases. Focus on complex slow-burning carbs to prevent glucose spikes and support serotonin.",
+    rows: [
+      { icon: "🍠", iconBg: "#ffe4e6", iconColor: "#e11d48", title: "Foods to Eat", desc: "Complex starchy carbohydrates (sweet potatoes, butternut squash, oats, quinoa) to prevent energy crashes." },
+      { icon: "🍌", iconBg: "#fef3c7", iconColor: "#b45309", title: "PMS Prevention", desc: "Bananas, turkey, chickpeas (rich in Vitamin B6 which helps make progesterone and dopamine)." },
+      { icon: "🧘", iconBg: "#ccfbf1", iconColor: "#0d9488", title: "Lifestyle Support", desc: "Restorative Yin yoga, 8+ hours of sleep, and stress management to support hormonal balance." }
+    ],
+    tip: "Increase magnesium intake (dark chocolate, almonds) to relieve muscle tension & PMS mood swings."
+  }
 };
+
+const STRUCTURED_WORKOUT_PLANS = {
+  menstrual: {
+    category: "🧘 MENSTRUAL PHASE EXERCISES",
+    title: "Focus: Pelvic Restoration & Gentle Blood Flow",
+    overview: "Listen to your body. High-intensity workouts spike cortisol and uterine cramping during bleeding. Prioritize restorative movement and nervous system calming.",
+    rows: [
+      { icon: "🚶", iconBg: "#e0f2fe", iconColor: "#0284c7", title: "Low-Pulsed Strolls", desc: "15–20 minute relaxed outdoor walking to boost circulation without triggering fatigue." },
+      { icon: "🧘", iconBg: "#f3e8ff", iconColor: "#7e22ce", title: "Yin Yoga & Restorative Poses", desc: "Child's Pose (Balasana), Reclining Bound Angle, and Legs-Up-The-Wall (Viparita Karani)." },
+      { icon: "🌸", iconBg: "#ffe4e6", iconColor: "#e11d48", title: "Pelvic Relaxation", desc: "Soft diaphragmatic breathing and gentle cat-cow stretches. Avoid heavy abdominal strain." }
+    ],
+    tip: "Avoid inversions, hot yoga, or heavy lifting on high-bleeding days."
+  },
+  follicular: {
+    category: "🏃 FOLLICULAR PHASE EXERCISES",
+    title: "Focus: Progressive Strength & Stamina Building",
+    overview: "Estrogen is rising, which improves muscle repair, energy levels, and pain tolerance. Ideal time to challenge your body with strength training.",
+    rows: [
+      { icon: "🏋️", iconBg: "#dcfce7", iconColor: "#15803d", title: "Resistance Strength Training", desc: "Squats, dumbbell rows, lunges, and progressive overload lifting as energy climbs." },
+      { icon: "🚴", iconBg: "#fef3c7", iconColor: "#b45309", title: "Moderate Cardio", desc: "Cycling, steady jogging, or dance cardio to build cardiovascular endurance." },
+      { icon: "🧘", iconBg: "#e0f2fe", iconColor: "#0284c7", title: "Dynamic Vinyasa Flow", desc: "Warrior Poses (Virabhadrasana I & II) and Sun Salutations for hip mobility." }
+    ],
+    tip: "Take advantage of rising estrogen levels to build lean muscle mass efficiently."
+  },
+  ovulation: {
+    category: "⚡ OVULATION PHASE EXERCISES",
+    title: "Focus: High Intensity, Peak Strength & Agility",
+    overview: "Estrogen and testosterone peak at ovulation, providing maximum strength and athletic stamina. Push your performance ceiling while maintaining joint control.",
+    rows: [
+      { icon: "⚡", iconBg: "#fef3c7", iconColor: "#b45309", title: "High-Intensity Workouts (HIIT)", desc: "Interval sprints, plyometrics, kettlebell swings, or group bootcamp classes." },
+      { icon: "🏋️", iconBg: "#ffe4e6", iconColor: "#e11d48", title: "Heavy Resistance Lifting", desc: "Deadlifts, weighted squats, and core stability work at your peak capacity." },
+      { icon: "🧘", iconBg: "#dcfce7", iconColor: "#15803d", title: "Dynamic Balance Poses", desc: "Half Moon Pose and Tree Pose (Vrksasana) to ground high kinetic energy." }
+    ],
+    tip: "Warm up thoroughly before heavy lifts; peak estrogen makes joint ligaments slightly looser."
+  },
+  luteal: {
+    category: "🚶 LUTEAL PHASE EXERCISES",
+    title: "Focus: Fat Burning, Low Impact & Cortisol Regulation",
+    overview: "Progesterone raises body temperature and resting heart rate. Switch from high intensity to low-impact workouts to prevent adrenal fatigue and PMS flares.",
+    rows: [
+      { icon: "🤸", iconBg: "#f3e8ff", iconColor: "#7e22ce", title: "Low-Impact Pilates & Barre", desc: "Core strengthening and resistance band work without overtaxing adrenal glands." },
+      { icon: "🚶", iconBg: "#e0f2fe", iconColor: "#0284c7", title: "Incline Walking & Gentle Cardio", desc: "30-minute steady-state walking, light swimming, or outdoor trail walks." },
+      { icon: "🧘", iconBg: "#ccfbf1", iconColor: "#0d9488", title: "Grounding Hatha Yoga", desc: "Pigeon Pose, Seated Forward Bends, and Cat-Cow flows to calm the nervous system." }
+    ],
+    tip: "Avoid pushing to exhaustion during the late luteal phase to prevent cortisol-induced bloating."
+  }
+};
+
+const STRUCTURED_LIFESTYLE_PLANS = {
+  menstrual: {
+    category: "🛌 MENSTRUAL LIFESTYLE SUPPORT",
+    title: "Focus: Rest, Warmth & Low Cortisol Management",
+    overview: "Hormone levels are at their lowest baseline. Prioritize rest, slow down your schedule, and provide pelvic warmth to support healthy menstruation.",
+    rows: [
+      { icon: "😴", iconBg: "#e0f2fe", iconColor: "#0284c7", title: "Restorative Sleep", desc: "Aim for 8.5–9 hours of deep sleep to support cell repair and reduce pain sensitivity." },
+      { icon: "🔥", iconBg: "#ffe4e6", iconColor: "#e11d48", title: "Pelvic Heat Therapy", desc: "Apply a warm heating pad or hot water bottle to lower abdomen for 15 minutes." },
+      { icon: "🍵", iconBg: "#fef3c7", iconColor: "#b45309", title: "Hydration & Herbal Tea", desc: "Drink 2.5L warm water or electrolyte spearmint tea to soothe bloating and water retention." }
+    ],
+    tip: "Give yourself permission to slow down and defer non-essential stressful tasks."
+  },
+  follicular: {
+    category: "🌱 FOLLICULAR LIFESTYLE SUPPORT",
+    title: "Focus: Energy Building, Sun Exposure & Habit Formation",
+    overview: "Rising estrogen boosts mental clarity, optimism, and social drive. Ideal window for establishing wellness habits and fresh daily routines.",
+    rows: [
+      { icon: "☀️", iconBg: "#fef3c7", iconColor: "#b45309", title: "Morning Light Exposure", desc: "Get 10–15 minutes of direct morning sunlight to regulate circadian rhythm and melatonin." },
+      { icon: "🎯", iconBg: "#dcfce7", iconColor: "#15803d", title: "New Routines & Goal Setting", desc: "Estrogen enhances cognitive plasticity—great phase for planning projects and meal prep." },
+      { icon: "🌿", iconBg: "#f3e8ff", iconColor: "#7e22ce", title: "Anti-Androgen Routine", desc: "Maintain consistent spearmint tea intake and gentle exfoliating skin care." }
+    ],
+    tip: "Capitalize on natural morning alertness to establish a consistent sleep-wake cycle."
+  },
+  ovulation: {
+    category: "✨ OVULATION LIFESTYLE SUPPORT",
+    title: "Focus: High Vitality, Social Engagement & Sunlight",
+    overview: "Confidence, communication, and verbal fluidity peak during ovulation. Maximize social connections and maintain high hydration.",
+    rows: [
+      { icon: "✨", iconBg: "#fef3c7", iconColor: "#b45309", title: "Social Connection & Confidence", desc: "Optimal phase for public speaking, team meetings, and group activities." },
+      { icon: "💦", iconBg: "#e0f2fe", iconColor: "#0284c7", title: "Temperature Regulation", desc: "Drink cool hydration as basal body temperature slightly rises following ovulation." },
+      { icon: "🌞", iconBg: "#dcfce7", iconColor: "#15803d", title: "Sun & Vitamin D Synthesis", desc: "Support follicle health and mood with natural outdoor sunlight exposure." }
+    ],
+    tip: "Stay well-hydrated to support cervical fluid health and metabolic energy."
+  },
+  luteal: {
+    category: "🍂 LUTEAL LIFESTYLE SUPPORT",
+    title: "Focus: PMS Prevention, Stress Reduction & Magnesium",
+    overview: "Progesterone promotes inward focus and rest. Reduce external stressors, simplify evening routines, and prioritize nervous system grounding.",
+    rows: [
+      { icon: "🛁", iconBg: "#f3e8ff", iconColor: "#7e22ce", title: "Epsom Salt Soak & Self-Care", desc: "Take a warm Epsom salt bath (magnesium absorption) to relax tense muscles and calm mood." },
+      { icon: "☕", iconBg: "#ffe4e6", iconColor: "#e11d48", title: "Caffeine Management", desc: "Limit coffee after 12 PM to eliminate pre-menstrual anxiety, breast tenderness, and insomnia." },
+      { icon: "🧘", iconBg: "#ccfbf1", iconColor: "#0d9488", title: "Box Breathing & Journaling", desc: "10 minutes of deep diaphragmatic breathing before bed to reduce evening cortisol." }
+    ],
+    tip: "Keep bedroom cool (68°F / 20°C) to offset elevated luteal body temperature for deep sleep."
+  }
+};
+
+function selectPhaseTab(type, phase, btnEl) {
+  const containerId = type === 'diet' ? 'plansTabDiet' : (type === 'lifestyle' ? 'plansTabLifestyle' : 'plansTabWorkout');
+  const tabParent = document.getElementById(containerId);
+  if (tabParent) {
+    tabParent.querySelectorAll('.phase-select-btn').forEach(btn => {
+      btn.style.background = '#ffffff';
+      btn.style.border = '1.5px solid #cbd5e1';
+      btn.style.color = '#334155';
+    });
+  }
+
+  if (btnEl) {
+    btnEl.style.background = '#FFF0F2';
+    btnEl.style.border = '1.5px solid #e65c78';
+    btnEl.style.color = '#8A3546';
+  }
+
+  fetchPlan(type, phase);
+}
+
+function renderStructuredPlan(type, phase) {
+  const phaseKey = (phase || 'luteal').toLowerCase();
+  let planData = null;
+
+  if (type === 'diet') {
+    planData = STRUCTURED_DIET_PLANS[phaseKey] || STRUCTURED_DIET_PLANS['luteal'];
+  } else if (type === 'lifestyle') {
+    planData = STRUCTURED_LIFESTYLE_PLANS[phaseKey] || STRUCTURED_LIFESTYLE_PLANS['luteal'];
+  } else {
+    planData = STRUCTURED_WORKOUT_PLANS[phaseKey] || STRUCTURED_WORKOUT_PLANS['luteal'];
+  }
+
+  let rowsHTML = '';
+  if (planData.rows && Array.isArray(planData.rows)) {
+    planData.rows.forEach(r => {
+      rowsHTML += `
+        <div style="display: flex; gap: 14px; align-items: flex-start;">
+          <div style="width: 36px; height: 36px; border-radius: 50%; background: ${r.iconBg}; color: ${r.iconColor}; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; font-weight: 750;">
+            ${r.icon}
+          </div>
+          <div>
+            <h4 style="font-size: 13.5px; font-weight: 750; color: #0f172a; margin: 0 0 2px 0;">${r.title}</h4>
+            <p style="font-size: 13px; color: #475569; margin: 0; line-height: 1.5;">${r.desc}</p>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  let bannerImg = 'phase_recipe_bowl.png';
+  let bannerText = '🥗 Phase-specific recipe of the day';
+  let bannerAction = 'View Recipe →';
+
+  if (type === 'workout') {
+    bannerImg = 'phase_exercise_pose.png';
+    bannerText = '🧘 Phase-synced yoga pose & workout guide';
+    bannerAction = 'View Pose Guide →';
+  } else if (type === 'lifestyle') {
+    bannerImg = 'phase_exercise_pose.png';
+    bannerText = '🌿 Phase-specific daily self-care ritual';
+    bannerAction = 'View Ritual →';
+  }
+
+  return `
+    <div class="phase-plan-card" style="background: #ffffff; border: 1.5px solid #f1f5f9; border-radius: 20px; padding: 22px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 16px;">
+      
+      <!-- Category Tag -->
+      <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #e65c78; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;">
+        ${planData.category}
+      </div>
+
+      <!-- Focus Heading -->
+      <h3 style="font-family: 'Playfair Display', serif; font-style: italic; font-size: 19px; font-weight: 700; color: #8A3546; margin: 0; line-height: 1.3;">
+        ${planData.title}
+      </h3>
+
+      <!-- Description -->
+      <p style="font-size: 13.5px; line-height: 1.6; color: #475569; margin: 0;">
+        ${planData.overview}
+      </p>
+
+      <!-- Feature Rows -->
+      <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 4px;">
+        ${rowsHTML}
+      </div>
+
+      <!-- Bottom Tip Pill -->
+      <div style="margin-top: 6px; padding-top: 14px; border-top: 1px dashed #e2e8f0; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #64748b;">
+        <span>💡</span> ${planData.tip}
+      </div>
+
+      <!-- Bottom Featured Banner -->
+      <div style="position: relative; border-radius: 14px; overflow: hidden; height: 110px; margin-top: 6px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <img src="${bannerImg}" style="width: 100%; height: 100%; object-fit: cover;" alt="Phase Banner" />
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 14px; background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%); color: white; font-weight: 750; font-size: 13px; display: flex; align-items: center; justify-content: space-between;">
+          <span>${bannerText}</span>
+          <span style="font-size: 12px; font-weight: 600; opacity: 0.9;">${bannerAction}</span>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
 
 async function fetchPlan(type, phase) {
   const targetId = type === 'diet' ? 'plansDietResult' : (type === 'lifestyle' ? 'plansLifestyleResult' : 'plansWorkoutResult');
   const targetEl = document.getElementById(targetId);
   if (!targetEl) return;
 
-  const phaseKey = (phase || 'menstrual').toLowerCase();
-
-  // Aggregate ALL logged symptoms from user state
-  const aggregatedSymptoms = new Set(Array.from(selectedSymptomsSet || []));
-  
-  if (state.localSymptomLogs && Array.isArray(state.localSymptomLogs)) {
-    state.localSymptomLogs.forEach(log => {
-      if (Array.isArray(log.symptoms)) {
-        log.symptoms.forEach(s => aggregatedSymptoms.add(s));
-      }
-    });
-  }
-
-  if (state.localMoodLogs && Array.isArray(state.localMoodLogs)) {
-    state.localMoodLogs.forEach(log => {
-      if (log.mood) aggregatedSymptoms.add(log.mood);
-    });
-  }
-
-  const symptomsList = Array.from(aggregatedSymptoms);
-
-  try {
-    const response = await fetch(`${BACKEND_API_URL}/api/tools/recommendations`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: state.user.id || '123',
-        phase: phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1),
-        symptoms: symptomsList
-      })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const list = type === 'diet' ? data.diet : (type === 'lifestyle' ? data.lifestyle : data.workout);
-      if (list && Array.isArray(list) && list.length > 0) {
-        let html = `<div style="font-weight:700; font-size:14px; margin-bottom:8px; color:var(--brand-pink);">🌸 ${phase.toUpperCase()} PHASE — ${type.toUpperCase()} GUIDELINES</div>`;
-        html += '<ul style="margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px;">';
-        list.forEach(item => {
-          html += `<li>${item}</li>`;
-        });
-        html += '</ul>';
-        if (data.rag_insights) {
-          html += `<div style="margin-top:12px; padding-top:8px; border-top:1px dashed #cbd5e1; font-size:12px; color:var(--text-muted);">ℹ️ <em>${data.rag_insights}</em></div>`;
-        }
-        targetEl.innerHTML = html;
-        return;
-      }
-    }
-  } catch (err) {
-    console.warn('Backend plan notice, using phase clinical database:', err);
-  }
-
-  // Phase-Specific Clinical Database Fallback
-  let fallbackText = '';
-  if (type === 'diet') {
-    fallbackText = LOCAL_DIET_PLANS[phaseKey] || LOCAL_DIET_PLANS['menstrual'];
-  } else if (type === 'lifestyle') {
-    fallbackText = LOCAL_LIFESTYLE_PLANS[phaseKey] || LOCAL_LIFESTYLE_PLANS['menstrual'];
-  } else {
-    fallbackText = LOCAL_WORKOUT_PLANS[phaseKey] || LOCAL_WORKOUT_PLANS['menstrual'];
-  }
-
-  targetEl.innerHTML = fallbackText;
+  const phaseKey = (phase || 'luteal').toLowerCase();
+  targetEl.innerHTML = renderStructuredPlan(type, phaseKey);
 }
 

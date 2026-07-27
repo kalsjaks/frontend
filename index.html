@@ -1445,56 +1445,99 @@
     </div>
 
     <!-- Modal: Diet & Workout Plans -->
-    <div id="modal-plans" class="modal-content hidden" style="max-width: 500px;">
+    <div id="modal-plans" class="modal-content hidden" style="max-width: 560px; padding: 24px 28px;">
       <button class="modal-close" onclick="closeActiveModal()">&times;</button>
-      <h3 class="modal-title">🥗 Diet & Workout Guidelines</h3>
-      <div class="modal-body">
+      <h3 class="modal-title" style="font-size: 20px; color: var(--text-main); font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+        <span>🥗</span> Diet & Workout Guidelines
+      </h3>
+      <div class="modal-body" style="padding: 0;">
         <!-- Tab layout inside modal -->
         <div style="display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1.5px solid #ececf1; padding-bottom: 8px;">
-          <button class="tab-btn active" onclick="switchPlansTab('diet')" id="tabBtnDiet" style="flex:1; border:none; padding:12px; font-weight:700; border-radius:var(--radius-md); cursor:pointer; background: var(--brand-pink); color: white;">Diet Plans</button>
-          <button class="tab-btn" onclick="switchPlansTab('workout')" id="tabBtnWorkout" style="flex:1; border:none; padding:12px; font-weight:700; border-radius:var(--radius-md); cursor:pointer; background: #ececf1; color: var(--text-sub);">Exercise & Poses</button>
-          <button class="tab-btn" onclick="switchPlansTab('lifestyle')" id="tabBtnLifestyle" style="flex:1; border:none; padding:12px; font-weight:700; border-radius:var(--radius-md); cursor:pointer; background: #ececf1; color: var(--text-sub);">Lifestyle</button>
+          <button class="tab-btn active" onclick="switchPlansTab('diet')" id="tabBtnDiet" style="flex:1; border:none; padding:10px 12px; font-weight:700; border-radius:var(--radius-md); cursor:pointer; background: var(--brand-pink); color: white; font-size: 13.5px;">Diet Plans</button>
+          <button class="tab-btn" onclick="switchPlansTab('workout')" id="tabBtnWorkout" style="flex:1; border:none; padding:10px 12px; font-weight:700; border-radius:var(--radius-md); cursor:pointer; background: #ececf1; color: var(--text-sub); font-size: 13.5px;">Exercise & Poses</button>
+          <button class="tab-btn" onclick="switchPlansTab('lifestyle')" id="tabBtnLifestyle" style="flex:1; border:none; padding:10px 12px; font-weight:700; border-radius:var(--radius-md); cursor:pointer; background: #ececf1; color: var(--text-sub); font-size: 13.5px;">Lifestyle</button>
         </div>
         
         <!-- Tab: Diet -->
         <div id="plansTabDiet" class="plans-tab-content">
-          <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Choose a cycle phase for low GI and anti-inflammatory food recommendations:</p>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
-            <button class="btn-secondary" onclick="fetchPlan('diet', 'menstrual')" style="font-size:13.5px; padding:12px 14px; font-weight:600; border-radius:var(--radius-md); transition: all 0.2s;">💧 Menstrual Phase</button>
-            <button class="btn-secondary" onclick="fetchPlan('diet', 'follicular')" style="font-size:13.5px; padding:12px 14px; font-weight:600; border-radius:var(--radius-md); transition: all 0.2s;">🌱 Follicular Phase</button>
-            <button class="btn-secondary" onclick="fetchPlan('diet', 'ovulation')" style="font-size:13.5px; padding:12px 14px; font-weight:600; border-radius:var(--radius-md); transition: all 0.2s;">✨ Ovulation Phase</button>
-            <button class="btn-secondary" onclick="fetchPlan('diet', 'luteal')" style="font-size:13.5px; padding:12px 14px; font-weight:600; border-radius:var(--radius-md); transition: all 0.2s;">🍂 Luteal Phase</button>
+          <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 14px; line-height: 1.4;">
+            Choose a cycle phase for low GI and anti-inflammatory food recommendations tailored to your hormones:
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+            <button class="phase-select-btn" id="phaseBtnDietMenstrual" onclick="selectPhaseTab('diet', 'menstrual', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>💧</span> Menstrual Phase
+            </button>
+            <button class="phase-select-btn" id="phaseBtnDietFollicular" onclick="selectPhaseTab('diet', 'follicular', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>🌱</span> Follicular Phase
+            </button>
+            <button class="phase-select-btn" id="phaseBtnDietOvulation" onclick="selectPhaseTab('diet', 'ovulation', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>✨</span> Ovulation Phase
+            </button>
+            <button class="phase-select-btn active-phase" id="phaseBtnDietLuteal" onclick="selectPhaseTab('diet', 'luteal', this)" style="background: #FFF0F2; border: 1.5px solid #e65c78; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #8A3546; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>🍂</span> Luteal Phase
+            </button>
           </div>
-          <div id="plansDietResult" style="background:#f9f9fb; border:1px solid #ececf1; border-radius:var(--radius-md); padding:16px; font-size:13.5px; max-height:280px; overflow-y:auto; line-height:1.6; color: var(--text-sub);">
-            Select a phase to view diet recommendations.
+          
+          <!-- Result Container: Diet -->
+          <div id="plansDietResult">
+            <!-- Rendered dynamically -->
           </div>
         </div>
 
         <!-- Tab: Workout -->
         <div id="plansTabWorkout" class="plans-tab-content hidden">
-          <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">Sync your exercises and yoga poses with your cycle to regulate cortisol:</p>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
-            <button class="btn-secondary" onclick="fetchPlan('workout', 'menstrual')" style="font-size:13.5px; padding:12px 14px; font-weight:600; border-radius:var(--radius-md); transition: all 0.2s;">💧 Menstrual Exercises</button>
-            <button class="btn-secondary" onclick="fetchPlan('workout', 'follicular')" style="font-size:13.5px; padding:12px 14px; font-weight:600; border-radius:var(--radius-md); transition: all 0.2s;">🌱 Follicular Exercises</button>
-            <button class="btn-secondary" onclick="fetchPlan('workout', 'ovulation')" style="font-size:13.5px; padding:12px 14px; font-weight:600; border-radius:var(--radius-md); transition: all 0.2s;">✨ Ovulation Exercises</button>
-            <button class="btn-secondary" onclick="fetchPlan('workout', 'luteal')" style="font-size:13.5px; padding:12px 14px; font-weight:600; border-radius:var(--radius-md); transition: all 0.2s;">🍂 Luteal Exercises</button>
+          <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 14px; line-height: 1.4;">
+            Sync your exercises and yoga poses with your cycle to regulate cortisol & boost stamina:
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+            <button class="phase-select-btn" id="phaseBtnWorkoutMenstrual" onclick="selectPhaseTab('workout', 'menstrual', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>🧘</span> Menstrual Exercises
+            </button>
+            <button class="phase-select-btn" id="phaseBtnWorkoutFollicular" onclick="selectPhaseTab('workout', 'follicular', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>🏃</span> Follicular Exercises
+            </button>
+            <button class="phase-select-btn" id="phaseBtnWorkoutOvulation" onclick="selectPhaseTab('workout', 'ovulation', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>⚡</span> Ovulation Exercises
+            </button>
+            <button class="phase-select-btn active-phase" id="phaseBtnWorkoutLuteal" onclick="selectPhaseTab('workout', 'luteal', this)" style="background: #FFF0F2; border: 1.5px solid #e65c78; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #8A3546; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>🚶</span> Luteal Exercises
+            </button>
           </div>
-          <div id="plansWorkoutResult" style="background:#f9f9fb; border:1px solid #ececf1; border-radius:var(--radius-md); padding:16px; font-size:13.5px; max-height:280px; overflow-y:auto; line-height:1.6; color: var(--text-sub);">
-            Select a phase to view exercise recommendations.
+          
+          <!-- Result Container: Workout -->
+          <div id="plansWorkoutResult">
+            <!-- Rendered dynamically -->
           </div>
         </div>
 
         <!-- Tab: Lifestyle -->
         <div id="plansTabLifestyle" class="plans-tab-content hidden">
-          <div style="background:#f9f9fb; border:1px solid #ececf1; border-radius:var(--radius-sm); padding:14px; font-size:12.5px; line-height:1.6; display:flex; flex-direction:column; gap:10px; color: var(--text-sub);">
-            <p>💧 <strong>Water Intake:</strong> Aim for 2.0 to 2.5 Liters of water daily to support kidney function and hormonal flush.</p>
-            <p>😴 <strong>Sleep Quality:</strong> Sleep at least 7.5 to 8 hours to manage insulin resistance and lower stress (cortisol).</p>
-            <p>🍵 <strong>Spearmint & Green Tea:</strong> Drink 1–2 cups of Spearmint tea to naturally reduce free testosterone and improve hair loss/acne symptoms.</p>
+          <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 14px; line-height: 1.4;">
+            Align daily self-care, circadian rhythm, and stress reduction habits with your cycle phase:
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+            <button class="phase-select-btn" id="phaseBtnLifestyleMenstrual" onclick="selectPhaseTab('lifestyle', 'menstrual', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>🛌</span> Menstrual Support
+            </button>
+            <button class="phase-select-btn" id="phaseBtnLifestyleFollicular" onclick="selectPhaseTab('lifestyle', 'follicular', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>☀️</span> Follicular Support
+            </button>
+            <button class="phase-select-btn" id="phaseBtnLifestyleOvulation" onclick="selectPhaseTab('lifestyle', 'ovulation', this)" style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>✨</span> Ovulation Support
+            </button>
+            <button class="phase-select-btn active-phase" id="phaseBtnLifestyleLuteal" onclick="selectPhaseTab('lifestyle', 'luteal', this)" style="background: #FFF0F2; border: 1.5px solid #e65c78; border-radius: 14px; padding: 12px 14px; font-size: 13px; font-weight: 700; color: #8A3546; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;">
+              <span>🍂</span> Luteal Support
+            </button>
+          </div>
+          
+          <!-- Result Container: Lifestyle -->
+          <div id="plansLifestyleResult">
+            <!-- Rendered dynamically -->
           </div>
         </div>
       </div>
-      <div class="modal-footer" style="margin-top: 16px;">
-        <button class="btn-secondary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
+      <div class="modal-footer" style="margin-top: 20px;">
+        <button class="btn-primary" onclick="closeActiveModal()" style="width: 100%;">Close</button>
       </div>
     </div>
 
@@ -1901,7 +1944,7 @@
 
   <!-- Main client side scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js?v=63"></script>
+  <script src="app.js?v=64"></script>
 
 
   <!-- ElevenLabs Conversational AI Widget -->
