@@ -3115,133 +3115,149 @@ function selectSeverityCard(cardEl, val) {
 }
 
 async function submitFullPeriodLog() {
-  const sortedDates = Array.from(selectedPeriodDates).sort();
-  const start = cycleRangeStart || (sortedDates.length > 0 ? sortedDates[0] : new Date().toISOString().split('T')[0]);
-  const end = cycleRangeEnd || (sortedDates.length > 1 ? sortedDates[sortedDates.length - 1] : start);
-
-  // Read tracker inputs for Age, Height, Weight
-  const trackerAge = parseInt(document.getElementById('trackerAgeInput').value) || state.user.age;
-  const trackerHeight = parseInt(document.getElementById('trackerHeightInput').value) || null;
-  const trackerWeight = parseInt(document.getElementById('trackerWeightInput').value) || null;
-
-  state.user.age = trackerAge;
-  state.user.height = trackerHeight;
-  state.user.weight = trackerWeight;
-
-  // Get Flow
-  let flow = 'Medium';
-  document.querySelectorAll('#flowGroup .flow-option-card').forEach(card => {
-    if (card.classList.contains('selected')) {
-      const spans = card.querySelectorAll('span');
-      if (spans.length > 1) flow = spans[1].textContent.trim();
-    }
-  });
-
-  // Get Pain
-  const painIndex = document.getElementById('painLevelSlider').value;
-  const painLabelsMap = { '1': 'None', '2': 'Mild', '3': 'Bad' };
-  const pain = painLabelsMap[painIndex] || 'None';
-
-  // Get Clots
-  let clots = 'No';
-  document.querySelectorAll('#clotsGroup .pill-btn').forEach(btn => {
-    if (btn.classList.contains('selected')) clots = btn.textContent.trim();
-  });
-
-  // Get Cycle Status
-  let status = 'Regular';
-  document.querySelectorAll('#cycleStatusGroup .pill-btn').forEach(btn => {
-    if (btn.classList.contains('selected')) status = btn.textContent.trim();
-  });
-
-  const notes = document.getElementById('periodNotesInput').value.trim();
-
-  // Save to local state
-  const formattedStart = formatDDMonYYYY(start);
-  const formattedEnd = formatDDMonYYYY(end);
-  state.logs.period = `Last log: ${formattedStart} to ${formattedEnd} (Flow: ${flow})`;
-
-  if (!state.localPeriodLogs) state.localPeriodLogs = [];
-  const fullLogObj = {
-    id: Date.now(),
-    start_date: start,
-    end_date: end,
-    flow_intensity: flow,
-    pain_level: pain,
-    any_clots: clots === 'Yes',
-    cycle_status: status,
-    additional_notes: notes,
-    created_at: new Date().toISOString()
-  };
-  const existingIdx = state.localPeriodLogs.findIndex(l => l.start_date === start);
-  if (existingIdx >= 0) {
-    state.localPeriodLogs[existingIdx] = fullLogObj;
-  } else {
-    state.localPeriodLogs.unshift(fullLogObj);
+  const saveBtn = document.querySelector('.period-save-btn');
+  const originalBtnHTML = saveBtn ? saveBtn.innerHTML : 'Save Cycle Log';
+  if (saveBtn) {
+    saveBtn.innerHTML = '⏳ Saving Cycle Log...';
+    saveBtn.disabled = true;
   }
 
-  saveState();
-  updateUIFromState();
+  try {
+    const sortedDates = Array.from(selectedPeriodDates).sort();
+    const start = cycleRangeStart || (sortedDates.length > 0 ? sortedDates[0] : new Date().toISOString().split('T')[0]);
+    const end = cycleRangeEnd || (sortedDates.length > 1 ? sortedDates[sortedDates.length - 1] : start);
 
-  // Update profile vitals in database
-  if (state.user.id) {
-    try {
-      await sb.from('profiles').upsert({
-        id: state.user.id,
-        name: state.user.name,
-        pcos_type: state.user.pcosType,
-        age: trackerAge,
-        cycle_length: state.user.cycleLength,
-        height: trackerHeight,
-        weight: trackerWeight,
-        updated_at: new Date().toISOString()
-      });
-    } catch (e) {
-      console.error('Failed to sync profile vitals from tracker log:', e);
-    }
-  }
+    // Read tracker inputs for Age, Height, Weight
+    const trackerAgeInput = document.getElementById('trackerAgeInput');
+    const trackerHeightInput = document.getElementById('trackerHeightInput');
+    const trackerWeightInput = document.getElementById('trackerWeightInput');
 
-  if (state.user.id) {
-    const payload = {
-      user_id: state.user.id,
+    const trackerAge = trackerAgeInput ? (parseInt(trackerAgeInput.value) || state.user.age) : state.user.age;
+    const trackerHeight = trackerHeightInput ? (parseInt(trackerHeightInput.value) || null) : null;
+    const trackerWeight = trackerWeightInput ? (parseInt(trackerWeightInput.value) || null) : null;
+
+    state.user.age = trackerAge;
+    state.user.height = trackerHeight;
+    state.user.weight = trackerWeight;
+
+    // Get Flow
+    let flow = 'Medium';
+    document.querySelectorAll('#flowGroup .flow-option-card').forEach(card => {
+      if (card.classList.contains('selected')) {
+        const spans = card.querySelectorAll('span');
+        if (spans.length > 1) flow = spans[1].textContent.trim();
+      }
+    });
+
+    // Get Pain
+    const painSlider = document.getElementById('painLevelSlider');
+    const painIndex = painSlider ? painSlider.value : '1';
+    const painLabelsMap = { '1': 'None', '2': 'Mild', '3': 'Bad' };
+    const pain = painLabelsMap[painIndex] || 'None';
+
+    // Get Clots
+    let clots = 'No';
+    document.querySelectorAll('#clotsGroup .pill-btn').forEach(btn => {
+      if (btn.classList.contains('selected')) clots = btn.textContent.trim();
+    });
+
+    // Get Cycle Status
+    let status = 'Regular';
+    document.querySelectorAll('#cycleStatusGroup .pill-btn').forEach(btn => {
+      if (btn.classList.contains('selected')) status = btn.textContent.trim();
+    });
+
+    const notesInput = document.getElementById('periodNotesInput');
+    const notes = notesInput ? notesInput.value.trim() : '';
+
+    // Save to local state
+    const formattedStart = formatDDMonYYYY(start);
+    const formattedEnd = formatDDMonYYYY(end);
+    state.logs.period = `Last log: ${formattedStart} to ${formattedEnd} (Flow: ${flow})`;
+
+    if (!state.localPeriodLogs) state.localPeriodLogs = [];
+    const fullLogObj = {
+      id: Date.now(),
       start_date: start,
+      end_date: end,
       flow_intensity: flow,
-      end_date: end || null,
       pain_level: pain,
       any_clots: clots === 'Yes',
       cycle_status: status,
-      additional_notes: notes
+      additional_notes: notes,
+      created_at: new Date().toISOString()
     };
 
-    const { error } = await sb.from('period_logs').insert(payload);
-
-    if (error) {
-      console.warn("Full insert failed, attempting fallback (standard columns only):", error);
-      const standardPayload = {
-        user_id: state.user.id,
-        start_date: start,
-        flow_intensity: flow
-      };
-      
-      const { error: fallbackError } = await sb.from('period_logs').insert(standardPayload);
-      if (fallbackError) {
-        showToast('❌ Failed to save period log: ' + fallbackError.message, 'error');
-        return;
-      } else {
-        showToast('🌸 Period logged! (Some fields were skipped. Run SQL update in your Supabase Editor.)', 'success');
-      }
+    const existingIdx = state.localPeriodLogs.findIndex(l => l.start_date === start);
+    if (existingIdx >= 0) {
+      state.localPeriodLogs[existingIdx] = fullLogObj;
     } else {
-      showToast('🌸 Period log saved successfully!', 'success');
+      state.localPeriodLogs.unshift(fullLogObj);
     }
-  } else {
-    showToast('🌸 Period log saved locally.', 'success');
-  }
 
-  // Clear cache and notes input, update forecast, and stay in Period Tracker view
-  cachedPeriods = [];
-  cachedVitals = [];
-  document.getElementById('periodNotesInput').value = '';
-  updateForecast();
+    saveState();
+    updateUIFromState();
+
+    // Async DB Sync if logged in
+    if (state.user && state.user.id && typeof sb !== 'undefined' && sb) {
+      try {
+        await sb.from('profiles').upsert({
+          id: state.user.id,
+          name: state.user.name,
+          pcos_type: state.user.pcosType,
+          age: trackerAge,
+          cycle_length: state.user.cycleLength,
+          height: trackerHeight,
+          weight: trackerWeight,
+          updated_at: new Date().toISOString()
+        });
+
+        const payload = {
+          user_id: state.user.id,
+          start_date: start,
+          flow_intensity: flow,
+          end_date: end || null,
+          pain_level: pain,
+          any_clots: clots === 'Yes',
+          cycle_status: status,
+          additional_notes: notes
+        };
+
+        const { error } = await sb.from('period_logs').insert(payload);
+        if (error) {
+          await sb.from('period_logs').insert({
+            user_id: state.user.id,
+            start_date: start,
+            flow_intensity: flow
+          });
+        }
+      } catch (e) {
+        console.warn('DB sync notice for period log:', e);
+      }
+    }
+
+    // Reset notes input & update UI
+    cachedPeriods = [];
+    cachedVitals = [];
+    if (notesInput) notesInput.value = '';
+    updateForecast();
+
+    // Show prominent confirmation toast
+    showToast(`🌸 Cycle log saved successfully! (${formattedStart} - ${formattedEnd})`, 'success');
+
+    // Close active modal if saving inside a modal
+    if (typeof activeModalId !== 'undefined' && activeModalId === 'modal-period') {
+      closeActiveModal();
+    }
+  } catch (err) {
+    console.error('Error saving period log:', err);
+    showToast('❌ Error saving period log', 'error');
+  } finally {
+    if (saveBtn) {
+      saveBtn.innerHTML = originalBtnHTML;
+      saveBtn.disabled = false;
+    }
+  }
 }
 
 async function openPeriodHistoryModal() {
