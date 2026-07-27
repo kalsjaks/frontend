@@ -159,10 +159,10 @@ function renderCommunityMembers() {
 
   const buildHTML = (memberList) => {
     const gradients = [
-      'linear-gradient(135deg, #E87C8A 0%, #7E22CE 100%)',
-      'linear-gradient(135deg, #2E7D32 0%, #7E22CE 100%)',
-      'linear-gradient(135deg, #7E22CE 0%, #E87C8A 100%)',
-      'linear-gradient(135deg, #E87C8A 0%, #2E7D32 100%)'
+      'linear-gradient(135deg, #E87C8A 0%, #F4A261 100%)',
+      'linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%)',
+      'linear-gradient(135deg, #E87C8A 0%, #2E7D32 100%)',
+      'linear-gradient(135deg, #2E7D32 0%, #E87C8A 100%)'
     ];
     return memberList.map((m, i) => {
       const initial = (m.name || 'M').charAt(0).toUpperCase();
