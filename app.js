@@ -6006,6 +6006,11 @@ async function handlePageConsultationBookingSubmit(e) {
     state.userConfirmedBookings.unshift(appt);
     saveState();
 
+    loadPageConfirmedBookings();
+    showToast(`✉️ Appointment confirmed with ${doctorName}! Confirmation email notification sent to ${emailVal}.`, 'success');
+  }
+}
+
 
 // ── Full-Page Lab & UltraSound Reports Module ───────────────────────────
 function initLabPage() {
