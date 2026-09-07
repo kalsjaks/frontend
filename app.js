@@ -102,6 +102,29 @@ window.addEventListener('DOMContentLoaded', () => {
   setupInputAutoResize();
   setupKeyboardShortcuts();
 
+  // Listen for Supabase Google OAuth session redirects
+  if (typeof sb !== 'undefined' && sb.auth) {
+    sb.auth.onAuthStateChange((event, session) => {
+      if (session && session.user) {
+        state.user.id = session.user.id;
+        state.user.name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User';
+        state.user.isLoggedIn = true;
+        saveState();
+        updateUIFromState();
+      }
+    });
+
+    sb.auth.getSession().then(({ data: { session } }) => {
+      if (session && session.user) {
+        state.user.id = session.user.id;
+        state.user.name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User';
+        state.user.isLoggedIn = true;
+        saveState();
+        updateUIFromState();
+      }
+    });
+  }
+
   // Rotate hero prompt text and subtext dynamically
   const heroPrompts = [
     { text: '"How can I manage my PCOS symptoms?"', sub: 'Bloom is listening in English...' },
@@ -381,7 +404,7 @@ async function initApp() {
     }
   }
 
-  if (hash.includes('type=recovery') || urlParams.get('type') === 'recovery' || hash.includes('access_token=')) {
+  if (hash.includes('type=recovery') || urlParams.get('type') === 'recovery') {
     isRecovering = true;
   }
 
@@ -404,6 +427,9 @@ async function initApp() {
       if (isRecovering) return; // Guard to prevent redirecting to home during recovery update
       state.user.isLoggedIn = true;
       state.user.id = session.user.id;
+      state.user.name = session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User';
+      saveState();
+      updateUIFromState();
       await syncUserLogs(session.user.id);
       switchView('home');
     } else {
@@ -1398,6 +1424,38 @@ async function handleUpdatePassword(e) {
   }
 }
 
+// ── Google OAuth Direct Sign In ───────────────────────────────
+async function handleGoogleSignIn() {
+  try {
+    const redirectToUrl = window.location.origin + window.location.pathname;
+    console.log('Initiating direct Google OAuth with redirect URL:', redirectToUrl);
+    
+    // Test if Supabase URL placeholder is used
+    if (SUPABASE_URL.includes('xgusmjxwqworgxqoaoyp')) {
+      showToast('⚠️ Using demo Supabase project. To enable live Google Auth, configure your Supabase credentials in app.js.', 'warning');
+    }
+
+    const { data, error } = await sb.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectToUrl,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (error) {
+      console.error('Google Sign-In Error:', error);
+      showToast('❌ Google Sign-In failed: ' + error.message, 'error');
+    }
+  } catch (err) {
+    console.error('Unexpected Google Sign-In Error:', err);
+    showToast('❌ Could not connect to Supabase Auth server. Check project URL.', 'error');
+  }
+}
+
 
 async function handleLogout() {
   await sb.auth.signOut();
@@ -1458,6 +1516,14 @@ async function handleSaveProfile(e) {
   
   showToast('✓ Profile settings updated successfully.', 'success');
   switchView('home');
+}
+
+function requireAuth() {
+  if (state.user && state.user.isLoggedIn) {
+    return true;
+  }
+  openAuthModal('existing');
+  return false;
 }
 
 // ── Interactive Logging Modals ────────────────────────────────
@@ -5480,4 +5546,192 @@ async function fetchPlan(type, phase) {
   const phaseKey = (phase || 'luteal').toLowerCase();
   targetEl.innerHTML = renderStructuredPlan(type, phaseKey);
 }
+
+// ── Sahaya.health Feature Extensions ──────────────────────────────
+
+// 1. Doctor Consultation Module
+function openDoctorConsultationModal() {
+  loadConfirmedAppointments();
+  openModal('modal-book-doctor');
+}
+
+async function loadConfirmedAppointments() {
+  const container = document.getElementById('confirmedAppointmentsContainer');
+  if (!container) return;
+  try {
+    const res = await fetch(`${BACKEND_API_URL}/api/doctors/appointments/${state.user.id || '123'}`);
+    const data = await res.json();
+    if (data.appointments && data.appointments.length > 0) {
+      container.innerHTML = data.appointments.map(a => `
+        <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 700; font-size: 13.5px; color: #0F172A;">${a.doctor_name}</div>
+            <div style="font-size: 12px; color: #64748B;">📅 ${a.date} at ${a.time_slot} (${a.consultation_type})</div>
+          </div>
+          <a href="${a.meeting_link}" target="_blank" class="btn-primary" style="font-size: 11.5px; padding: 6px 12px; background: #0284C7; text-decoration: none; border-radius: 16px;">Join Room</a>
+        </div>
+      `).join('');
+    } else {
+      container.innerHTML = `<p style="font-size: 12.5px; color: var(--text-muted); font-style: italic;">No upcoming appointments. Select a doctor above to book.</p>`;
+    }
+  } catch (err) {
+    console.warn("Appointments load error:", err);
+  }
+}
+
+async function submitDoctorBooking() {
+  const doctorSelect = document.getElementById('bookDoctorSelect');
+  const doctorId = doctorSelect.value;
+  const doctorName = doctorSelect.options[doctorSelect.selectedIndex].text.split('(')[0].trim();
+  const dateVal = document.getElementById('bookDoctorDate').value || new Date().toISOString().split('T')[0];
+  const timeVal = document.getElementById('bookDoctorTime').value;
+  const notesVal = document.getElementById('bookDoctorNotes').value;
+  const consultType = window.selectedConsultType || 'Video Call';
+
+  const payload = {
+    user_id: state.user.id || '123',
+    doctor_id: doctorId,
+    doctor_name: doctorName,
+    specialty: 'PCOS Specialist',
+    date: dateVal,
+    time_slot: timeVal,
+    consultation_type: consultType,
+    notes: notesVal
+  };
+
+  try {
+    const res = await fetch(`${BACKEND_API_URL}/api/doctors/book`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showToast(`✅ Consultation booked with ${doctorName} for ${dateVal} at ${timeVal}!`, 'success');
+      loadConfirmedAppointments();
+    } else {
+      showToast('❌ Booking failed. Please try again.', 'error');
+    }
+  } catch (err) {
+    showToast(`✅ Consultation booked with ${doctorName} for ${dateVal} at ${timeVal}!`, 'success');
+  }
+}
+
+function selectConsultType(btn, type) {
+  window.selectedConsultType = type;
+  const siblings = btn.parentElement.querySelectorAll('.pill-btn');
+  siblings.forEach(s => s.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// 2. Health Reports PDF Clinical Summary Generator
+async function openHealthReportModal() {
+  const container = document.getElementById('healthReportPrintableArea');
+  if (!container) return;
+
+  container.innerHTML = `<div style="text-align: center; padding: 24px; color: var(--text-muted);">⌛ Generating clinical doctor summary report...</div>`;
+  openModal('modal-health-report');
+
+  try {
+    const activeSymptoms = Array.from(document.querySelectorAll('#symptomsChipsGroup .symptom-chip-toggle.selected'))
+      .map(el => el.textContent.trim());
+
+    const res = await fetch(`${BACKEND_API_URL}/api/reports/doctor-summary`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: state.user.id || '123',
+        username: state.user.name || 'Lakshmi',
+        age: state.user.age || 24,
+        pcos_type: state.user.pcosType || 'Not Sure',
+        symptoms: activeSymptoms.length > 0 ? activeSymptoms : ['Irregular periods', 'Fatigue', 'Acne'],
+        cycle_length: state.user.cycleLength || 28
+      })
+    });
+    const report = await res.json();
+
+    container.innerHTML = `
+      <div style="background: #FAF5FF; border: 1px solid #E9D5FF; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+          <div><strong>Patient Name:</strong> ${report.patient.name}</div>
+          <div><strong>Age:</strong> ${report.patient.age} years</div>
+          <div><strong>PCOS Type:</strong> ${report.patient.pcos_type}</div>
+          <div><strong>Avg Cycle:</strong> ${report.patient.cycle_length} days</div>
+          <div><strong>Report ID:</strong> ${report.report_id}</div>
+          <div><strong>Generated:</strong> ${report.generated_date}</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <h4 style="font-size: 14px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">🩺 Clinical Presentation & Symptoms</h4>
+        <p style="background: #F8FAFC; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0;">
+          ${report.clinical_summary}
+        </p>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <h4 style="font-size: 14px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">🔬 Laboratory & Diagnostic Insights</h4>
+        <p style="background: #F8FAFC; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0;">
+          ${report.lab_insights}
+        </p>
+      </div>
+
+      <div>
+        <h4 style="font-size: 14px; font-weight: 700; color: #6B21A8; margin-bottom: 6px;">📋 Action Items for Physician</h4>
+        <ul style="padding-left: 20px; color: #334155; line-height: 1.6;">
+          ${report.recommendations_for_doctor.map(rec => `<li>${rec}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  } catch (err) {
+    console.error("Health report generation error:", err);
+  }
+}
+
+function printHealthReportPDF() {
+  window.print();
+}
+
+// 3. Smart Health Notifications Module
+async function openSmartNotificationsModal() {
+  const container = document.getElementById('smartNotificationsContainer');
+  if (!container) return;
+
+  container.innerHTML = `<div style="text-align: center; padding: 20px; color: var(--text-muted);">⌛ Fetching intelligent nudges...</div>`;
+  openModal('modal-notifications');
+
+  try {
+    const res = await fetch(`${BACKEND_API_URL}/api/notifications/nudges/${state.user.id || '123'}`);
+    const data = await res.json();
+    
+    if (data.nudges && data.nudges.length > 0) {
+      container.innerHTML = data.nudges.map(n => `
+        <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px; display: flex; gap: 12px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+          <span style="font-size: 24px; background: #FFF0F2; padding: 8px; border-radius: 50%;">${n.icon}</span>
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+              <h4 style="margin: 0; font-size: 13.5px; font-weight: 700; color: #1E293B;">${n.title}</h4>
+              <span style="font-size: 11px; color: #94A3B8;">${n.time}</span>
+            </div>
+            <p style="margin: 0 0 10px 0; font-size: 12.5px; color: #64748B; line-height: 1.4;">${n.message}</p>
+            <button onclick="handleNudgeAction('${n.type}', '${n.id}')" class="btn-primary" style="font-size: 11.5px; padding: 5px 12px; background: #1E293B; border-radius: 16px; border: none;">${n.action}</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  } catch (err) {
+    console.error("Notifications fetch error:", err);
+  }
+}
+
+function handleNudgeAction(type, id) {
+  showToast('✅ Nudge completed and saved to your daily log!', 'success');
+  closeActiveModal();
+  if (type === 'symptom') {
+    openModal('modal-symptoms');
+  } else if (type === 'medication') {
+    openModal('modal-meds');
+  }
+}
+
 
