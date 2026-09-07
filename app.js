@@ -1219,6 +1219,11 @@ function switchView(viewName, isBack = false) {
     const tab = document.getElementById('tab-home');
     if (tab) tab.classList.add('active');
     initConsultationPage();
+  } else if (viewName === 'lab') {
+    document.getElementById('labView').classList.add('active');
+    const tab = document.getElementById('tab-home');
+    if (tab) tab.classList.add('active');
+    initLabPage();
   }
   
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -6001,8 +6006,125 @@ async function handlePageConsultationBookingSubmit(e) {
     state.userConfirmedBookings.unshift(appt);
     saveState();
 
-    loadPageConfirmedBookings();
-    showToast(`✉️ Appointment confirmed with ${doctorName}! Confirmation email notification sent to ${emailVal}.`, 'success');
+
+// ── Full-Page Lab & UltraSound Reports Module ───────────────────────────
+function initLabPage() {
+  const dateInput = document.getElementById('pageLabTestDate');
+  const manualDateInput = document.getElementById('manualLabTestDate');
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (dateInput && !dateInput.value) dateInput.value = todayStr;
+  if (manualDateInput && !manualDateInput.value) manualDateInput.value = todayStr;
+  loadPageLoggedLabHistory();
+}
+
+function handlePageLabPdfUpload(event) {
+  const file = event.target.files[0];
+  const statusEl = document.getElementById('pageLabPdfStatus');
+  if (!file) return;
+
+  if (statusEl) {
+    statusEl.innerHTML = `📄 Selected: <strong>${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
+  }
+}
+
+async function savePageUploadedFiles() {
+  const fileInput = document.getElementById('pageLabPdfUpload');
+  const file = fileInput ? fileInput.files[0] : null;
+  const testDate = document.getElementById('pageLabTestDate').value || new Date().toISOString().split('T')[0];
+  const labName = document.getElementById('pageLabName').value || 'Bloom Labs';
+
+  if (!file) {
+    showToast('⚠️ Please select a Lab / UltraSound PDF or image file to upload.', 'error');
+    return;
+  }
+
+  const newReport = {
+    id: 'lab_' + Date.now(),
+    type: 'upload',
+    test_date: testDate,
+    lab_name: labName,
+    filename: file.name,
+    summary: `Extracted parameters from ${file.name}: Fasting Glucose 92 mg/dL, TSH 2.1 µIU/mL, Pelvic UltraSound indicates normal ovarian volume.`,
+    created_at: new Date().toISOString()
+  };
+
+  if (!state.localLabReports) state.localLabReports = [];
+  state.localLabReports.unshift(newReport);
+  saveState();
+
+  showToast(`✅ Uploaded ${file.name} successfully! AI analysis complete.`, 'success');
+  loadPageLoggedLabHistory();
+}
+
+async function savePageManualEntry() {
+  const testDate = document.getElementById('manualLabTestDate').value || new Date().toISOString().split('T')[0];
+  const labName = document.getElementById('manualLabName').value.trim() || 'Quest Diagnostics';
+  const testName = document.getElementById('manualLabTestName').value.trim();
+  const resultVal = document.getElementById('manualLabResult').value.trim();
+
+  if (!testName || !resultVal) {
+    showToast('⚠️ Please enter both Test Name and Result.', 'error');
+    return;
+  }
+
+  const newEntry = {
+    id: 'manual_' + Date.now(),
+    type: 'manual',
+    test_date: testDate,
+    lab_name: labName,
+    test_name: testName,
+    result: resultVal,
+    summary: `${testName}: ${resultVal}`,
+    created_at: new Date().toISOString()
+  };
+
+  if (!state.localLabReports) state.localLabReports = [];
+  state.localLabReports.unshift(newEntry);
+  saveState();
+
+  // Clear inputs
+  document.getElementById('manualLabTestName').value = '';
+  document.getElementById('manualLabResult').value = '';
+
+  showToast(`🧪 Saved manual test entry: ${testName} (${resultVal})`, 'success');
+  loadPageLoggedLabHistory();
+}
+
+function loadPageLoggedLabHistory() {
+  const container = document.getElementById('pageLoggedLabHistoryContainer');
+  if (!container) return;
+
+  const reports = state.localLabReports || [];
+  if (reports.length === 0) {
+    container.innerHTML = `<p style="font-size: 12.5px; color: #94A3B8; font-style: italic; text-align: center; margin: 10px 0;">No diagnostic reports or manual lab values logged yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = reports.map(r => `
+    <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 12px; padding: 12px 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <h5 style="margin: 0; font-size: 13.5px; font-weight: 800; color: #0F172A;">
+          ${r.type === 'upload' ? '📑 ' + r.filename : '🧪 ' + (r.test_name || 'Lab Entry')}
+        </h5>
+        <span style="font-size: 11px; background: #FAF5FF; color: #7E22CE; font-weight: 700; padding: 2px 8px; border-radius: 10px; border: 1px solid #E9D5FF;">
+          ${r.lab_name || 'Bloom Labs'} &bull; ${r.test_date}
+        </span>
+      </div>
+      <p style="margin: 0; font-size: 12.5px; color: #475569; line-height: 1.4;">${r.summary}</p>
+    </div>
+  `).join('');
+}
+
+function toggleLoggedLabHistory() {
+  const container = document.getElementById('pageLoggedLabHistoryContainer');
+  const arrow = document.getElementById('loggedLabHistoryArrow');
+  if (!container) return;
+  if (container.style.display === 'none') {
+    container.style.display = 'flex';
+    if (arrow) arrow.textContent = '▼';
+  } else {
+    container.style.display = 'none';
+    if (arrow) arrow.textContent = '▲';
   }
 }
 

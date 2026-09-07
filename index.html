@@ -238,7 +238,21 @@
             <!-- Features Grid (2x2 Layout) -->
             <div class="features-grid">
               
-              <!-- 1. Fertility Care -->
+              <!-- 1. Lab & UltraSound Reports (Prominent Feature Card) -->
+              <div class="feature-grid-card" onclick="switchView('lab')" style="border: 1.5px solid rgba(126, 34, 206, 0.3); background: linear-gradient(135deg, #FAF5FF 0%, #FFFFFF 100%);">
+                <div class="feature-card-header">
+                  <h3 class="feature-card-title" style="color: #6B21A8;">Lab & UltraSound</h3>
+                  <p class="feature-card-subtitle" id="labLogDesc" style="color: #7E22CE; font-weight: 600;">Upload & Analyze Reports</p>
+                </div>
+                <div class="feature-card-footer">
+                  <div class="feature-card-icon-badge" style="background: #E9D5FF; color: #7E22CE;">🔬</div>
+                </div>
+                <div class="feature-card-corner-img-container">
+                  <span style="font-size: 44px; position: absolute; right: 10px; bottom: 8px;">📑</span>
+                </div>
+              </div>
+
+              <!-- 2. Fertility Care -->
               <div id="guideFertilityCard" class="feature-grid-card" onclick="navigateToFertilityAssessment()">
                 <div class="feature-card-header">
                   <h3 class="feature-card-title">Fertility Care</h3>
@@ -252,7 +266,7 @@
                 </div>
               </div>
 
-              <!-- 2. Diet & Workout Plans -->
+              <!-- 3. Diet & Workout Plans -->
               <div class="feature-grid-card" onclick="openPlansModal()">
                 <div class="feature-card-header">
                   <h3 class="feature-card-title">Diet & Workout Plans</h3>
@@ -262,11 +276,11 @@
                   <div class="feature-card-icon-badge">🥗</div>
                 </div>
                 <div class="feature-card-corner-img-container">
-                  <span style="font-size: 48px; position: absolute; right: 10px; bottom: 8px;">🥑</span>
+                  <span style="font-size: 44px; position: absolute; right: 10px; bottom: 8px;">🥑</span>
                 </div>
               </div>
 
-              <!-- 3. Symptoms Log -->
+              <!-- 4. Symptoms Log -->
               <div class="feature-grid-card" onclick="switchView('symptoms')">
                 <div class="feature-card-header">
                   <h3 class="feature-card-title">Symptoms Log</h3>
@@ -280,27 +294,13 @@
                 </div>
               </div>
 
-              <!-- 4. Smart Health Summary -->
-              <div id="guideSummaryCard" class="feature-grid-card" onclick="switchView('summary')">
-                <div class="feature-card-header">
-                  <h3 class="feature-card-title">Smart Health Summary</h3>
-                  <p class="feature-card-subtitle">Medical Summary</p>
-                </div>
-                <div class="feature-card-footer">
-                  <div class="feature-card-icon-badge">📊</div>
-                </div>
-                <div class="feature-card-corner-img-container">
-                  <img src="ai_health_report.png" alt="AI Report" class="feature-card-corner-img" />
-                </div>
-              </div>
-
             </div>
 
             <!-- Other secondary action links -->
             <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 8px; text-align: left; width: 100%;">
               <h4 style="font-size: 11px; font-weight: 750; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px;">Other Logs & Vitals</h4>
               
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;">
                 <!-- Detailed Check-in -->
                 <div class="dash-card compact-stack-card" onclick="openVitalsModal()" style="padding: 10px 14px; border-radius: var(--radius-md); margin: 0; min-height: auto;">
                   <div class="card-icon-container bg-pink" style="width: 28px; height: 28px; font-size: 14px;">🌡️</div>
@@ -315,15 +315,6 @@
                   <div class="card-icon-container bg-pink" style="width: 28px; height: 28px; font-size: 14px;">💊</div>
                   <div class="card-content">
                     <h3 class="card-title" style="font-size: 12.5px;">Meds & Dose</h3>
-                  </div>
-                  <span class="card-arrow" style="font-size: 14px;">›</span>
-                </div>
-
-                <!-- Lab Results -->
-                <div class="dash-card compact-stack-card" onclick="openLabResultsModal()" style="padding: 10px 14px; border-radius: var(--radius-md); margin: 0; min-height: auto;">
-                  <div class="card-icon-container bg-pink" style="width: 28px; height: 28px; font-size: 14px;">🔬</div>
-                  <div class="card-content">
-                    <h3 class="card-title" style="font-size: 12.5px;">Lab Results</h3>
                   </div>
                   <span class="card-arrow" style="font-size: 14px;">›</span>
                 </div>
@@ -724,6 +715,125 @@
             <p class="danger-text">Logging out will clear your local sessions and personalized information.</p>
             <button onclick="handleLogout()" class="settings-btn-logout">Logout from BloomWell PCOS</button>
           </div>
+        </div>
+      </div>
+
+      <!-- ── E. LAB & ULTRASOUND REPORTS VIEW (Matching exact Sahaya layout) ── -->
+      <div id="labView" class="app-view">
+        <div style="max-width: 900px; margin: 0 auto; padding: 24px 16px;">
+          
+          <!-- Top Header Row -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; color: #7E22CE; text-transform: uppercase; letter-spacing: 0.8px;">BloomWell PCOS &bull; Medical Diagnostics</span>
+              <h2 style="font-size: 26px; font-weight: 800; color: #581C87; margin: 4px 0 0 0;">Lab & UltraSound Reports</h2>
+            </div>
+            <button class="chat-back-btn" onclick="goBack()">← Back</button>
+          </div>
+
+          <!-- Top Banner: Log & Analyze Reports -->
+          <div style="background: #F3E8FF; border: 1.5px solid #E9D5FF; border-radius: 16px; padding: 22px 28px; margin-bottom: 24px; box-shadow: 0 4px 14px rgba(107,33,168,0.04);">
+            <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 800; color: #581C87;">Log & Analyze Reports</h3>
+            <p style="margin: 0; font-size: 13px; color: #6B21A8; line-height: 1.5;">
+              Upload lab & ultrasound reports (PDF) or enter test values manually. Our Bloom AI Coach translates the parameters to help guide your PCOS targets.
+            </p>
+          </div>
+
+          <!-- Centered Container for Forms -->
+          <div style="max-width: 620px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- 1. Report Upload Details Box -->
+            <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+              <h4 style="margin: 0 0 16px 0; font-size: 15px; font-weight: 800; color: #1E293B;">Report Upload Details</h4>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+                <div>
+                  <label style="font-size: 11.5px; font-weight: 700; color: #64748B; display: block; margin-bottom: 4px;">Test Date</label>
+                  <input type="date" id="pageLabTestDate" class="form-input" style="border-radius: 10px;" />
+                </div>
+                <div>
+                  <label style="font-size: 11.5px; font-weight: 700; color: #64748B; display: block; margin-bottom: 4px;">Lab Name (Optional)</label>
+                  <input type="text" id="pageLabName" class="form-input" placeholder="e.g. Bloom Labs" style="border-radius: 10px;" />
+                </div>
+              </div>
+
+              <!-- Upload Drag & Drop Area -->
+              <div style="border: 2px dashed #C084FC; background: #FAF5FF; border-radius: 16px; padding: 28px 20px; text-align: center; position: relative; margin-bottom: 16px;">
+                <input type="file" id="pageLabPdfUpload" accept=".pdf,.png,.jpg,.jpeg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;" onchange="handlePageLabPdfUpload(event)" />
+                <div style="width: 44px; height: 44px; border-radius: 50%; background: #E9D5FF; color: #7E22CE; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px auto; font-size: 20px;">
+                  ☁️
+                </div>
+                <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #1E293B;">Upload Lab & UltraSound Reports</h4>
+                <p style="margin: 0 0 14px 0; font-size: 12px; color: #64748B;">
+                  PDF or JPG/PNG (Up to 10MB). Bloom AI will process and extract metrics automatically.
+                </p>
+                <button type="button" style="background: #6B21A8; color: #FFFFFF; border: none; border-radius: 20px; padding: 8px 24px; font-size: 13px; font-weight: 700; cursor: pointer; pointer-events: none;">
+                  Select Files
+                </button>
+                <div id="pageLabPdfStatus" style="margin-top: 10px; font-size: 12px; font-weight: 700; color: #7E22CE;"></div>
+              </div>
+
+              <button type="button" onclick="savePageUploadedFiles()" style="width: 100%; background: #6B21A8; color: #FFFFFF; border: none; border-radius: 12px; padding: 13px; font-size: 14.5px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                Save Uploaded Files
+              </button>
+            </div>
+
+            <!-- Divider OR -->
+            <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin: 4px 0;">
+              <div style="flex: 1; height: 1px; background: #CBD5E1;"></div>
+              <span style="font-size: 11px; font-weight: 800; color: #94A3B8; letter-spacing: 1px;">OR</span>
+              <div style="flex: 1; height: 1px; background: #CBD5E1;"></div>
+            </div>
+
+            <!-- 2. Enter Lab & UltraSound Values Manually -->
+            <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+              <h4 style="margin: 0 0 4px 0; font-size: 15px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px;">
+                <span>🧪</span> Enter Lab & UltraSound Values Manually
+              </h4>
+              <p style="margin: 0 0 16px 0; font-size: 12px; color: #64748B;">Enter custom test result values below to log them directly.</p>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                <div>
+                  <label style="font-size: 11.5px; font-weight: 700; color: #64748B; display: block; margin-bottom: 4px;">Test Date</label>
+                  <input type="date" id="manualLabTestDate" class="form-input" style="border-radius: 10px;" />
+                </div>
+                <div>
+                  <label style="font-size: 11.5px; font-weight: 700; color: #64748B; display: block; margin-bottom: 4px;">Lab Name (Optional)</label>
+                  <input type="text" id="manualLabName" class="form-input" placeholder="e.g. Quest Diagnostics" style="border-radius: 10px;" />
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                <div>
+                  <label style="font-size: 11.5px; font-weight: 700; color: #64748B; display: block; margin-bottom: 4px;">Test Name</label>
+                  <input type="text" id="manualLabTestName" class="form-input" placeholder="e.g. Fasting Glucose / Pelvic Ultrasound" style="border-radius: 10px;" />
+                </div>
+                <div>
+                  <label style="font-size: 11.5px; font-weight: 700; color: #64748B; display: block; margin-bottom: 4px;">Result</label>
+                  <input type="text" id="manualLabResult" class="form-input" placeholder="e.g. 90 / Normal Ovarian Volume" style="border-radius: 10px;" />
+                </div>
+              </div>
+
+              <button type="button" onclick="savePageManualEntry()" style="width: 100%; background: #6B21A8; color: #FFFFFF; border: none; border-radius: 12px; padding: 13px; font-size: 14.5px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                Save Manual Entry
+              </button>
+            </div>
+
+            <!-- 3. Logged Lab Values History & Uploaded Reports -->
+            <div style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 18px; padding: 20px; box-shadow: 0 4px 14px rgba(0,0,0,0.03);">
+              <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleLoggedLabHistory()">
+                <h4 style="margin: 0; font-size: 14.5px; font-weight: 800; color: #1E293B; display: flex; align-items: center; gap: 6px;">
+                  <span>🩸</span> Logged Lab Values & UltraSound History
+                </h4>
+                <span id="loggedLabHistoryArrow" style="font-size: 14px; color: #64748B;">▼</span>
+              </div>
+              <div id="pageLoggedLabHistoryContainer" style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+          </div>
+
         </div>
       </div>
 
