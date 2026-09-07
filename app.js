@@ -5781,7 +5781,9 @@ async function loadPageConfirmedBookings() {
     return;
   }
 
-  container.innerHTML = bookings.map(b => `
+  container.innerHTML = bookings.map(b => {
+    const userEmail = b.email || (state.user && state.user.email) || 'kalyanijakkula1980@gmail.com';
+    return `
     <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
         <h4 style="margin: 0; font-size: 14px; font-weight: 800; color: #0F172A;">${b.doctor_name}</h4>
@@ -5789,10 +5791,9 @@ async function loadPageConfirmedBookings() {
       </div>
       <div style="font-size: 12px; color: #7E22CE; font-weight: 700; margin-bottom: 4px;">${b.specialty || b.department || 'PCOS Specialist'}</div>
       <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">📅 ${b.date} at ${b.time_slot}</div>
-      <div style="font-size: 11.5px; color: #0284C7; font-weight: 600; margin-bottom: 10px;">✉️ Confirmation email sent: ${b.email}</div>
-      <a href="${b.meeting_link}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; background: #6B21A8; color: white; text-decoration: none; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 700;">📹 Join Video Call Room</a>
+      <div style="font-size: 11.5px; color: #0284C7; font-weight: 600;">✉️ Confirmation email sent to: ${userEmail}</div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 async function handlePageConsultationBookingSubmit(e) {
