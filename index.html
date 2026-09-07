@@ -70,6 +70,7 @@
             </div>
             <div id="profileDropdown" class="profile-dropdown hidden">
               <div class="dropdown-item" onclick="switchView('home'); closeProfileDropdown();">🏠 Home Dashboard</div>
+              <div class="dropdown-item" onclick="switchView('summary'); closeProfileDropdown();" style="font-weight: 700; color: #7E22CE;">📊 My Journey Summary (PDF)</div>
               <div class="dropdown-item" onclick="switchView('chat'); closeProfileDropdown();">💬 Ask Bloom AI</div>
               <div class="dropdown-item" onclick="openDoctorConsultationModal(); closeProfileDropdown();">🩺 Doctor Consultation</div>
               <div class="dropdown-item" onclick="openHealthReportModal(); closeProfileDropdown();">📄 Health Reports (PDF)</div>
@@ -212,6 +213,23 @@
                 </div>
                 <div class="ask-bloom-banner-right" style="right: 16px; bottom: -4px;">
                   <span class="ask-bloom-banner-avatar" style="font-size: 68px;">📅</span>
+                </div>
+              </div>
+
+              <!-- PROMINENT MY JOURNEY SUMMARY BANNER CARD (Doctor Export) -->
+              <div class="ask-bloom-banner my-journey-summary-banner" onclick="switchView('summary')" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(126, 34, 206, 0.35); background: linear-gradient(135deg, #FAF5FF 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(126, 34, 206, 0.1); padding: 20px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
+                <div class="ask-bloom-banner-left">
+                  <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+                    <span style="background: #7E22CE; color: white; font-size: 10.5px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;">Doctor Ready</span>
+                  </div>
+                  <h3 class="ask-bloom-banner-title" style="color: #7E22CE; font-size: 16.5px; font-weight: 800; margin-bottom: 4px;">📊 My Journey Summary</h3>
+                  <p class="ask-bloom-banner-desc" style="max-width: 95%; font-size: 12.5px; color: var(--text-sub); line-height: 1.45;">
+                    Aggregated overview of logged data, lab reports, pelvic ultrasound findings & medications for doctor PDF export.
+                  </p>
+                  <button class="ask-bloom-banner-btn" style="background: #7E22CE; padding: 8px 18px; font-size: 13px; font-weight: 700; border-radius: 16px; margin-top: 6px;" onclick="event.stopPropagation(); switchView('summary');">View & Export PDF →</button>
+                </div>
+                <div class="ask-bloom-banner-right" style="right: 12px; bottom: -10px;">
+                  <span class="ask-bloom-banner-avatar" style="font-size: 56px;">📈</span>
                 </div>
               </div>
 
