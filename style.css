@@ -3219,24 +3219,59 @@ button.chip.selected {
 
 /* ── Printable Health Summary Media Query ── */
 @media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    font-family: system-ui, -apple-system, sans-serif !important;
+  }
+  
+  /* Hide non-printable headers, navigation, footers, buttons */
+  .app-header, 
+  .app-footer,
+  .bottom-nav, 
+  .ticker-wrap, 
+  .auth-back-btn, 
+  .chat-back-btn,
+  .btn-primary,
+  button,
+  .modal-close {
+    display: none !important;
+  }
+
+  /* When printing #summaryView */
   body * {
     visibility: hidden;
   }
-  #modal-health-report, #modal-health-report * {
-    visibility: visible;
+  
+  #summaryView, 
+  #summaryView *,
+  #modal-health-report, 
+  #modal-health-report * {
+    visibility: visible !important;
   }
+
+  #summaryView,
   #modal-health-report {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
     max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
     box-shadow: none !important;
     border: none !important;
-    background: white !important;
+    background: #FFFFFF !important;
+    display: block !important;
   }
-  .modal-close, button {
+
+  .app-view {
     display: none !important;
+  }
+
+  #summaryView.active,
+  #summaryView {
+    display: block !important;
   }
 }
 
