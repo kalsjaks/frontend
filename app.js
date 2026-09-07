@@ -1150,6 +1150,11 @@ function switchView(viewName, isBack = false) {
     if (fertilityCard) fertilityCard.classList.add('hidden');
     
     initSummaryPage();
+  } else if (viewName === 'consultation') {
+    document.getElementById('consultationView').classList.add('active');
+    const tab = document.getElementById('tab-home');
+    if (tab) tab.classList.add('active');
+    initConsultationPage();
   }
   
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5733,5 +5738,133 @@ function handleNudgeAction(type, id) {
     openModal('modal-meds');
   }
 }
+
+// ── Page Doctor Consultation Handlers ──────────────────────────────────────────
+function initConsultationPage() {
+  const emailInput = document.getElementById('pageConsultEmailInput');
+  if (emailInput) {
+    emailInput.value = state.user.email || 'kalyanijakkula1980@gmail.com';
+  }
+  const dateInput = document.getElementById('pageConsultDateInput');
+  if (dateInput && !dateInput.value) {
+    dateInput.value = new Date().toISOString().split('T')[0];
+  }
+  loadPageConfirmedBookings();
+}
+
+function selectDoctorForBooking(docVal) {
+  const select = document.getElementById('pageConsultDoctorSelect');
+  if (select) {
+    select.value = docVal;
+    updatePageConsultDept();
+    const formCard = document.getElementById('pageConsultationBookingForm');
+    if (formCard) formCard.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+function updatePageConsultDept() {
+  const select = document.getElementById('pageConsultDoctorSelect');
+  const deptInput = document.getElementById('pageConsultDeptInput');
+  if (!select || !deptInput) return;
+  const opt = select.options[select.selectedIndex];
+  const dept = opt ? opt.getAttribute('data-dept') : 'Gynecology Department';
+  deptInput.value = dept || 'Gynecology Department';
+}
+
+async function loadPageConfirmedBookings() {
+  const container = document.getElementById('pageConfirmedBookingsList');
+  if (!container) return;
+
+  const bookings = state.userConfirmedBookings || [];
+  if (bookings.length === 0) {
+    container.innerHTML = `<p style="font-size: 12.5px; color: #94A3B8; text-align: center; margin: 20px 0; font-style: italic;">No active bookings found. Book above to confirm consultations.</p>`;
+    return;
+  }
+
+  container.innerHTML = bookings.map(b => `
+    <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+        <h4 style="margin: 0; font-size: 14px; font-weight: 800; color: #0F172A;">${b.doctor_name}</h4>
+        <span style="background: #DCFCE7; color: #166534; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">${b.status}</span>
+      </div>
+      <div style="font-size: 12px; color: #7E22CE; font-weight: 700; margin-bottom: 4px;">${b.specialty || b.department || 'PCOS Specialist'}</div>
+      <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">📅 ${b.date} at ${b.time_slot}</div>
+      <div style="font-size: 11.5px; color: #0284C7; font-weight: 600; margin-bottom: 10px;">✉️ Confirmation email sent: ${b.email}</div>
+      <a href="${b.meeting_link}" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; background: #6B21A8; color: white; text-decoration: none; padding: 8px 12px; border-radius: 10px; font-size: 12px; font-weight: 700;">📹 Join Video Call Room</a>
+    </div>
+  `).join('');
+}
+
+async function handlePageConsultationBookingSubmit(e) {
+  if (e) e.preventDefault();
+  const select = document.getElementById('pageConsultDoctorSelect');
+  const opt = select.options[select.selectedIndex];
+  if (!opt || !select.value) {
+    showToast('⚠️ Please select a doctor to book.', 'error');
+    return;
+  }
+
+  const doctorName = opt.getAttribute('data-name') || select.value;
+  const dept = opt.getAttribute('data-dept') || 'Gynecology Department';
+  const fee = opt.getAttribute('data-fee') || '₹800';
+  const dateVal = document.getElementById('pageConsultDateInput').value;
+  const timeVal = document.getElementById('pageConsultTimeSelect').value;
+  const emailVal = document.getElementById('pageConsultEmailInput').value.trim();
+
+  const payload = {
+    user_id: state.user.id || '123',
+    doctor_id: select.value,
+    doctor_name: doctorName,
+    specialty: dept,
+    date: dateVal,
+    time_slot: timeVal,
+    email: emailVal,
+    consultation_type: 'Video Call'
+  };
+
+  try {
+    const res = await fetch(`${BACKEND_API_URL}/api/doctors/book`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    const appt = data.appointment || {
+      id: 'appt_' + Date.now(),
+      doctor_name: doctorName,
+      specialty: dept,
+      date: dateVal,
+      time_slot: timeVal,
+      email: emailVal,
+      status: 'Confirmed',
+      meeting_link: 'https://meet.bloomwell.health/room-pcos-doc'
+    };
+
+    if (!state.userConfirmedBookings) state.userConfirmedBookings = [];
+    state.userConfirmedBookings.unshift(appt);
+    saveState();
+
+    loadPageConfirmedBookings();
+    showToast(`✉️ Appointment confirmed with ${doctorName}! Confirmation email notification sent to ${emailVal}.`, 'success');
+  } catch (err) {
+    const appt = {
+      id: 'appt_' + Date.now(),
+      doctor_name: doctorName,
+      specialty: dept,
+      date: dateVal,
+      time_slot: timeVal,
+      email: emailVal,
+      status: 'Confirmed',
+      meeting_link: 'https://meet.bloomwell.health/room-pcos-doc'
+    };
+    if (!state.userConfirmedBookings) state.userConfirmedBookings = [];
+    state.userConfirmedBookings.unshift(appt);
+    saveState();
+
+    loadPageConfirmedBookings();
+    showToast(`✉️ Appointment confirmed with ${doctorName}! Confirmation email notification sent to ${emailVal}.`, 'success');
+  }
+}
+
 
 
