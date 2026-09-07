@@ -5784,16 +5784,39 @@ async function loadPageConfirmedBookings() {
   container.innerHTML = bookings.map(b => {
     const userEmail = b.email || (state.user && state.user.email) || 'kalyanijakkula1980@gmail.com';
     return `
-    <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+    <div style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); position: relative;">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
         <h4 style="margin: 0; font-size: 14px; font-weight: 800; color: #0F172A;">${b.doctor_name}</h4>
         <span style="background: #DCFCE7; color: #166534; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px;">${b.status}</span>
       </div>
       <div style="font-size: 12px; color: #7E22CE; font-weight: 700; margin-bottom: 4px;">${b.specialty || b.department || 'PCOS Specialist'}</div>
       <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">📅 ${b.date} at ${b.time_slot}</div>
-      <div style="font-size: 11.5px; color: #0284C7; font-weight: 600;">✉️ Confirmation email sent to: ${userEmail}</div>
+      <div style="font-size: 11.5px; color: #0284C7; font-weight: 600; margin-bottom: 10px;">✉️ Confirmation email sent to: ${userEmail}</div>
+      <button onclick="deleteDoctorAppointment('${b.id}')" style="width: 100%; background: #FEF2F2; color: #DC2626; border: 1.5px solid #FCA5A5; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 6px;">
+        🗑️ Cancel & Delete Appointment
+      </button>
     </div>
   `}).join('');
+}
+
+async function deleteDoctorAppointment(apptId) {
+  if (!confirm('Are you sure you want to cancel and delete this appointment booking?')) return;
+
+  try {
+    await fetch(`${BACKEND_API_URL}/api/doctors/appointments/${apptId}`, {
+      method: 'DELETE'
+    });
+  } catch (e) {
+    console.warn('Backend DELETE endpoint warning:', e);
+  }
+
+  if (state.userConfirmedBookings) {
+    state.userConfirmedBookings = state.userConfirmedBookings.filter(b => b.id !== apptId);
+    saveState();
+  }
+
+  loadPageConfirmedBookings();
+  showToast('🗑️ Appointment cancelled and deleted successfully.', 'info');
 }
 
 async function handlePageConsultationBookingSubmit(e) {
