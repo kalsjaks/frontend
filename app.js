@@ -487,6 +487,17 @@ function renderCalendar() {
   const gridEl = document.getElementById('calendarDaysGrid');
   if (!monthYearEl || !gridEl) return;
 
+  // 1. Auto-fetch latest period log if available and selectedPeriodDates is empty
+  const logs = state.localPeriodLogs || [];
+  let latestLog = logs.length > 0 ? logs[0] : null;
+
+  if (latestLog && selectedPeriodDates.size === 0) {
+    updateSelectedPeriodDatesFromInputs(latestLog.start_date, latestLog.end_date || latestLog.start_date);
+    if (latestLog.start_date) {
+      currentCalendarDate = new Date(latestLog.start_date);
+    }
+  }
+
   const year = currentCalendarDate.getFullYear();
   const month = currentCalendarDate.getMonth();
 
@@ -507,6 +518,41 @@ function renderCalendar() {
     gridEl.appendChild(emptyCell);
   }
 
+  // Pre-calculate phase ranges if latestLog exists
+  let periodDates = new Set();
+  let follicularDates = new Set();
+  let fertileDates = new Set();
+  let ovulationDateStr = null;
+
+  if (latestLog && latestLog.start_date) {
+    const pStart = new Date(latestLog.start_date);
+    const pEnd = latestLog.end_date ? new Date(latestLog.end_date) : new Date(pStart);
+    
+    // Period days
+    let curr = new Date(pStart);
+    while (curr <= pEnd) {
+      periodDates.add(curr.toISOString().split('T')[0]);
+      curr.setDate(curr.getDate() + 1);
+    }
+
+    // Follicular phase (Day 6 to Day 12 after start)
+    for (let f = 5; f <= 11; f++) {
+      const fDate = new Date(pStart);
+      fDate.setDate(pStart.getDate() + f);
+      follicularDates.add(fDate.toISOString().split('T')[0]);
+    }
+
+    // Ovulation & Fertile window (Day 12 to Day 16)
+    for (let ft = 11; ft <= 16; ft++) {
+      const ftDate = new Date(pStart);
+      ftDate.setDate(pStart.getDate() + ft);
+      fertileDates.add(ftDate.toISOString().split('T')[0]);
+    }
+    const ovDate = new Date(pStart);
+    ovDate.setDate(pStart.getDate() + 13);
+    ovulationDateStr = ovDate.toISOString().split('T')[0];
+  }
+
   for (let day = 1; day <= lastDay; day++) {
     const dayCell = document.createElement('div');
     dayCell.className = 'calendar-day';
@@ -514,9 +560,26 @@ function renderCalendar() {
 
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     
-    // Check if cell is a selected period date
-    if (selectedPeriodDates.has(dateStr)) {
+    // Highlight cells based on cycle state
+    if (periodDates.has(dateStr) || selectedPeriodDates.has(dateStr)) {
       dayCell.classList.add('selected');
+      dayCell.style.background = 'var(--brand-pink)';
+      dayCell.style.color = '#FFFFFF';
+      dayCell.style.fontWeight = '800';
+    } else if (dateStr === ovulationDateStr) {
+      dayCell.style.background = '#28a745';
+      dayCell.style.color = '#FFFFFF';
+      dayCell.style.fontWeight = '800';
+      dayCell.title = 'Ovulation Day';
+    } else if (fertileDates.has(dateStr)) {
+      dayCell.style.background = '#c3e6cb';
+      dayCell.style.color = '#155724';
+      dayCell.style.fontWeight = '700';
+      dayCell.title = 'Fertile Window';
+    } else if (follicularDates.has(dateStr)) {
+      dayCell.style.background = '#d4edda';
+      dayCell.style.color = '#155724';
+      dayCell.title = 'Follicular Phase';
     }
 
     dayCell.onclick = () => {
@@ -527,6 +590,7 @@ function renderCalendar() {
   }
   
   updateForecast();
+  updatePeriodHeaderBanner();
 }
 
 function prevMonth() {
@@ -4896,6 +4960,58 @@ function updateForecast() {
     futureHtml += `<div>• Cycle ${i + 1}: starting <strong>${futDateFormatted}</strong></div>`;
   }
   predictFutureEl.innerHTML = futureHtml;
+}
+
+function updatePeriodHeaderBanner() {
+  const statusTag = document.getElementById('periodBannerLogStatusTag');
+  const titleText = document.getElementById('periodBannerTitleText');
+  const subText = document.getElementById('periodBannerSubText');
+  
+  const homeStatusTag = document.getElementById('homeBannerCycleStatusTag');
+  const homeSummaryText = document.getElementById('homeBannerPeriodSummaryText');
+  const homeLastBadge = document.getElementById('homeBannerLastLogBadge');
+  const homeNextBadge = document.getElementById('homeBannerNextPredictBadge');
+
+  const logs = state.localPeriodLogs || [];
+  if (!logs || logs.length === 0) {
+    if (statusTag) {
+      statusTag.textContent = '⚠️ Log Required';
+      statusTag.style.background = '#FEF2F2';
+      statusTag.style.color = '#DC2626';
+    }
+    if (titleText) titleText.textContent = 'No Period Cycle Logged Yet';
+    if (subText) subText.textContent = 'Please log your last period start and end date to view calendar highlights and future cycle predictions.';
+    
+    if (homeStatusTag) homeStatusTag.textContent = '⚠️ Action Required: Log Period';
+    if (homeSummaryText) homeSummaryText.textContent = 'No cycle logged yet. Log your start and end dates to predict your next 3 future cycle windows.';
+    if (homeLastBadge) homeLastBadge.textContent = '📅 Last Logged: None';
+    if (homeNextBadge) homeNextBadge.textContent = '🔮 Next Period: Log to Predict';
+    return;
+  }
+
+  const latest = logs[0];
+  const startF = formatDDMonYYYY(latest.start_date);
+  const endF = latest.end_date ? formatDDMonYYYY(latest.end_date) : startF;
+  const flow = latest.flow_intensity || 'Medium';
+  const pain = latest.pain_level || 'Mild';
+
+  if (statusTag) {
+    statusTag.textContent = `✅ Logged (${startF})`;
+    statusTag.style.background = '#DCFCE7';
+    statusTag.style.color = '#166534';
+  }
+  if (titleText) titleText.textContent = `Last Logged Cycle: ${startF} to ${endF} (Flow: ${flow}, Pain: ${pain})`;
+  if (subText) subText.textContent = `Your cycle details have been automatically fetched and highlighted below. Next cycle estimates are calculated based on your ${state.user.cycleLength || 28}-day cycle length.`;
+
+  // Calculate predicted next date
+  const nextDate = new Date(latest.start_date);
+  nextDate.setDate(nextDate.getDate() + (state.user.cycleLength || 28));
+  const nextF = formatDDMonYYYY(nextDate);
+
+  if (homeStatusTag) homeStatusTag.textContent = '🌸 Active Cycle Synced';
+  if (homeSummaryText) homeSummaryText.textContent = `Latest logged cycle (${startF} to ${endF}). Your next cycle is predicted to start on ${nextF}.`;
+  if (homeLastBadge) homeLastBadge.textContent = `📅 Last Logged: ${startF}`;
+  if (homeNextBadge) homeNextBadge.textContent = `🔮 Next Period: ${nextF}`;
 }
 
 /* ═══════════════════════════════════════════════════════════

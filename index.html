@@ -190,6 +190,32 @@
                   <span class="ask-bloom-banner-avatar" style="font-size: 56px;">👩‍🦱</span>
                 </div>
               </div>
+
+              <!-- PROMINENT BIG PERIOD TRACKER & CYCLE INSIGHTS BANNER CARD -->
+              <div class="ask-bloom-banner period-tracker-big-banner" onclick="switchView('period')" style="flex: 1.8; min-width: 360px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(230, 92, 120, 0.35); background: linear-gradient(135deg, #FFF0F5 0%, #FFFFFF 100%); box-shadow: 0 6px 20px rgba(230, 92, 120, 0.12); padding: 24px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 14px; position: relative;">
+                <div class="ask-bloom-banner-left">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span style="background: var(--brand-pink); color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;">Primary Feature</span>
+                    <span style="font-size: 11.5px; color: #8A3546; font-weight: 700;" id="homeBannerCycleStatusTag">🌸 Cycle Active</span>
+                  </div>
+                  <h3 class="ask-bloom-banner-title" style="color: #8A3546; font-size: 20px; font-weight: 800; margin-bottom: 4px;">Period Tracker & Cycle Predictor</h3>
+                  <p class="ask-bloom-banner-desc" style="max-width: 95%; font-size: 13px; color: var(--text-sub); line-height: 1.5;" id="homeBannerPeriodSummaryText">
+                    Automatically syncs your last logged cycle, highlights active phases in the calendar, and predicts upcoming future cycles.
+                  </p>
+
+                  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; margin-bottom: 4px;">
+                    <span style="font-size: 11.5px; background: rgba(230, 92, 120, 0.12); color: var(--brand-pink); padding: 4px 10px; border-radius: 12px; font-weight: 700;" id="homeBannerLastLogBadge">📅 Last Logged: Sep 2026</span>
+                    <span style="font-size: 11.5px; background: rgba(46, 125, 50, 0.12); color: #2E7D32; padding: 4px 10px; border-radius: 12px; font-weight: 700;" id="homeBannerNextPredictBadge">🔮 Next Period: Logged & Predicted</span>
+                  </div>
+
+                  <button class="ask-bloom-banner-btn" style="background: var(--brand-pink); padding: 10px 24px; font-size: 14px; border-radius: 20px; font-weight: 800; margin-top: 10px;" onclick="event.stopPropagation(); switchView('period');">Open Period Tracker →</button>
+                </div>
+                <div class="ask-bloom-banner-right" style="right: 16px; bottom: -4px;">
+                  <span class="ask-bloom-banner-avatar" style="font-size: 68px;">📅</span>
+                </div>
+              </div>
+
+              <!-- Specialist Directory Banner Card -->
               <div class="ask-bloom-banner book-doctor-banner" onclick="switchView('consultation')" style="flex: 1; min-width: 280px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(126, 34, 206, 0.25); background: linear-gradient(135deg, #FAF5FF 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(126, 34, 206, 0.08); padding: 20px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 12px;">
                 <div class="ask-bloom-banner-left">
                   <h3 class="ask-bloom-banner-title" style="color: #7E22CE; font-size: 16px; font-weight: 700;">Specialist Directory & Consultation</h3>
@@ -201,22 +227,6 @@
                 </div>
               </div>
 
-              <!-- Diet & Workout Plans Banner -->
-              <div class="ask-bloom-banner plans-banner" onclick="openPlansModal()" style="flex: 1.5; min-width: 340px; margin-bottom: 0; cursor: pointer; border: 1.5px solid rgba(230, 92, 120, 0.3); background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%); box-shadow: 0 4px 18px rgba(230, 92, 120, 0.08); padding: 24px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between; gap: 14px;">
-                <div class="ask-bloom-banner-left">
-                  <h3 class="ask-bloom-banner-title" style="color: #8A3546; font-size: 18px; font-weight: 700; margin-bottom: 4px;">Diet & Workout Plans</h3>
-                  <p class="ask-bloom-banner-desc" style="max-width: 95%; font-size: 13px; color: var(--text-sub); line-height: 1.5;">Get detailed cycle phase-synced meal maps, workout guides, and lifestyle adjustments aligned with clinical guidelines.</p>
-                  <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; margin-bottom: 4px;">
-                    <span style="font-size: 11px; background: rgba(230, 92, 120, 0.1); color: var(--brand-pink); padding: 3px 8px; border-radius: 12px; font-weight: 600;">🥑 Phase-Synced Meals</span>
-                    <span style="font-size: 11px; background: rgba(230, 92, 120, 0.1); color: var(--brand-pink); padding: 3px 8px; border-radius: 12px; font-weight: 600;">🧘 Cycle Fitness</span>
-                    <span style="font-size: 11px; background: rgba(230, 92, 120, 0.1); color: var(--brand-pink); padding: 3px 8px; border-radius: 12px; font-weight: 600;">📈 Insulin Support</span>
-                  </div>
-                  <button class="ask-bloom-banner-btn" style="background: var(--brand-pink); padding: 10px 24px; font-size: 13.5px; border-radius: 20px; font-weight: 700; margin-top: 8px;" onclick="event.stopPropagation(); openPlansModal();">View Plans</button>
-                </div>
-                <div class="ask-bloom-banner-right" style="right: 16px; bottom: -6px;">
-                  <span class="ask-bloom-banner-avatar" style="font-size: 64px;">🥗</span>
-                </div>
-              </div>
             </div>
 
             <!-- Explore our features Heading -->
@@ -242,17 +252,17 @@
                 </div>
               </div>
 
-              <!-- 2. Period Tracker -->
-              <div class="feature-grid-card" onclick="switchView('period')">
+              <!-- 2. Diet & Workout Plans -->
+              <div class="feature-grid-card" onclick="openPlansModal()">
                 <div class="feature-card-header">
-                  <h3 class="feature-card-title">Period Tracker</h3>
-                  <p class="feature-card-subtitle" id="periodLogDesc">Cycle Insights</p>
+                  <h3 class="feature-card-title">Diet & Workout Plans</h3>
+                  <p class="feature-card-subtitle">Phase-Synced Meals & Workouts</p>
                 </div>
                 <div class="feature-card-footer">
-                  <div class="feature-card-icon-badge">📅</div>
+                  <div class="feature-card-icon-badge">🥗</div>
                 </div>
                 <div class="feature-card-corner-img-container">
-                  <img src="period_tracker.png" alt="Period Tracker" class="feature-card-corner-img" />
+                  <span style="font-size: 48px; position: absolute; right: 10px; bottom: 8px;">🥑</span>
                 </div>
               </div>
 
@@ -735,6 +745,23 @@
               ← Back
             </button>
           </div>
+        </div>
+
+        <!-- Top Banner: Last Logged Cycle Summary & Log Status -->
+        <div id="lastLoggedCycleBanner" style="background: linear-gradient(135deg, #FFF0F2 0%, #FFFFFF 100%); border: 1.5px solid rgba(230, 92, 120, 0.3); border-radius: 16px; padding: 18px 24px; margin-bottom: 20px; box-shadow: 0 4px 14px rgba(230, 92, 120, 0.06); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <span style="background: var(--brand-pink); color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase;">Latest Cycle Log</span>
+              <span id="periodBannerLogStatusTag" style="font-size: 11.5px; font-weight: 700; color: #2E7D32; background: #DCFCE7; padding: 2px 8px; border-radius: 10px;">✅ Logged for September 2026</span>
+            </div>
+            <h3 id="periodBannerTitleText" style="font-size: 18px; font-weight: 800; color: #8A3546; margin: 2px 0 4px 0;">Cycle Logged: Sep 02 to Sep 07 (Flow: Medium, Pain: Mild)</h3>
+            <p id="periodBannerSubText" style="font-size: 12.5px; color: var(--text-sub); margin: 0;">
+              Your cycle data has been automatically loaded. Active period days and upcoming phases are highlighted in the calendar below.
+            </p>
+          </div>
+          <button onclick="openModal('modal-period')" class="btn-primary" style="background: var(--brand-pink); font-size: 13px; padding: 8px 18px; border-radius: 20px; font-weight: 700; white-space: nowrap;">
+            ✏️ Update / Log New Cycle
+          </button>
         </div>
 
         <div class="period-grid">
