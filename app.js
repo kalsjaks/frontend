@@ -3757,37 +3757,37 @@ async function initSummaryPage() {
     const bioTable = document.getElementById('journeyBiomarkersTableBody');
     if (bioTable) {
       const lab = state.labData || {};
-      const testVal = lab.testosterone || lab.totalTestosterone || '45.0 ng/dL';
-      const glucVal = lab.glucose || lab.fastingGlucose || '92 mg/dL';
-      const insVal = lab.insulin || lab.fastingInsulin || '12.5 µIU/mL';
-      const hba1cVal = lab.hba1c ? `${lab.hba1c} %` : '5.4 %';
-      const tshVal = lab.tsh ? `${lab.tsh} mIU/L` : '2.1 mIU/L';
-      const usVal = lab.ultrasound || lab.pelvicUltrasound || 'Normal Ovarian Volume';
+      const testVal = lab.testosterone || lab.totalTestosterone || 'No report uploaded';
+      const glucVal = lab.glucose || lab.fastingGlucose || 'No report uploaded';
+      const insVal = lab.insulin || lab.fastingInsulin || 'No report uploaded';
+      const hba1cVal = lab.hba1c ? `${lab.hba1c} %` : 'No report uploaded';
+      const tshVal = lab.tsh ? `${lab.tsh} mIU/L` : 'No report uploaded';
+      const usVal = lab.ultrasound || lab.pelvicUltrasound || 'No report uploaded';
 
       bioTable.innerHTML = `
         <tr style="border-bottom: 1px solid #F1F5F9;">
           <td style="padding: 8px 0; color: #334155; font-weight: 600;">Total Testosterone</td>
-          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: #0F172A;">${testVal}</td>
+          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: ${testVal === 'No report uploaded' ? '#94A3B8' : '#0F172A'};">${testVal}</td>
         </tr>
         <tr style="border-bottom: 1px solid #F1F5F9;">
           <td style="padding: 8px 0; color: #334155; font-weight: 600;">Fasting Glucose</td>
-          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: #0F172A;">${glucVal}</td>
+          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: ${glucVal === 'No report uploaded' ? '#94A3B8' : '#0F172A'};">${glucVal}</td>
         </tr>
         <tr style="border-bottom: 1px solid #F1F5F9;">
           <td style="padding: 8px 0; color: #334155; font-weight: 600;">Fasting Insulin</td>
-          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: #0F172A;">${insVal}</td>
+          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: ${insVal === 'No report uploaded' ? '#94A3B8' : '#0F172A'};">${insVal}</td>
         </tr>
         <tr style="border-bottom: 1px solid #F1F5F9;">
           <td style="padding: 8px 0; color: #334155; font-weight: 600;">HbA1c</td>
-          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: #0F172A;">${hba1cVal}</td>
+          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: ${hba1cVal === 'No report uploaded' ? '#94A3B8' : '#0F172A'};">${hba1cVal}</td>
         </tr>
         <tr style="border-bottom: 1px solid #F1F5F9;">
           <td style="padding: 8px 0; color: #334155; font-weight: 600;">TSH (Thyroid)</td>
-          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: #0F172A;">${tshVal}</td>
+          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: ${tshVal === 'No report uploaded' ? '#94A3B8' : '#0F172A'};">${tshVal}</td>
         </tr>
         <tr style="border-bottom: 1px solid #F1F5F9;">
           <td style="padding: 8px 0; color: #7E22CE; font-weight: 700;">Pelvic UltraSound Findings</td>
-          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: #7E22CE;">${usVal}</td>
+          <td style="padding: 8px 0; text-align: right; font-weight: 700; color: ${usVal === 'No report uploaded' ? '#94A3B8' : '#7E22CE'};">${usVal}</td>
         </tr>
       `;
     }
