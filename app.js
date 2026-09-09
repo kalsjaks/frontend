@@ -262,6 +262,15 @@ async function syncUserLogs(userId) {
       state.user.cycleLength = profile.cycle_length || state.user.cycleLength;
       state.user.height = profile.height || null;
       state.user.weight = profile.weight || null;
+    } else {
+      await sb.from('profiles').upsert({
+        id: userId,
+        name: state.user.name || 'User',
+        pcos_type: state.user.pcosType || 'Not Sure',
+        age: state.user.age || 24,
+        cycle_length: state.user.cycleLength || 28,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'id' });
     }
 
     // 2. Fetch all period logs for this user
