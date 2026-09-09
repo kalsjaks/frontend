@@ -251,44 +251,56 @@ function renderCommunityMembers() {
 
 // ── Supabase Log Syncing ──────────────────────────────────────
 async function syncUserLogs(userId) {
+  if (!userId) return;
   try {
     // 1. Fetch profile
     const { data: profile } = await sb.from('profiles').select('*').eq('id', userId).single();
     if (profile) {
-      state.user.name = profile.name;
-      state.user.pcosType = profile.pcos_type;
-      state.user.age = profile.age;
-      state.user.cycleLength = profile.cycle_length;
+      state.user.name = profile.name || state.user.name;
+      state.user.pcosType = profile.pcos_type || state.user.pcosType;
+      state.user.age = profile.age || state.user.age;
+      state.user.cycleLength = profile.cycle_length || state.user.cycleLength;
       state.user.height = profile.height || null;
       state.user.weight = profile.weight || null;
     }
 
-    // 2. Fetch latest period log
-    const { data: periods } = await sb.from('period_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1);
+    // 2. Fetch all period logs for this user
+    const { data: periods } = await sb.from('period_logs').select('*').eq('user_id', userId).order('start_date', { ascending: false });
     if (periods && periods.length > 0) {
-      const p = periods[0];
-      const sF = formatDDMonYYYY(p.start_date);
-      const eF = p.end_date ? formatDDMonYYYY(p.end_date) : null;
-      state.logs.period = eF ? `Last log: ${sF} to ${eF} (Flow: ${p.flow_intensity})` : `Last log: ${sF} (Flow: ${p.flow_intensity})`;
+      state.localPeriodLogs = periods;
+      if (typeof cachedPeriods !== 'undefined') cachedPeriods = periods;
+      const latest = periods[0];
+      const sF = formatDDMonYYYY(latest.start_date);
+      const eF = latest.end_date ? formatDDMonYYYY(latest.end_date) : sF;
+      const flow = latest.flow_intensity || 'Medium';
+      state.logs.period = `Last log: ${sF} to ${eF} (Flow: ${flow})`;
     } else {
-      state.logs.period = 'Last log: 28 days ago';
+      state.localPeriodLogs = [];
+      if (typeof cachedPeriods !== 'undefined') cachedPeriods = [];
+      state.logs.period = 'No cycle logged yet';
     }
 
-    // 3. Fetch latest vitals log
-    const { data: vitals } = await sb.from('vitals_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1);
+    // 3. Fetch all vitals logs
+    const { data: vitals } = await sb.from('vitals_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     if (vitals && vitals.length > 0) {
+      state.vitalsHistory = vitals;
+      if (typeof cachedVitals !== 'undefined') cachedVitals = vitals;
       const v = vitals[0];
-      state.vitalsData.water = parseFloat(v.water_liters);
-      state.vitalsData.sleep = parseFloat(v.sleep_hours);
-      state.vitalsData.temp = parseFloat(v.temp_celsius);
+      state.vitalsData.water = parseFloat(v.water_liters) || 2.0;
+      state.vitalsData.sleep = parseFloat(v.sleep_hours) || 7.5;
+      state.vitalsData.temp = parseFloat(v.temp_celsius) || 36.6;
       state.logs.vitals = `Sleep: ${state.vitalsData.sleep.toFixed(1)}h | Water: ${state.vitalsData.water.toFixed(1)}L`;
     } else {
+      state.vitalsHistory = [];
+      if (typeof cachedVitals !== 'undefined') cachedVitals = [];
       state.logs.vitals = 'Update your daily vitals';
     }
 
-    // 4. Fetch latest symptoms log
-    const { data: symptoms } = await sb.from('symptoms_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1);
+    // 4. Fetch all symptoms logs
+    const { data: symptoms } = await sb.from('symptoms_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false });
     if (symptoms && symptoms.length > 0) {
+      state.symptomHistory = symptoms;
+      if (typeof cachedSymptoms !== 'undefined') cachedSymptoms = symptoms;
       const s = symptoms[0];
       state.symptomsData.acne = s.acne;
       state.symptomsData.fatigue = s.fatigue;
@@ -306,13 +318,14 @@ async function syncUserLogs(userId) {
       if (s.mood_swings) activeSymps.push('Mood');
       state.logs.symptoms = activeSymps.length > 0 ? 'Logged: ' + activeSymps.join(', ') : 'No symptoms logged';
     } else {
+      state.symptomHistory = [];
+      if (typeof cachedSymptoms !== 'undefined') cachedSymptoms = [];
       state.logs.symptoms = 'Log your daily symptoms';
     }
 
     // 5. Fetch latest medication log
     const { data: meds } = await sb.from('medication_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(1);
     
-    // Ensure custom and customList structures exist
     if (!state.medsData.custom) state.medsData.custom = {};
     if (!state.medsData.customList) state.medsData.customList = [];
 
@@ -329,42 +342,16 @@ async function syncUserLogs(userId) {
       if (m.omega3) medsTaken.push('Omega-3');
       if (m.vit_d3) medsTaken.push('Vit D3');
 
-      // Parse custom meds from database
-      state.medsData.custom = {};
-      const customMedsStr = m.custom_meds || '';
-      if (customMedsStr) {
-        const customTakenList = customMedsStr.split(',').map(s => s.trim()).filter(Boolean);
-        customTakenList.forEach(med => {
-          state.medsData.custom[med] = true;
-          medsTaken.push(med);
-        });
-      }
-
       state.logs.meds = medsTaken.length > 0 ? 'Taken: ' + medsTaken.join(', ') : 'No dose taken today';
     } else {
       state.logs.meds = 'Manage your daily dose';
     }
 
-    // Fetch all historical logs to collect all unique custom medications added by the user
-    try {
-      const { data: allPastMeds } = await sb.from('medication_logs').select('custom_meds').eq('user_id', userId);
-      if (allPastMeds && allPastMeds.length > 0) {
-        const uniqueCustomMedsSet = new Set(state.medsData.customList);
-        allPastMeds.forEach(log => {
-          if (log.custom_meds) {
-            log.custom_meds.split(',').map(s => s.trim()).filter(Boolean).forEach(medName => {
-              uniqueCustomMedsSet.add(medName);
-            });
-          }
-        });
-        state.medsData.customList = Array.from(uniqueCustomMedsSet);
-      }
-    } catch (dbErr) {
-      console.warn('Could not query historical custom medications from Supabase:', dbErr);
-    }
-
     saveState();
     updateUIFromState();
+    if (typeof updatePeriodHeaderBanner === 'function') updatePeriodHeaderBanner();
+    if (typeof updateForecast === 'function') updateForecast();
+    if (typeof renderCalendar === 'function') renderCalendar();
   } catch (err) {
     console.error('Error syncing logs from Supabase:', err);
   }
@@ -1346,10 +1333,34 @@ async function handleExistingLogin(e) {
     return;
   }
 
+  try {
+    const { data: authData, error: authErr } = await sb.auth.signInWithPassword({
+      email: loginInput,
+      password: password
+    });
+
+    if (!authErr && authData?.session) {
+      const userId = authData.session.user.id;
+      const userName = authData.session.user.user_metadata?.full_name || loginInput.split('@')[0];
+      state.user.id = userId;
+      state.user.name = userName;
+      state.user.isLoggedIn = true;
+      saveState();
+      updateUIFromState();
+      await syncUserLogs(userId);
+      closeActiveModal();
+      switchView('home');
+      showToast(`👋 Welcome back, ${userName}!`, 'success');
+      return;
+    }
+  } catch (err) {
+    console.warn('Supabase signInWithPassword notice:', err);
+  }
+
   const userNameToUse = loginInput.split('@')[0];
   const formattedName = userNameToUse.charAt(0).toUpperCase() + userNameToUse.slice(1);
 
-  state.user.id = '123';
+  state.user.id = state.user.id || 'usr_' + Date.now();
   state.user.name = formattedName;
   state.user.isLoggedIn = true;
   saveState();
@@ -1358,17 +1369,6 @@ async function handleExistingLogin(e) {
   closeActiveModal();
   switchView('home');
   showToast(`👋 Welcome back, ${formattedName}!`, 'success');
-
-  // Background sync
-  try {
-    fetch(`${BACKEND_API_URL}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: loginInput, password: password })
-    }).then(r => r.json()).then(d => {
-      if (d.token) localStorage.setItem('bloomwell_token', d.token);
-    }).catch(err => console.warn('Background login sync notice:', err));
-  } catch (err) {}
 }
 
 async function handleNewUserSetup(e) {
