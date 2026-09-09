@@ -422,7 +422,7 @@ async function initApp() {
     } else {
       state.user.isLoggedIn = false;
       state.user.id = null;
-      state.user.name = 'Guest User';
+      state.user.name = 'User';
       state.user.pcosType = 'Not Sure';
       state.user.age = 24;
       state.user.cycleLength = 28;
@@ -433,7 +433,7 @@ async function initApp() {
     console.error('Failed to get Supabase session:', err);
     state.user.isLoggedIn = false;
     state.user.id = null;
-    state.user.name = 'Guest User';
+    state.user.name = 'User';
     state.user.pcosType = 'Not Sure';
     state.user.age = 24;
     state.user.cycleLength = 28;
@@ -1264,7 +1264,7 @@ function showAuthSubScreen(screenName) {
     sb.auth.signOut().catch(err => console.warn('Error signing out during fresh setup:', err));
     state.user.isLoggedIn = false;
     state.user.id = null;
-    state.user.name = 'Guest User';
+    state.user.name = 'User';
     state.user.pcosType = 'Not Sure';
     state.user.age = 24;
     state.user.cycleLength = 28;
@@ -1416,35 +1416,7 @@ async function handleNewUserSetup(e) {
 }
 
 
-
-function continueAsGuest() {
-  state.user = {
-    id: null,
-    name: 'Guest User',
-    pcosType: 'Not Sure',
-    age: 24,
-    cycleLength: 28,
-    isLoggedIn: true
-  };
-
-  // Reset default log values
-  state.logs = {
-    period: 'Last log: 28 days ago',
-    vitals: 'Update your daily vitals',
-    symptoms: 'Log your daily symptoms',
-    lab: 'Log your blood work',
-    meds: 'Manage your daily dose'
-  };
-
-  saveState();
-  updateUIFromState();
-
-  // Transitions
-  closeActiveModal();
-  switchView('home');
-
-  console.log('🌸 Welcome to BloomWell PCOS! You are logged in as a Guest (offline local mode).');
-}
+ 
 
 async function handleForgotPassword(e) {
   e.preventDefault();
